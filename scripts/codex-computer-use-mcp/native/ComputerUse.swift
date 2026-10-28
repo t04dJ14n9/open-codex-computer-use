@@ -30,42 +30,62 @@ func elementBounds(_ element: AXUIElement) -> CGRect? {
     return CGRect(origin: origin, size: extent)
 }
 
+func elementActions(_ element: AXUIElement) -> [String] {
+    var names: CFArray?
+    AXUIElementCopyActionNames(element, &names)
+    return names as? [String] ?? []
+}
+
 @MainActor
 final class ComputerUse {
     struct AppState {
         let app: NSRunningApplication
+        let window: AXUIElement
+        let windowID: CGWindowID
         let elements: [AXUIElement]
         let bounds: CGRect
         let screenshotScale: Double
+        let capturedAt: Date
+    }
+
+    struct SyntheticFocus {
+        let psn: [UInt8]
+        let pid: pid_t
+        let windowID: CGWindowID
     }
 
     var states: [String: AppState] = [:]
-    let eventSource = CGEventSource(stateID: .hidSystemState)
+    var activeState: AppState?
+    var syntheticFocus: SyntheticFocus?
+    var currentRequestID: Int?
+    var cancelledRequestIDs: Set<Int> = []
+    let eventSource = CGEventSource(stateID: .privateState)
+    let background = BackgroundInput()
+    let cursor = AgentCursor()
+    var foregroundPID: pid_t = 0
+
+    func appInput(_ input: String) -> (String, CGWindowID?) {
+        let parts = input.components(separatedBy: "#window=")
+        return (parts[0], parts.count == 2 ? UInt32(parts[1]) : nil)
+    }
 
     func permissionStatus() -> [String: Any] {
         ["accessibility": AXIsProcessTrusted(), "screenRecording": CGPreflightScreenCaptureAccess(),
-         "helper": Bundle.main.bundlePath, "pid": ProcessInfo.processInfo.processIdentifier]
+         "helper": Bundle.main.bundlePath, "pid": ProcessInfo.processInfo.processIdentifier,
+         "inputMode": "background-only", "globalInput": false,
+         "backgroundAvailable": background.missingSymbols.isEmpty, "missingSymbols": background.missingSymbols,
+         "cursor": cursor.status]
     }
 
     func resolve(_ input: String) async throws -> NSRunningApplication {
+        let input = appInput(input).0
         let apps = NSWorkspace.shared.runningApplications.filter { !$0.isTerminated }
         if let app = apps.first(where: {
             $0.bundleIdentifier == input || $0.bundleURL?.path == input ||
             $0.localizedName?.caseInsensitiveCompare(input) == .orderedSame ||
             String($0.processIdentifier) == input
         }) { return app }
-        let url: URL?
-        if input.hasPrefix("/") { url = URL(fileURLWithPath: input) }
-        else {
-            let commonPaths = ["/Applications", "/System/Applications", "/System/Applications/Utilities"].map {
-                URL(fileURLWithPath: $0).appendingPathComponent(input.hasSuffix(".app") ? input : input + ".app")
-            }
-            url = NSWorkspace.shared.urlForApplication(withBundleIdentifier: input) ?? commonPaths.first(where: { FileManager.default.fileExists(atPath: $0.path) })
-        }
-        if let url {
-            return try await NSWorkspace.shared.openApplication(at: url, configuration: NSWorkspace.OpenConfiguration())
-        }
-        throw CUAError(message: "App not found: \(input). Use list_apps for current names and IDs")
+        throw CUAError(message: "app_not_running: background-only input does not launch apps; start it without foregrounding this helper, then retry")
     }
 
     func identifier(_ app: NSRunningApplication) -> String {
@@ -78,20 +98,32 @@ final class ComputerUse {
         }
     }
 
-    func captureState(_ app: NSRunningApplication) throws -> String {
+    func captureState(_ app: NSRunningApplication, windowID requestedID: CGWindowID? = nil) throws -> String {
         try requireAccessibility()
         let application = AXUIElementCreateApplication(app.processIdentifier)
         AXUIElementSetMessagingTimeout(application, 2)
-        let windows = (attribute(application, kAXWindowsAttribute) as? [AXUIElement] ?? []).sorted {
-            let left = elementBounds($0) ?? .zero
-            let right = elementBounds($1) ?? .zero
-            return left.width * left.height > right.width * right.height
+        let windows = attribute(application, kAXWindowsAttribute) as? [AXUIElement] ?? []
+        let bound = windows.compactMap { window -> (AXUIElement, CGWindowID)? in
+            guard let id = background.windowID(window) else { return nil }
+            return (window, id)
         }
-        let menu = attribute(application, kAXMenuBarAttribute)
-        var roots = windows
-        if let menu, CFGetTypeID(menu) == AXUIElementGetTypeID() { roots.append(menu as! AXUIElement) }
+        let desired = requestedID ?? states[identifier(app)]?.windowID
+        let selection: (AXUIElement, CGWindowID)?
+        if let desired { selection = bound.first { $0.1 == desired } }
+        else if bound.count == 1 { selection = bound.first }
+        else {
+            let focused = attribute(application, kAXFocusedWindowAttribute)
+            selection = focused.flatMap { value in
+                CFGetTypeID(value) == AXUIElementGetTypeID() ? background.windowID(value as! AXUIElement) : nil
+            }.flatMap { id in bound.first { $0.1 == id } }
+        }
+        guard let (window, id) = selection, let bounds = elementBounds(window), bounds.width > 1, bounds.height > 1 else {
+            throw CUAError(message: "window_binding_required: select a current window_id from list_apps; no largest-window fallback")
+        }
+        let roots = [window]
         var elements: [AXUIElement] = []
-        var lines: [String] = ["App: \(app.localizedName ?? identifier(app)) (\(identifier(app)))"]
+        var lines: [String] = ["App: \(app.localizedName ?? identifier(app)) (\(identifier(app))#window=\(id))",
+                               "Window ID: \(id); input mode: background-only"]
         var pending = roots.reversed().map { ($0, 0) }
         var seen: [CFHashCode: [AXUIElement]] = [:]
         while let (element, depth) = pending.popLast() {
@@ -126,14 +158,17 @@ final class ComputerUse {
                 for child in children.reversed() { pending.append((child, depth + 1)) }
             }
         }
-        let bounds = windows.first.flatMap(elementBounds) ?? CGRect(x: 0, y: 0, width: 1, height: 1)
-        states[identifier(app)] = AppState(app: app, elements: elements, bounds: bounds, screenshotScale: 1)
+        let state = AppState(app: app, window: window, windowID: id, elements: elements,
+                             bounds: bounds, screenshotScale: min(1, 2048 / max(bounds.width, bounds.height)), capturedAt: Date())
+        states[identifier(app)] = state
+        states[identifier(app) + "#window=\(id)"] = state
+        activeState = state
         if roots.isEmpty { lines.append("No accessibility windows or menu bar are currently exposed") }
         return lines.joined(separator: "\n")
     }
 
     func selectedElement(_ app: NSRunningApplication, _ index: Int) throws -> AXUIElement {
-        guard let state = states[identifier(app)], state.app.processIdentifier == app.processIdentifier,
+        guard let state = activeState, state.app.processIdentifier == app.processIdentifier,
               index >= 0, index < state.elements.count else {
             throw CUAError(message: "Element index is unavailable; get_app_state before selecting an index")
         }
@@ -142,7 +177,123 @@ final class ComputerUse {
         guard AXUIElementGetPid(element, &pid) == .success && pid == app.processIdentifier else {
             throw CUAError(message: "Accessibility element was replaced; refresh app state")
         }
+        if !CFEqual(element, state.window) {
+            guard let owner = attribute(element, kAXWindowAttribute), CFGetTypeID(owner) == AXUIElementGetTypeID(),
+                  background.windowID(owner as! AXUIElement) == state.windowID else {
+                throw CUAError(message: "Accessibility element left the bound window; refresh app state")
+            }
+        }
         return element
+    }
+
+    func checkTarget(_ state: AppState) throws {
+        guard !state.app.isTerminated, !state.app.isHidden,
+              Date().timeIntervalSince(state.capturedAt) < 120,
+              background.windowID(state.window) == state.windowID,
+              let live = elementBounds(state.window),
+              abs(live.minX - state.bounds.minX) < 1, abs(live.minY - state.bounds.minY) < 1,
+              abs(live.width - state.bounds.width) < 1, abs(live.height - state.bounds.height) < 1,
+              (attribute(state.window, kAXMinimizedAttribute) as? NSNumber)?.boolValue != true else {
+            throw CUAError(message: "window_stale: window changed, is hidden/minimized, or snapshot expired; refresh state")
+        }
+        let info = CGWindowListCopyWindowInfo(.optionAll, kCGNullWindowID) as? [[String: Any]] ?? []
+        guard info.contains(where: { ($0[kCGWindowNumber as String] as? NSNumber)?.uint32Value == state.windowID &&
+                                    ($0[kCGWindowOwnerPID as String] as? NSNumber)?.int32Value == state.app.processIdentifier }) else {
+            throw CUAError(message: "window_stale: native window ownership changed")
+        }
+    }
+
+    func checkAction(_ app: NSRunningApplication) throws {
+        try checkCancellation()
+        guard let state = activeState else { throw CUAError(message: "Refresh app state") }
+        try checkTarget(state)
+        try background.checkForeground(foregroundPID, target: app.processIdentifier)
+    }
+
+    func checkCancellation() throws {
+        if let currentRequestID, cancelledRequestIDs.contains(currentRequestID) {
+            throw CUAError(message: "cancelled: native computer-use call cancelled")
+        }
+    }
+
+    func cancel(_ id: Int) {
+        cancelledRequestIDs.insert(id)
+        if currentRequestID == id { cursor.hide() }
+    }
+
+    func releaseSyntheticFocus() {
+        guard let focus = syntheticFocus else { return }
+        syntheticFocus = nil
+        try? background.end(focus.psn, pid: focus.pid, windowID: focus.windowID)
+    }
+
+    func pause(_ seconds: Double) async throws {
+        var remaining = UInt64(max(0, min(10, seconds)) * 1_000_000_000)
+        while remaining > 0 {
+            try checkCancellation()
+            let chunk = min(remaining, 50_000_000)
+            try await Task.sleep(nanoseconds: chunk)
+            remaining -= chunk
+        }
+    }
+
+    func focusedTextElement(_ app: NSRunningApplication) throws -> AXUIElement {
+        guard let value = attribute(AXUIElementCreateApplication(app.processIdentifier), kAXFocusedUIElementAttribute),
+              CFGetTypeID(value) == AXUIElementGetTypeID(), let state = activeState else {
+            throw CUAError(message: "background_unavailable: no focused text input; click a field first")
+        }
+        let element = value as! AXUIElement
+        let role = stringAttribute(element, kAXRoleAttribute)
+        guard [kAXTextFieldRole as String, kAXTextAreaRole as String, "AXComboBox"].contains(role),
+              let owner = attribute(element, kAXWindowAttribute), CFGetTypeID(owner) == AXUIElementGetTypeID(),
+              background.windowID(owner as! AXUIElement) == state.windowID else {
+            throw CUAError(message: "background_unavailable: focused editor is not in the bound window")
+        }
+        return element
+    }
+
+    func clickableElement(_ app: NSRunningApplication, _ params: [String: Any], point: CGPoint) throws -> AXUIElement {
+        if let index = params["element_index"] as? Int { return try selectedElement(app, index) }
+        guard let state = activeState else { throw CUAError(message: "Refresh app state") }
+        let candidates = state.elements.filter {
+            guard let bounds = elementBounds($0), bounds.contains(point) else { return false }
+            return [kAXButtonRole as String, kAXCheckBoxRole as String, kAXRadioButtonRole as String,
+                    kAXTextFieldRole as String, kAXTextAreaRole as String, "AXComboBox"].contains(stringAttribute($0, kAXRoleAttribute))
+        }.sorted { left, right in
+            let a = elementBounds(left) ?? .zero
+            let b = elementBounds(right) ?? .zero
+            return a.width * a.height < b.width * b.height
+        }
+        guard let element = candidates.first else {
+            throw CUAError(message: "background_unavailable: coordinate has no supported AX control in the bound window; raw pointer fallback is disabled")
+        }
+        return element
+    }
+
+    func scrollableElement(_ app: NSRunningApplication, _ params: [String: Any], point: CGPoint) throws -> AXUIElement? {
+        let selected: AXUIElement?
+        if let index = params["element_index"] as? Int {
+            selected = try selectedElement(app, index)
+        } else {
+            guard let state = activeState else { throw CUAError(message: "Refresh app state") }
+            let candidates = state.elements.filter {
+                guard let bounds = elementBounds($0), bounds.contains(point) else { return false }
+                return elementActions($0).contains { $0.hasPrefix("AXScroll") }
+            }.sorted { left, right in
+                let a = elementBounds(left) ?? .zero
+                let b = elementBounds(right) ?? .zero
+                return a.width * a.height < b.width * b.height
+            }
+            selected = candidates.first
+        }
+        var candidate: AXUIElement? = selected
+        for _ in 0..<20 {
+            guard let current = candidate else { break }
+            if elementActions(current).contains(where: { $0.hasPrefix("AXScroll") }) { return current }
+            guard let parent = attribute(current, kAXParentAttribute), CFGetTypeID(parent) == AXUIElementGetTypeID() else { break }
+            candidate = (parent as! AXUIElement)
+        }
+        return nil
     }
 
     func targetPoint(_ app: NSRunningApplication, _ params: [String: Any]) throws -> CGPoint {
@@ -152,12 +303,11 @@ final class ComputerUse {
               x.isFinite, y.isFinite else {
             throw CUAError(message: "Action requires an element_index or finite x/y coordinates")
         }
-        if states[identifier(app)] == nil { _ = try captureState(app) }
-        let state = states[identifier(app)]!
+        guard let state = activeState else { throw CUAError(message: "Refresh app state") }
         let bounds = state.bounds
         let nativeX = x / state.screenshotScale
         let nativeY = y / state.screenshotScale
-        guard nativeX >= 0, nativeY >= 0, nativeX <= bounds.width, nativeY <= bounds.height else {
+        guard nativeX >= 0, nativeY >= 0, nativeX < bounds.width, nativeY < bounds.height else {
             throw CUAError(message: "Coordinates are outside the selected app window")
         }
         return CGPoint(x: bounds.minX + nativeX, y: bounds.minY + nativeY)
@@ -166,14 +316,6 @@ final class ComputerUse {
     func setValue(_ element: AXUIElement, _ value: String) throws {
         let result = AXUIElementSetAttributeValue(element, kAXValueAttribute as CFString, value as CFString)
         guard result == .success else { throw CUAError(message: "AX set value failed: \(result.rawValue)") }
-    }
-
-    func postKey(_ app: NSRunningApplication, code: CGKeyCode, flags: CGEventFlags = []) {
-        for down in [true, false] {
-            let event = CGEvent(keyboardEventSource: eventSource, virtualKey: code, keyDown: down)
-            event?.flags = flags
-            event?.postToPid(app.processIdentifier)
-        }
     }
 
     func keyChord(_ chord: String) throws -> (CGKeyCode, CGEventFlags) {
@@ -196,19 +338,39 @@ final class ComputerUse {
 
     func pressKey(_ app: NSRunningApplication, _ chord: String, duration: Double = 0) async throws {
         let (code, flags) = try keyChord(chord)
+        // Command navigation/menu shortcuts may foreground an app. Only editor
+        // select-all is supported, through its exact AX selection range.
+        if flags.contains(.maskCommand) {
+            guard code == 0, flags == .maskCommand else {
+                throw CUAError(message: "background_unavailable: command shortcut may activate an app; use an explicit AX action")
+            }
+            let element = try focusedTextElement(app)
+            var range = CFRange(location: 0, length: (stringAttribute(element, kAXValueAttribute) as NSString).length)
+            guard let value = AXValueCreate(.cfRange, &range),
+                  AXUIElementSetAttributeValue(element, kAXSelectedTextRangeAttribute as CFString, value) == .success else {
+                throw CUAError(message: "background_unavailable: select-all is unsupported by this editor")
+            }
+            return
+        }
+        guard flags.isEmpty else { throw CUAError(message: "background_unavailable: modifier shortcut is not supported") }
+        _ = try focusedTextElement(app)
+        try checkAction(app)
         let down = CGEvent(keyboardEventSource: eventSource, virtualKey: code, keyDown: true)
-        down?.flags = flags
-        down?.postToPid(app.processIdentifier)
-        if duration > 0 { try await Task.sleep(nanoseconds: UInt64(min(10, duration) * 1e9)) }
         let up = CGEvent(keyboardEventSource: eventSource, virtualKey: code, keyDown: false)
-        up?.flags = flags
-        up?.postToPid(app.processIdentifier)
+        guard let down, let up else { throw CUAError(message: "Keyboard event creation failed") }
+        down.flags = flags
+        up.flags = flags
+        down.postToPid(app.processIdentifier)
+        defer { up.postToPid(app.processIdentifier) }
+        if duration > 0 { try await pause(duration) }
     }
 
-    func typeText(_ app: NSRunningApplication, _ text: String) {
+    func typeText(_ app: NSRunningApplication, _ text: String) throws {
+        _ = try focusedTextElement(app)
         let characters = Array(text.utf16)
         var start = 0
         while start < characters.count {
+            try checkAction(app)
             var end = min(characters.count, start + 64)
             if end < characters.count && (0xD800...0xDBFF).contains(characters[end - 1]) { end -= 1 }
             var chunk = Array(characters[start..<end])
@@ -226,20 +388,13 @@ final class ComputerUse {
             throw CUAError(message: "Screen Recording permission is missing. Enable Codex Computer Use Standalone in System Settings > Privacy & Security > Screen & System Audio Recording")
         }
         let content = try await SCShareableContent.excludingDesktopWindows(true, onScreenWindowsOnly: false)
-        let windows = content.windows.filter {
-            $0.owningApplication?.processID == app.processIdentifier && $0.windowLayer == 0 && $0.frame.width > 1 && $0.frame.height > 1
-        }.sorted {
-            if $0.isOnScreen != $1.isOnScreen { return $0.isOnScreen }
-            return $0.frame.width * $0.frame.height > $1.frame.width * $1.frame.height
+        guard let state = activeState,
+              let window = content.windows.first(where: { $0.windowID == state.windowID && $0.owningApplication?.processID == app.processIdentifier }) else {
+            throw CUAError(message: "App has no capturable bound window")
         }
-        guard let window = windows.first(where: { $0.isOnScreen }) ?? windows.first else {
-            throw CUAError(message: "App has no capturable window")
-        }
+        try checkTarget(state)
         let config = SCStreamConfiguration()
         let scale = min(1, 2048 / max(window.frame.width, window.frame.height))
-        states[identifier(app)] = states[identifier(app)].map {
-            AppState(app: $0.app, elements: $0.elements, bounds: window.frame, screenshotScale: scale)
-        }
         config.width = max(1, Int(window.frame.width * scale))
         config.height = max(1, Int(window.frame.height * scale))
         config.showsCursor = false
@@ -248,8 +403,92 @@ final class ComputerUse {
         return "data:image/png;base64," + data.base64EncodedString()
     }
 
-    func handle(_ method: String, _ params: [String: Any]) async throws -> Any {
+    func moveWindowForTest(_ params: [String: Any]) throws -> Any {
+        guard ProcessInfo.processInfo.environment["CODEX_CUA_ENABLE_TEST_HOOKS"] == "1" else {
+            throw CUAError(message: "Test hooks are disabled")
+        }
+        guard let name = params["app"] as? String,
+              let requestedID = (params["window_id"] as? NSNumber)?.uint32Value,
+              let dx = params["dx"] as? Double, let dy = params["dy"] as? Double else {
+            throw CUAError(message: "test_move_window requires app, window_id, dx and dy")
+        }
+        let app = try resolveSync(name)
+        let windows = attribute(AXUIElementCreateApplication(app.processIdentifier), kAXWindowsAttribute) as? [AXUIElement] ?? []
+        guard let window = windows.first(where: { background.windowID($0) == requestedID }),
+              let position = attribute(window, kAXPositionAttribute),
+              CFGetTypeID(position) == AXValueGetTypeID() else {
+            throw CUAError(message: "Test window is unavailable")
+        }
+        var origin = CGPoint.zero
+        guard AXValueGetValue(position as! AXValue, .cgPoint, &origin) else {
+            throw CUAError(message: "Test window position is unavailable")
+        }
+        origin.x += dx
+        origin.y += dy
+        var moved = origin
+        guard let value = AXValueCreate(.cgPoint, &moved),
+              AXUIElementSetAttributeValue(window, kAXPositionAttribute as CFString, value) == .success else {
+            throw CUAError(message: "Test window move failed")
+        }
+        return ["windowID": requestedID, "x": moved.x, "y": moved.y]
+    }
+
+    func resolveSync(_ input: String) throws -> NSRunningApplication {
+        func find(_ value: String) -> NSRunningApplication? {
+            NSWorkspace.shared.runningApplications.first {
+                !$0.isTerminated && ($0.bundleIdentifier == value || $0.bundleURL?.path == value ||
+                    $0.localizedName?.caseInsensitiveCompare(value) == .orderedSame ||
+                    String($0.processIdentifier) == value)
+            }
+        }
+        let value = appInput(input).0
+        guard let app = find(value) else {
+            throw CUAError(message: "app_not_running: test window app is not running")
+        }
+        return app
+    }
+
+    func activateAppForTest(_ params: [String: Any]) throws -> Any {
+        guard ProcessInfo.processInfo.environment["CODEX_CUA_ENABLE_TEST_HOOKS"] == "1" else {
+            throw CUAError(message: "Test hooks are disabled")
+        }
+        guard let name = params["app"] as? String else { throw CUAError(message: "app is required") }
+        let app = try resolveSync(name)
+        guard app.activate(options: [.activateAllWindows]) else {
+            throw CUAError(message: "Test app activation failed")
+        }
+        if let windowID = (params["window_id"] as? NSNumber)?.uint32Value {
+            let windows = attribute(AXUIElementCreateApplication(app.processIdentifier), kAXWindowsAttribute) as? [AXUIElement] ?? []
+            if let window = windows.first(where: { background.windowID($0) == windowID }) {
+                _ = AXUIElementPerformAction(window, kAXRaiseAction as CFString)
+            }
+        }
+        for _ in 0..<200 {
+            if NSWorkspace.shared.frontmostApplication?.processIdentifier == app.processIdentifier {
+                return ["pid": app.processIdentifier]
+            }
+            Thread.sleep(forTimeInterval: 0.01)
+        }
+        throw CUAError(message: "Test app did not become frontmost")
+    }
+
+    func handle(_ requestID: Int, _ method: String, _ params: [String: Any]) async throws -> Any {
+        currentRequestID = requestID
+        defer {
+            releaseSyntheticFocus()
+            cancelledRequestIDs.remove(requestID)
+            if currentRequestID == requestID { currentRequestID = nil }
+        }
+        try checkCancellation()
         if method == "permissionStatus" { return permissionStatus() }
+        if method == "cursorStatus" { return cursor.status }
+        if method == "cursorImage" {
+            guard let data = cursor.image()?.representation(using: .png, properties: [:]) else { throw CUAError(message: "Cursor image unavailable") }
+            return ["url": "data:image/png;base64," + data.base64EncodedString()]
+        }
+        if method == "hideCursor" { cursor.hide(); return NSNull() }
+        if method == "test_move_window" { return try moveWindowForTest(params) }
+        if method == "test_activate_app" { return try activateAppForTest(params) }
         if method == "requestPermissions" {
             let options = [kAXTrustedCheckOptionPrompt.takeUnretainedValue() as String: true] as CFDictionary
             _ = AXIsProcessTrustedWithOptions(options)
@@ -258,20 +497,47 @@ final class ComputerUse {
         }
         if method == "list_apps" {
             return NSWorkspace.shared.runningApplications.filter { !$0.isTerminated && $0.activationPolicy == .regular }.map {
-                ["id": identifier($0), "displayName": $0.localizedName ?? identifier($0), "isRunning": true, "pid": $0.processIdentifier] as [String: Any]
+                app in
+                let windows = (attribute(AXUIElementCreateApplication(app.processIdentifier), kAXWindowsAttribute) as? [AXUIElement] ?? []).compactMap { window -> [String: Any]? in
+                    guard let id = background.windowID(window) else { return nil }
+                    return ["id": id, "title": stringAttribute(window, kAXTitleAttribute), "app": identifier(app) + "#window=\(id)"]
+                }
+                return ["id": identifier(app), "displayName": app.localizedName ?? identifier(app), "isRunning": true,
+                        "pid": app.processIdentifier, "windows": windows] as [String: Any]
             }
         }
         guard let name = params["app"] as? String, !name.isEmpty else { throw CUAError(message: "app is required") }
         let app = try await resolve(name)
-        if method == "get_app_state" {
-            let text = try captureState(app)
+        let requestedID = (params["window_id"] as? NSNumber)?.uint32Value ?? appInput(name).1
+        if method == "get_app_state" || method == "screenshot" {
+            let text = try captureState(app, windowID: requestedID)
+            if method == "screenshot" { return ["url": try await screenshot(app)] }
             let image = try? await screenshot(app)
-            return ["app": identifier(app), "text": text, "screenshot": image.map { ["url": $0] as Any } ?? NSNull()] as [String: Any]
+            return ["app": identifier(app) + "#window=\(activeState!.windowID)", "text": text,
+                    "screenshot": image.map { ["url": $0] as Any } ?? NSNull()] as [String: Any]
         }
-        if method == "screenshot" { return ["url": try await screenshot(app)] }
+        activeState = states[requestedID.map { identifier(app) + "#window=\($0)" } ?? identifier(app)]
+        if activeState == nil { _ = try captureState(app, windowID: requestedID) }
         try requireAccessibility()
-        app.activate(options: [])
-        try await Task.sleep(nanoseconds: 80_000_000)
+        guard let frontmost = NSWorkspace.shared.frontmostApplication?.processIdentifier,
+              frontmost != app.processIdentifier else {
+            throw CUAError(message: "target_is_foreground: background-only input requires another app in front; move your focus away from the target")
+        }
+        foregroundPID = frontmost
+        try checkAction(app)
+        let state = activeState!
+        let supported = ["click", "press_key", "type_text", "paste", "set_value", "select_text", "perform_secondary_action", "scroll", "drag"]
+        guard supported.contains(method) else { throw CUAError(message: "Unsupported method: \(method)") }
+        if method == "drag" { throw CUAError(message: "background_unavailable: drag is not verified; global fallback is disabled") }
+        if method == "paste" { throw CUAError(message: "background_unavailable: paste would mutate your shared clipboard; use type_text or set_value") }
+        defer { releaseSyntheticFocus() }
+        if ["click", "press_key", "type_text", "scroll"].contains(method) {
+            let psn = try background.begin(pid: app.processIdentifier, windowID: state.windowID, foreground: foregroundPID)
+            syntheticFocus = SyntheticFocus(psn: psn, pid: app.processIdentifier, windowID: state.windowID)
+            try await pause(0.03)
+        }
+        defer { cursor.press(false) }
+        try checkAction(app)
         switch method {
         case "click":
             let buttonName = params["mouse_button"] as? String ?? "left"
@@ -279,42 +545,31 @@ final class ComputerUse {
             let hold = min(10, max(0, params["duration"] as? Double ?? 0))
             let modifierKey = params["key"] as? String
             let modifierFlags = try modifierKey.map { try keyChord($0 + "+space").1 } ?? []
-            if let index = params["element_index"] as? Int {
-                let element = try selectedElement(app, index)
-                if buttonName == "left", clickCount == 1, hold == 0, modifierFlags.isEmpty,
-                   AXUIElementPerformAction(element, kAXPressAction as CFString) == .success { break }
-                _ = AXUIElementSetAttributeValue(element, kAXFocusedAttribute as CFString, kCFBooleanTrue)
+            guard buttonName == "left", clickCount == 1, hold == 0, modifierFlags.isEmpty else {
+                throw CUAError(message: "background_unavailable: only plain single left click is verified")
             }
             let point = try targetPoint(app, params)
-            let button: CGMouseButton = buttonName == "right" ? .right : buttonName == "middle" ? .center : .left
-            let down: CGEventType = button == .right ? .rightMouseDown : button == .center ? .otherMouseDown : .leftMouseDown
-            let up: CGEventType = button == .right ? .rightMouseUp : button == .center ? .otherMouseUp : .leftMouseUp
-            for count in 1...clickCount {
-                for type in [down, up] {
-                    let event = CGEvent(mouseEventSource: eventSource, mouseType: type, mouseCursorPosition: point, mouseButton: button)
-                    event?.setIntegerValueField(.mouseEventClickState, value: Int64(count))
-                    event?.flags = modifierFlags
-                    event?.post(tap: .cghidEventTap)
-                    if type == down { try await Task.sleep(nanoseconds: UInt64(max(0.02, hold) * 1e9)) }
-                }
+            let element = try clickableElement(app, params, point: point)
+            try await cursor.move(to: point, windowID: state.windowID, bounds: state.bounds) { try self.checkAction(app) }
+            cursor.press(true)
+            let role = stringAttribute(element, kAXRoleAttribute)
+            guard (attribute(element, kAXEnabledAttribute) as? NSNumber)?.boolValue != false else {
+                throw CUAError(message: "AX control is disabled")
             }
+            if [kAXTextFieldRole as String, kAXTextAreaRole as String, "AXComboBox"].contains(role) {
+                guard AXUIElementSetAttributeValue(element, kAXFocusedAttribute as CFString, kCFBooleanTrue) == .success else {
+                    throw CUAError(message: "background_unavailable: editor does not support AX focus")
+                }
+            } else if [kAXButtonRole as String, kAXCheckBoxRole as String, kAXRadioButtonRole as String].contains(role) {
+                let result = AXUIElementPerformAction(element, kAXPressAction as CFString)
+                guard result == .success else { throw CUAError(message: "AX press failed; observe before retrying") }
+            } else {
+                throw CUAError(message: "background_unavailable: AX role is not supported for background click")
+            }
+            try await pause(0.07)
+            cursor.press(false)
         case "press_key": try await pressKey(app, params["key"] as? String ?? "", duration: params["duration"] as? Double ?? 0)
-        case "type_text": typeText(app, params["text"] as? String ?? "")
-        case "paste":
-            let pasteboard = NSPasteboard.general
-            let saved = pasteboard.pasteboardItems?.map { item -> NSPasteboardItem in
-                let copy = NSPasteboardItem()
-                for type in item.types { if let data = item.data(forType: type) { copy.setData(data, forType: type) } }
-                return copy
-            } ?? []
-            pasteboard.clearContents()
-            let pasted = params["text"] as? String ?? ""
-            pasteboard.setString(pasted, forType: .string)
-            if (params["format"] as? String) == "html" { pasteboard.setString(pasted, forType: .html) }
-            let change = pasteboard.changeCount
-            postKey(app, code: 9, flags: .maskCommand)
-            try await Task.sleep(nanoseconds: 180_000_000)
-            if pasteboard.changeCount == change { pasteboard.clearContents(); pasteboard.writeObjects(saved) }
+        case "type_text": try typeText(app, params["text"] as? String ?? "")
         case "set_value":
             guard let index = params["element_index"] as? Int else { throw CUAError(message: "element_index is required") }
             try setValue(try selectedElement(app, index), params["value"] as? String ?? "")
@@ -324,7 +579,18 @@ final class ComputerUse {
             let full = stringAttribute(element, kAXValueAttribute) as NSString
             let prefix = params["prefix"] as? String ?? ""
             let suffix = params["suffix"] as? String ?? ""
-            var found = full.range(of: prefix + text + suffix)
+            let needle = prefix + text + suffix
+            guard !text.isEmpty else { throw CUAError(message: "Text selection is empty") }
+            var matches: [NSRange] = []
+            var offset = 0
+            while offset <= full.length {
+                let match = full.range(of: needle, range: NSRange(location: offset, length: full.length - offset))
+                if match.location == NSNotFound { break }
+                matches.append(match)
+                offset = match.location + 1
+            }
+            guard matches.count == 1 else { throw CUAError(message: "Text selection must have exactly one match; add prefix/suffix") }
+            var found = matches[0]
             guard found.location != NSNotFound else { throw CUAError(message: "Text selection was not found") }
             found.location += (prefix as NSString).length
             found.length = (text as NSString).length
@@ -333,32 +599,41 @@ final class ComputerUse {
             if selection == "cursor_before" { found.length = 0 }
             var range = CFRange(location: found.location, length: found.length)
             guard let value = AXValueCreate(.cfRange, &range), AXUIElementSetAttributeValue(element, kAXSelectedTextRangeAttribute as CFString, value) == .success else { throw CUAError(message: "Text selection is not supported by this element") }
+            var readback = CFRange(location: 0, length: 0)
+            guard let read = attribute(element, kAXSelectedTextRangeAttribute), CFGetTypeID(read) == AXValueGetTypeID(),
+                  AXValueGetValue(read as! AXValue, .cfRange, &readback), readback.location == range.location,
+                  readback.length == range.length else { throw CUAError(message: "Text selection verification failed") }
         case "perform_secondary_action":
             guard let index = params["element_index"] as? Int, let action = params["action"] as? String else { throw CUAError(message: "element_index and action are required") }
+            guard [kAXPressAction as String, kAXIncrementAction as String, kAXDecrementAction as String].contains(action) else {
+                throw CUAError(message: "background_unavailable: secondary action could change window focus")
+            }
             let result = AXUIElementPerformAction(try selectedElement(app, index), action as CFString)
             guard result == .success else { throw CUAError(message: "AX action failed: \(result.rawValue)") }
         case "scroll":
             let point = try targetPoint(app, params)
-            CGEvent(mouseEventSource: eventSource, mouseType: .mouseMoved, mouseCursorPosition: point, mouseButton: .left)?.post(tap: .cghidEventTap)
+            try await cursor.move(to: point, windowID: state.windowID, bounds: state.bounds) { try self.checkAction(app) }
             let direction = params["direction"] as? String ?? "down"
-            let distance = Int32(min(4000, max(1, params["pages"] as? Double ?? 1) * 500))
-            let vertical: Int32 = direction == "up" ? distance : direction == "down" ? -distance : 0
-            let horizontal: Int32 = direction == "left" ? distance : direction == "right" ? -distance : 0
-            CGEvent(scrollWheelEvent2Source: eventSource, units: .pixel, wheelCount: 2, wheel1: vertical, wheel2: horizontal, wheel3: 0)?.post(tap: .cghidEventTap)
-        case "drag":
-            let from = try targetPoint(app, ["x": params["from_x"] ?? NSNull(), "y": params["from_y"] ?? NSNull()])
-            let to = try targetPoint(app, ["x": params["to_x"] ?? NSNull(), "y": params["to_y"] ?? NSNull()])
-            CGEvent(mouseEventSource: eventSource, mouseType: .leftMouseDown, mouseCursorPosition: from, mouseButton: .left)?.post(tap: .cghidEventTap)
-            for step in 1...20 {
-                let fraction = Double(step) / 20
-                let point = CGPoint(x: from.x + (to.x - from.x) * fraction, y: from.y + (to.y - from.y) * fraction)
-                CGEvent(mouseEventSource: eventSource, mouseType: .leftMouseDragged, mouseCursorPosition: point, mouseButton: .left)?.post(tap: .cghidEventTap)
-                try await Task.sleep(nanoseconds: 10_000_000)
+            guard let element = try scrollableElement(app, params, point: point) else {
+                throw CUAError(message: "background_unavailable: this control exposes no AX page-scroll action")
             }
-            CGEvent(mouseEventSource: eventSource, mouseType: .leftMouseUp, mouseCursorPosition: to, mouseButton: .left)?.post(tap: .cghidEventTap)
+            let action = ["up": "AXScrollUpByPage", "down": "AXScrollDownByPage",
+                          "left": "AXScrollLeftByPage", "right": "AXScrollRightByPage"][direction]!
+            guard elementActions(element).contains(action) else {
+                throw CUAError(message: "background_unavailable: this control does not expose \(action)")
+            }
+            let pages = min(10, max(1, Int((params["pages"] as? Double ?? 1).rounded())))
+            for _ in 0..<pages {
+                let result = AXUIElementPerformAction(element, action as CFString)
+                guard result == .success else {
+                    throw CUAError(message: "background_unavailable: AX page-scroll failed for this control (\(result.rawValue)); no global scroll fallback")
+                }
+                try await pause(0.05)
+            }
         default: throw CUAError(message: "Unsupported method: \(method)")
         }
-        try await Task.sleep(nanoseconds: 70_000_000)
+        try await pause(0.07)
+        try checkAction(app)
         return NSNull()
     }
 }
@@ -370,25 +645,63 @@ func emit(_ response: [String: Any]) {
     }
 }
 
+@main
+struct ComputerUseMain {
+static func main() {
 let app = NSApplication.shared
-app.setActivationPolicy(.prohibited)
+app.setActivationPolicy(.accessory)
 let computer = MainActor.assumeIsolated { ComputerUse() }
+signal(SIGTERM, SIG_IGN)
+signal(SIGINT, SIG_IGN)
+let terminateSource = DispatchSource.makeSignalSource(signal: SIGTERM, queue: .main)
+terminateSource.setEventHandler {
+    MainActor.assumeIsolated {
+        computer.releaseSyntheticFocus()
+        computer.cursor.hide()
+        exit(0)
+    }
+}
+terminateSource.resume()
+let interruptSource = DispatchSource.makeSignalSource(signal: SIGINT, queue: .main)
+interruptSource.setEventHandler {
+    MainActor.assumeIsolated {
+        computer.releaseSyntheticFocus()
+        computer.cursor.hide()
+        exit(0)
+    }
+}
+interruptSource.resume()
 DispatchQueue.global(qos: .userInitiated).async {
+    let operations = OperationQueue()
+    operations.maxConcurrentOperationCount = 1
     while let line = readLine() {
         guard let data = line.data(using: .utf8), let request = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else { continue }
-        let semaphore = DispatchSemaphore(value: 0)
-        Task { @MainActor in
-            let id = request["id"] ?? NSNull()
-            do {
-                let result = try await computer.handle(request["method"] as? String ?? "", request["params"] as? [String: Any] ?? [:])
-                emit(["id": id, "result": result])
-            } catch {
-                emit(["id": id, "error": ["code": -32000, "message": (error as? CUAError)?.message ?? error.localizedDescription]])
-            }
-            semaphore.signal()
+        let requestID = (request["id"] as? NSNumber)?.intValue ?? 0
+        let method = request["method"] as? String ?? ""
+        let params = request["params"] as? [String: Any] ?? [:]
+        if method == "cancel" {
+            let cancelledID = (params["id"] as? NSNumber)?.intValue ?? 0
+            Task { @MainActor in computer.cancel(cancelledID) }
+            continue
         }
-        semaphore.wait()
+        operations.addOperation {
+            let semaphore = DispatchSemaphore(value: 0)
+            Task { @MainActor in
+                do {
+                    let result = try await computer.handle(requestID, method, params)
+                    emit(["id": request["id"] ?? NSNull(), "result": result])
+                } catch {
+                    computer.cursor.hide()
+                    emit(["id": request["id"] ?? NSNull(), "error": ["code": -32000, "message": (error as? CUAError)?.message ?? error.localizedDescription]])
+                }
+                semaphore.signal()
+            }
+            semaphore.wait()
+        }
     }
+    operations.waitUntilAllOperationsAreFinished()
     exit(0)
 }
 app.run()
+}
+}

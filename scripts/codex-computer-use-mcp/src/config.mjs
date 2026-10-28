@@ -25,7 +25,7 @@ export function runtimeEnvironment() {
     if (!existsSync(required)) throw new Error(`Missing runtime file: ${required}. Run npm run recover from ${packageRoot}.`);
   }
   const environment = Object.fromEntries(Object.entries(process.env).filter(([key]) =>
-    ["HOME", "LOGNAME", "PATH", "SHELL", "TERM", "USER", "TMPDIR", "LANG", "LC_ALL", "LC_CTYPE", "CODEX_CUA_HELPER"].includes(key),
+    ["HOME", "LOGNAME", "PATH", "SHELL", "TERM", "USER", "TMPDIR", "LANG", "LC_ALL", "LC_CTYPE", "CODEX_CUA_HELPER", "CODEX_CUA_VISUAL_CURSOR"].includes(key),
   ));
   return {
     ...environment,
@@ -36,6 +36,7 @@ export function runtimeEnvironment() {
     NODE_REPL_TRUSTED_RPC_ENABLED: "1",
     NODE_REPL_UNTRUSTED_ENV_ALLOWLIST: "CUA_REPL_ENABLED_SURFACES",
     NODE_REPL_JS_BANNER: 'await import("@oai/cua/tinyskyAlt");',
+    CODEX_CUA_SERVICE_PROCESS: "1",
     SKY_CUA_SERVICE_PATH: serviceApp,
     SKY_CUA_SERVICE_NATIVE_PIPE_PATH: serviceSocket,
     SKY_ENABLE_AUDIO: "0",
@@ -51,6 +52,8 @@ export function runtimeStatus() {
     processExecutable: process.execPath,
     supervisor: nativeBackend ? "shipped native supervisor with source MCP adapter" : "reconstructed JavaScript",
     backend,
+    inputMode: backend === "standalone" ? "background-only" : "original",
+    globalInput: backend !== "standalone",
     nodeReplBinaryRequired: nativeBackend,
     node: nodeBinary, nodePresent: existsSync(nodeBinary),
     sources: sourcesRoot, sourcesPresent: existsSync(path.join(modulesRoot, "@oai/cua/package.json")),

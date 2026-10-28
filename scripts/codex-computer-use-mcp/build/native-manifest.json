@@ -1,11 +1,25 @@
 {
   "schemaVersion": 1,
   "backend": "standalone",
-  "builtAt": "2026-10-28T05:09:38.435Z",
+  "builtAt": "2026-10-28T12:54:38.052Z",
   "bundleIdentifier": "local.codex.computer-use.standalone",
   "appPath": "build/Codex Computer Use Standalone.app",
   "executablePath": "build/Codex Computer Use Standalone.app/Contents/MacOS/ComputerUse",
   "sourcePath": "native/ComputerUse.swift",
+  "sourceFiles": [
+    {
+      "path": "native/ComputerUse.swift",
+      "sha256": "e693b0c75a9086f4d331daa7bed9efc6473015ef1b7536dc0d4d6f5e2e4d7a15"
+    },
+    {
+      "path": "native/BackgroundInput.swift",
+      "sha256": "df77e3ddfca114f7afe161ce59c74a61545e127715b9827ba16dbe07799685b9"
+    },
+    {
+      "path": "native/AgentCursor.swift",
+      "sha256": "b9af90c5534d3bc635f1c27dd4f66403e7606687e53fbcfb212ded8cbf7f28d3"
+    }
+  ],
   "infoPlistPath": "native/Info.plist",
   "architecture": "arm64",
   "target": "arm64-apple-macosx14.0",
@@ -15,12 +29,12 @@
   "signing": {
     "identity": "ad-hoc",
     "designatedRequirement": "designated => identifier \"local.codex.computer-use.standalone\"",
-    "details": "designated => identifier \"local.codex.computer-use.standalone\"\nExecutable=build/${BUILD_DIR}/Codex Computer Use Standalone.app/Contents/MacOS/ComputerUse\nIdentifier=local.codex.computer-use.standalone\nFormat=app bundle with Mach-O thin (arm64)\nCodeDirectory v=20400 size=636 flags=0x2(adhoc) hashes=13+3 location=embedded\nSignature=adhoc\nInfo.plist entries=15\nTeamIdentifier=not set\nSealed Resources version=2 rules=13 files=0\nTotal signatures=1\nChosen signature=1"
+    "details": "designated => identifier \"local.codex.computer-use.standalone\"\nExecutable=/private${BUILD_DIR}/Codex Computer Use Standalone.app/Contents/MacOS/ComputerUse\nIdentifier=local.codex.computer-use.standalone\nFormat=app bundle with Mach-O thin (arm64)\nCodeDirectory v=20400 size=828 flags=0x2(adhoc) hashes=19+3 location=embedded\nSignature=adhoc\nInfo.plist entries=15\nTeamIdentifier=not set\nSealed Resources version=2 rules=13 files=0\nTotal signatures=1\nChosen signature=1"
   },
   "sha256": {
-    "source": "78eabea7d0023cd424929a8f513700efbb61210fd08fc9fdb11547b58ed68679",
+    "source": "e693b0c75a9086f4d331daa7bed9efc6473015ef1b7536dc0d4d6f5e2e4d7a15",
     "infoPlist": "64e07990e64983e6f1cb3f7ee59df9e7f6a845979ad0bd22b70fe78880e3b6d2",
-    "executable": "901b76e95abcdc2b64af37d85afe3148a924544be99a5d3d526c677a0b43e187"
+    "executable": "1c849978bcf81af5d8469e78a317681c4eace8495f30af2e0e89d198ef87e4d3"
   },
   "buildCommand": {
     "executable": "/usr/bin/xcrun",
@@ -43,7 +57,12 @@
       "ApplicationServices",
       "-framework",
       "ScreenCaptureKit",
-      "native/ComputerUse.swift",
+      "-framework",
+      "QuartzCore",
+      "-parse-as-library",
+      "./native/ComputerUse.swift",
+      "./native/BackgroundInput.swift",
+      "./native/AgentCursor.swift",
       "-o",
       "${BUILD_DIR}/Codex Computer Use Standalone.app/Contents/MacOS/ComputerUse"
     ]

@@ -269,7 +269,7 @@ export class KernelHost {
     this.fail(new Error("Computer-use runtime closed"));
     await Promise.all([...this.workers].map((child) => new Promise((resolve) => {
       if (child.exitCode !== null || child.signalCode !== null) { resolve(); return; }
-      const timer = setTimeout(() => { child.kill("SIGKILL"); resolve(); }, 1000);
+      const timer = setTimeout(() => { child.kill("SIGKILL"); resolve(); }, 3000);
       child.once("exit", () => { clearTimeout(timer); resolve(); });
     })));
   }

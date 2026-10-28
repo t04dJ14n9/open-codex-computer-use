@@ -33,6 +33,10 @@ for (const [key, file] of Object.entries({ executable: helper, source: path.join
   const hash = createHash("sha256").update(await readFile(file)).digest("hex");
   if (hash !== manifest.sha256[key]) throw new Error(`Native ${key} hash does not match the build manifest. Inspect or rebuild before running.`);
 }
+for (const source of manifest.sourceFiles ?? []) {
+  const hash = createHash("sha256").update(await readFile(path.join(runtime, source.path))).digest("hex");
+  if (hash !== source.sha256) throw new Error(`Native source ${source.path} differs from its build manifest. Rebuild before running.`);
+}
 if (!args.includes("--check")) {
   const npm = spawnSync("npm", ["ci", "--ignore-scripts", "--no-audit", "--no-fund"], { cwd: runtime, stdio: "inherit" });
   if (npm.error) throw npm.error;

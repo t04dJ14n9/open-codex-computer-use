@@ -3,10 +3,12 @@ import { createHash } from "node:crypto";
 import { spawn } from "node:child_process";
 import { access, chmod, copyFile, mkdir, mkdtemp, readFile, rename, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
+import { tmpdir } from "node:os";
 import { fileURLToPath } from "node:url";
 
 const packageRoot = fileURLToPath(new URL("../", import.meta.url));
 const sourcePath = path.join(packageRoot, "native", "ComputerUse.swift");
+const sourcePaths = [sourcePath, "BackgroundInput.swift", "AgentCursor.swift"].map(file => path.isAbsolute(file) ? file : path.join(packageRoot, "native", file));
 const plistPath = path.join(packageRoot, "native", "Info.plist");
 const buildRoot = path.join(packageRoot, "build");
 const appName = "Codex Computer Use Standalone.app";
@@ -68,6 +70,8 @@ async function build() {
   if (!await exists(sourcePath)) throw new Error(`Native source is not present yet: ${sourcePath}. Run this build again after the source has been written.`);
 
   const sourceBytes = await readFile(sourcePath);
+  const sourceFiles = [];
+  for (const file of sourcePaths) sourceFiles.push({ path: path.relative(packageRoot, file), sha256: sha256(await readFile(file)) });
   const plistBytes = await readFile(plistPath);
   await run("/usr/bin/plutil", ["-lint", plistPath], { capture: true });
   const bundleIdentifier = await plistValue(plistPath, "CFBundleIdentifier");
@@ -87,7 +91,7 @@ async function build() {
   }
 
   await mkdir(buildRoot, { recursive: true });
-  const stagingRoot = await mkdtemp(path.join(buildRoot, ".native-build-"));
+  const stagingRoot = await mkdtemp(path.join(tmpdir(), "codex-cua-native-build-"));
   const stagedApp = path.join(stagingRoot, appName);
   const stagedContents = path.join(stagedApp, "Contents");
   const stagedExecutable = path.join(stagedContents, "MacOS", "ComputerUse");
@@ -107,13 +111,17 @@ async function build() {
       "-module-cache-path", path.join(stagingRoot, "module-cache"),
       "-framework", "Foundation", "-framework", "AppKit",
       "-framework", "ApplicationServices", "-framework", "ScreenCaptureKit",
+      "-framework", "QuartzCore",
     ];
     if (/^\s*@main\b/m.test(sourceBytes.toString("utf8"))) swiftArgs.push("-parse-as-library");
-    swiftArgs.push(sourcePath, "-o", stagedExecutable);
+    swiftArgs.push(...sourcePaths, "-o", stagedExecutable);
     process.stderr.write(`Compiling ${sourcePath}\nTarget: ${target}\n`);
     await run("/usr/bin/xcrun", swiftArgs);
     if (sha256(await readFile(sourcePath)) !== sha256(sourceBytes) || sha256(await readFile(plistPath)) !== sha256(plistBytes)) {
       throw new Error("Native source or Info.plist changed during compilation. Run the build again to publish a consistent artifact.");
+    }
+    for (const file of sourceFiles) {
+      if (sha256(await readFile(path.join(packageRoot, file.path))) !== file.sha256) throw new Error("Native source changed during compilation");
     }
     await chmod(stagedExecutable, 0o755);
     // File Provider can add FinderInfo to new bundle directories as well as files.
@@ -137,6 +145,7 @@ async function build() {
       appPath: path.relative(packageRoot, appPath),
       executablePath: path.relative(packageRoot, executablePath),
       sourcePath: path.relative(packageRoot, sourcePath),
+      sourceFiles,
       infoPlistPath: path.relative(packageRoot, plistPath),
       architecture,
       target,
@@ -160,8 +169,18 @@ async function build() {
     try {
       await rename(stagedApp, appPath);
       published = true;
-      await removeFinderInfo(appPath);
-      await run("/usr/bin/codesign", ["--verify", "--strict", "--verbose=2", appPath]);
+      for (const generated of [appPath, path.join(appPath, "Contents"), path.dirname(executablePath), path.join(appPath, "Contents/Info.plist"), executablePath]) {
+        await removeFinderInfo(generated);
+      }
+      // File Provider can race the rename and reattach FinderInfo. Only retry
+      // that exact publication-metadata error, never a signature mismatch.
+      for (let attempt = 0; attempt < 4; attempt++) {
+        const verified = await run("/usr/bin/codesign", ["--verify", "--strict", "--verbose=2", appPath], { capture: true, allowFailure: true });
+        if (verified.code === 0) break;
+        if (attempt === 3 || !/FinderInfo|resource fork/.test(verified.stderr)) throw new Error(verified.stderr.trim());
+        await new Promise(resolve => setTimeout(resolve, 250));
+        await removeFinderInfo(appPath);
+      }
       await rename(stagedManifest, manifestPath);
     } catch (error) {
       if (published) await rename(appPath, stagedApp);

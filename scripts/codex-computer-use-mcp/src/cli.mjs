@@ -24,6 +24,8 @@ Usage:
   codex-computer-use js --file script.js           Execute a JavaScript file
   codex-computer-use computer '{"action":"click","app":"TextEdit","element_index":42}'
   codex-computer-use test/protocol.mjs              Run a local Node test file
+Input is background-only; use window_id and expect explicit refusals for
+unverified drag, paste, global pointer, or command-shortcut paths.
 Run install.sh to add MCP tools and /open-codex-computer-use to Claude Code.`);
 } else if (command === "--version") {
   console.log("codex-computer-use 0.2.0");

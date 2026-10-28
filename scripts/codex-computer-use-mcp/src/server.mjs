@@ -19,7 +19,7 @@ export async function startServer() {
       return { isError: true, content: [{ type: "text", text: error.message }] };
     }
   });
-  register("computer", computerDescription, computerSchema, { destructiveHint: false, openWorldHint: true });
+  register("computer", computerDescription, computerSchema, { destructiveHint: true, openWorldHint: true });
   register("js", jsDescription, jsSchema, { openWorldHint: true });
   register("js_reset", "Reset persistent JavaScript bindings and runtime workers.", z.object({}), { destructiveHint: false, openWorldHint: false });
   register("status", "Inspect installed runtime paths and availability without interacting with apps.", z.object({}), { readOnlyHint: true, idempotentHint: true, openWorldHint: false });

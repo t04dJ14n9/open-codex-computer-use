@@ -9,4 +9,3 @@
 /scripts/codex-computer-use-mcp/test/*-final.jsonl
 /scripts/codex-computer-use-mcp/test/*-result.json
 !/scripts/codex-computer-use-mcp/test/protocol-result.json
-!/scripts/codex-computer-use-mcp/test/actions-result.json

@@ -60,12 +60,27 @@ node scripts/codex-computer-use-mcp/scripts/build-native.mjs
 CUA_NATIVE_ARCH=x86_64 node scripts/codex-computer-use-mcp/scripts/build-native.mjs
 ```
 
-The source is `native/ComputerUse.swift`; the build script uses public macOS
-frameworks and produces `build/native-manifest.json` with compiler and hashes.
+Native source is split across `native/ComputerUse.swift`,
+`native/BackgroundInput.swift`, and `native/AgentCursor.swift`. The build script
+compiles and signs all three, then writes compiler, source, executable, and
+plist hashes to `build/native-manifest.json`. It uses public AppKit,
+Accessibility, CoreGraphics, and ScreenCaptureKit APIs plus a small,
+capability-checked bridge to private SkyLight/ApplicationServices symbols for
+target-window focus and event delivery. Missing symbols produce explicit
+`background_unavailable` errors.
+
 The stable designated requirement keeps the helper identity consistent across
 builds. Verify permissions after moving or rebuilding the app; grants on one
-Mac are not included in the skill.
+Mac are not included in the skill. `scripts/setup.mjs --check` verifies every
+native source hash, not only the executable.
 
 Do not set `CODEX_CUA_BACKEND=codex` or `source` for ordinary tasks. Those are
 preserved investigative routes and can fail original host authentication.
 Do not set `CODEX_CUA_HELPER` unless selecting a verified alternate helper.
+`CODEX_CUA_VISUAL_CURSOR=0` hides the independent animated agent cursor; it does
+not change input delivery.
+
+Background mode does not launch an app that is not running. Start it through
+the user's normal app launch flow, then bind it by name, bundle ID, or path.
+Do not substitute AppleScript, System Events, or global HID input to bypass a
+`background_unavailable` refusal.

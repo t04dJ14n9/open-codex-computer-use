@@ -47,7 +47,7 @@ try {
   assert.match(text(failure), /intentional-verification-error/);
   assert.equal(text(await call("js", { code: "nodeRepl.write(cuaVerificationCounter);" })), "42");
   checks.push("error result and retained session");
-  const screenshot = await call("computer", { action: "screenshot", app: process.env.CUA_TEST_APP || "com.apple.TextEdit" });
+  const screenshot = await call("computer", { action: "screenshot", app: process.env.CUA_TEST_APP || "com.apple.finder" });
   const image = screenshot.content.find((item) => item.type === "image");
   assert(image);
   const bytes = Buffer.from(image.data, "base64");

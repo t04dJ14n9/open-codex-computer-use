@@ -20,14 +20,23 @@ Native symbols and auth assembly are retained in the source snapshot.
 ## Reconstructed Source
 
 `src/kernel-host.mjs` replaces the compiled supervisor using the recovered
-original JavaScript workers. `native/ComputerUse.swift` implements native
-app/AX observation, selected-window capture, and input through public macOS APIs.
-`src/standalone-sky.mjs` exposes this helper as the trusted Sky service, allowing
-the recovered `cua` API to run under ordinary Node.js. MCP and CLI source are
-provided without requiring an active Codex chat or original native daemon.
+original JavaScript workers. `native/ComputerUse.swift`,
+`native/BackgroundInput.swift`, and `native/AgentCursor.swift` implement
+exact-window AX observation, selected-window capture, background-only input, and
+an independent animated cursor. `src/standalone-sky.mjs` exposes this helper as
+the trusted Sky service, allowing the recovered `cua` API to run under ordinary
+Node.js. MCP `computer` and `js` calls share the same helper process and window
+state map. MCP and CLI source are provided without requiring an active Codex
+chat or original native daemon.
 
 This source is newly authored from the observed interface. It is not a decompiled
 copy of the original Swift/Rust implementation, nor proof of full parity.
+
+The background bridge dynamically loads and capability-checks
+`_AXUIElementGetWindow`, `GetProcessForPID`, and `SLPSPostEventRecordTo`. It
+targets synthetic active/key-window records inside the selected app without
+activating that app at the WindowServer frontmost layer. Missing private
+symbols disable input explicitly rather than falling back to global HID.
 
 ## Runtime Evidence
 
@@ -45,6 +54,15 @@ reported. `../../references/verification.json` retains a client-neutral summary;
 `../../references/verified-skill-window.png` is the screenshot returned to Claude.
 Local client transcripts and profile-specific metadata are excluded.
 
+The concurrent-input fixture additionally verifies exact native-window binding,
+shared `computer`/`js` state, coordinate and indexed clicks, verified selection,
+cancellation cleanup, moved-window refusal, foreground-change refusal,
+unsupported drag/paste/command-shortcut/scroll refusals, cursor animation and
+click-through behavior, and absence of target/helper focus theft. Its AppKit
+scroll view advertises an AX page action but returns `AXError.cannotComplete`;
+the helper now reports `background_unavailable` instead of issuing a global
+wheel event.
+
 ## Remaining Original-Source Gaps
 
 Exact original Rust/Swift source, original comments and pre-minification names,
@@ -55,4 +73,7 @@ document cleanup; the exact diagnostics remain in native-analysis/calls.
 
 Only the advertised basic app operations are reconstructed. Full native trees
 replace diffs. Native browser app control is supported; Codex browser DOM and
-audio attachment features are not independently implemented.
+audio attachment features are not independently implemented. Drag, shared
+clipboard paste, raw canvas input, and universal scroll behavior remain
+unverified and refuse. Private ABI and app-defined AX semantics remain
+version- and application-dependent.

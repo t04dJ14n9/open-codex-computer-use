@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "recordedAt": "2026-10-28T06:20:13.531Z",
+  "recordedAt": "2026-10-28T13:00:24Z",
   "scope": "Publication metadata and native-analysis records; not original shipped executable/package bytes",
   "redactions": [
     "local home/workspace paths replaced by symbolic roots",
@@ -12,8 +12,8 @@
   "files": [
     {
       "path": "../codex-computer-use-mcp/build/native-manifest.json",
-      "bytes": 2219,
-      "sha256": "0a23d359cd722d6504b3e0e5e4902fb4cab09afba1c417a14fc849cdf626040d"
+      "bytes": 2807,
+      "sha256": "58a9a48d9ae8508dc392145da246fe842d503308decd00f0cfdef4972626fe71"
     },
     {
       "path": "README.md",
