@@ -1,0 +1,17 @@
+
+browser-accessibility.wasm:	file format wasm 0x1
+
+Sections:
+
+     Type start=0x0000000b end=0x000016d3 (size=0x000016c8) count: 493
+   Import start=0x000016d6 end=0x00001c0a (size=0x00000534) count: 34
+ Function start=0x00001c0e end=0x00015f62 (size=0x00014354) count: 80910
+    Table start=0x00015f64 end=0x00015f6d (size=0x00000009) count: 1
+   Memory start=0x00015f6f end=0x00015f73 (size=0x00000004) count: 1
+   Global start=0x00015f77 end=0x0001f914 (size=0x0000999d) count: 5163
+   Export start=0x0001f917 end=0x0001fadc (size=0x000001c5) count: 11
+     Elem start=0x0001fae0 end=0x0003d7e2 (size=0x0001dd02) count: 1
+     Code start=0x0003d7e7 end=0x00f8ec1f (size=0x00f51438) count: 80910
+     Data start=0x00f8ec24 end=0x0133113e (size=0x003a251a) count: 21
+   Custom start=0x01331142 end=0x01345b9b (size=0x00014a59) ".swift1_autolink_entries"
+   Custom start=0x01345b9e end=0x01345c32 (size=0x00000094) "target_features"

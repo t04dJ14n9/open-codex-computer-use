@@ -1,0 +1,25 @@
+{
+  "request": {
+    "tool": "search_procedures",
+    "args": {
+      "pattern": "IPCSenderAuthorization",
+      "mode": "literal"
+    },
+    "label": "service-sender-authorization-search"
+  },
+  "response": {
+    "_meta": {
+      "provenance": {
+        "untrusted_content": true,
+        "source": "analysis_target"
+      }
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"error\":{\"code\":\"provider_unavailable\",\"category\":\"unavailable\",\"message\":\"This Hopper target is already open in REA session d5e76084-9e1c-4caf-bb51-65da0b576148. Use that REA session or close it before opening this target again.\",\"retryable\":true,\"remediation\":{\"action\":\"Use the active REA session d5e76084-9e1c-4caf-bb51-65da0b576148 or close it before opening this target again.\"},\"details\":{\"stage\":\"launch\",\"provider_state\":\"unknown\",\"retry_action\":\"unknown\",\"owner_run_id\":\"d5e76084-9e1c-4caf-bb51-65da0b576148\"}}}"
+      }
+    ],
+    "isError": true
+  }
+}

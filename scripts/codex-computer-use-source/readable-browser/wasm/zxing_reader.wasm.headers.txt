@@ -1,0 +1,15 @@
+
+zxing_reader.wasm:	file format wasm 0x1
+
+Sections:
+
+     Type start=0x0000000b end=0x0000031b (size=0x00000310) count: 87
+   Import start=0x0000031e end=0x00000504 (size=0x000001e6) count: 77
+ Function start=0x00000507 end=0x00000a30 (size=0x00000529) count: 1319
+    Table start=0x00000a32 end=0x00000a39 (size=0x00000007) count: 1
+   Memory start=0x00000a3b end=0x00000a42 (size=0x00000007) count: 1
+   Global start=0x00000a44 end=0x00000a52 (size=0x0000000e) count: 2
+   Export start=0x00000a54 end=0x00000acf (size=0x0000007b) count: 21
+     Elem start=0x00000ad2 end=0x000013cd (size=0x000008fb) count: 1
+     Code start=0x000013d1 end=0x000d98b4 (size=0x000d84e3) count: 1319
+     Data start=0x000d98b8 end=0x0010438a (size=0x0002aad2) count: 342

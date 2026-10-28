@@ -1,0 +1,4 @@
+#!/bin/zsh
+set -euo pipefail
+root="${0:A:h:h}"
+exec "$root/bin/codex-computer-use-mcp" "$@"

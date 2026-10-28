@@ -1,0 +1,30 @@
+{
+  "version": 3,
+  "file": "browser-service.mjs.31601.q5.js",
+  "names": [
+    "focusedFrameElementInRoot",
+    "root",
+    "active",
+    "activeElement",
+    "activeWindow",
+    "ownerDocument",
+    "defaultView",
+    "window",
+    "HTMLElement",
+    "shadowRoot",
+    "HTMLIFrameElement",
+    "HTMLFrameElement",
+    "frameDocument",
+    "contentDocument",
+    "contentWindow",
+    "document"
+  ],
+  "sources": [
+    "browser-service.mjs.31601.q5.decoded.js"
+  ],
+  "sourcesContent": [
+    "(() => {\n  const focusedFrameElementInRoot = (root) => {\n    const active = root.activeElement;\n    if (active == null) return null;\n    const activeWindow = active.ownerDocument.defaultView ?? window;\n    if (active instanceof activeWindow.HTMLElement && active.shadowRoot != null)\n      return focusedFrameElementInRoot(active.shadowRoot);\n    if (\n      active instanceof activeWindow.HTMLIFrameElement ||\n      active instanceof activeWindow.HTMLFrameElement\n    ) {\n      try {\n        const frameDocument =\n          active.contentDocument ?? active.contentWindow?.document ?? null;\n        if (frameDocument != null)\n          return focusedFrameElementInRoot(frameDocument);\n      } catch {}\n      return active;\n    }\n    return null;\n  };\n  return focusedFrameElementInRoot(document);\n})()"
+  ],
+  "mappings": ";AAAA,CAAC,MAAM;EACL,MAAMA,yBAAyB,GAAIC,IAAI,IAAK;IAC1C,MAAMC,MAAM,GAAGD,IAAI,CAACE,aAAa;IACjC,IAAID,MAAM,IAAI,IAAI,EAAE,OAAO,IAAI;IAC/B,MAAME,YAAY,GAAGF,MAAM,CAACG,aAAa,CAACC,WAAW,IAAIC,MAAM;IAC/D,IAAIL,MAAM,YAAYE,YAAY,CAACI,WAAW,IAAIN,MAAM,CAACO,UAAU,IAAI,IAAI,EACzE,OAAOT,yBAAyB,CAACE,MAAM,CAACO,UAAU,CAAC;IACrD,IACEP,MAAM,YAAYE,YAAY,CAACM,iBAAiB,IAChDR,MAAM,YAAYE,YAAY,CAACO,gBAAgB,EAC/C;MACA,IAAI;QACF,MAAMC,aAAa,GACjBV,MAAM,CAACW,eAAe,IAAIX,MAAM,CAACY,aAAa,EAAEC,QAAQ,IAAI,IAAI;QAClE,IAAIH,aAAa,IAAI,IAAI,EACvB,OAAOZ,yBAAyB,CAACY,aAAa,CAAC;MACnD,CAAC,CAAC,MAAM,CAAC;MACT,OAAOV,MAAM;IACf;IACA,OAAO,IAAI;EACb,CAAC;EACD,OAAOF,yBAAyB,CAACe,QAAQ,CAAC;AAC5C,CAAC,EAAE,CAAC",
+  "ignoreList": []
+}

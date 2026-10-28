@@ -1,0 +1,22 @@
+{
+  "passed": true,
+  "recordedAt": "2026-10-28T05:49:48.423Z",
+  "durationMs": 1827,
+  "checks": [
+    "MCP handshake and four tool definitions",
+    "computer-use MCP prompt",
+    "runtime backend: standalone",
+    "native service app inventory (21 apps)",
+    "Finder numbered accessibility tree",
+    "persistent JavaScript bindings",
+    "error result and retained session",
+    "app screenshot (32318 bytes)",
+    "reset clears persistent bindings",
+    "invalid actions rejected before interaction"
+  ],
+  "server": {
+    "name": "codex-computer-use",
+    "version": "0.2.0"
+  },
+  "stderr": "{\"operation\":\"exec_result\",\"error\":\"intentional-verification-error\"}\n"
+}

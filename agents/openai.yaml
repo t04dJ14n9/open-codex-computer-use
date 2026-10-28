@@ -1,0 +1,4 @@
+interface:
+  display_name: "Open Codex Computer Use"
+  short_description: "Operate macOS apps with a bundled MCP and CLI"
+  default_prompt: "Use $open-codex-computer-use to inspect and operate the requested macOS app."

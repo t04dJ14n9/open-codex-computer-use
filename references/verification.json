@@ -1,0 +1,92 @@
+{
+  "passed": true,
+  "recordedAt": "2026-10-28T05:49:18.714Z",
+  "fullUiRetestPassed": true,
+  "client": "Claude Code",
+  "clientVersion": "2.1.299",
+  "skill": "open-codex-computer-use",
+  "backend": "standalone",
+  "launcher": "scripts/computer-use",
+  "checks": [
+    "full-folder skill discovered and read",
+    "packaged MCP connected",
+    "fresh fixture began Ready",
+    "input replaced and Verify clicked",
+    "fresh AX status contains exact marker",
+    "fixture independently wrote exact marker",
+    "Claude received full-window PNG",
+    "no permission denials or unrelated tool use"
+  ],
+  "marker": "skill-cua-verified-20261028",
+  "toolCalls": [
+    {
+      "name": "Skill",
+      "input": {
+        "skill": "open-codex-computer-use"
+      }
+    },
+    {
+      "name": "mcp__codex-computer-use__computer",
+      "input": {
+        "action": "get_app_state",
+        "app": "local.codex.cua.verification"
+      }
+    },
+    {
+      "name": "mcp__codex-computer-use__computer",
+      "input": {
+        "action": "click",
+        "app": "local.codex.cua.verification",
+        "element_index": 2
+      }
+    },
+    {
+      "name": "mcp__codex-computer-use__computer",
+      "input": {
+        "action": "press_key",
+        "app": "local.codex.cua.verification",
+        "key": "Super_L+a"
+      }
+    },
+    {
+      "name": "mcp__codex-computer-use__computer",
+      "input": {
+        "action": "type_text",
+        "app": "local.codex.cua.verification",
+        "text": "skill-cua-verified-20261028"
+      }
+    },
+    {
+      "name": "mcp__codex-computer-use__computer",
+      "input": {
+        "action": "click",
+        "app": "local.codex.cua.verification",
+        "element_index": 3
+      }
+    },
+    {
+      "name": "mcp__codex-computer-use__computer",
+      "input": {
+        "action": "get_app_state",
+        "app": "local.codex.cua.verification",
+        "disableDiff": true
+      }
+    },
+    {
+      "name": "mcp__codex-computer-use__computer",
+      "input": {
+        "action": "screenshot",
+        "app": "local.codex.cua.verification"
+      }
+    }
+  ],
+  "screenshot": {
+    "path": "verified-skill-window.png",
+    "width": 520,
+    "height": 272,
+    "bytes": 32334,
+    "sha256": "386a4e978e76eb72af7d519939fe8f4762106ca1215de2f824d49520237ea7f2"
+  },
+  "result": "The verification worked. The status changed from `Ready` to `Verified: skill-cua-verified-20261028`.\n\n- **Starting status:** `Ready`.\n- **Steps:** I clicked the input and pressed `Super_L+a`. I then typed `skill-cua-verified-20261028` with `type_text` and clicked Verify.\n- **Final status:** `Verified: skill-cua-verified-20261028`. The fresh accessibility state and the screenshot both show it, and the input field holds the same text.\n\nI only touched the CUA Verification app. I used no shell tools and changed no documents.",
+  "limitations": "Finite scratch-window test, not original native-source equivalence or full parity."
+}

@@ -1,0 +1,70 @@
+{
+  "containing_snapshot_file": "browser-desktop/scripts/browser-service.mjs",
+  "shipped_literal_identifier": "hF",
+  "descriptive_label": "PlaywrightInjected",
+  "representation": "JavaScript string literal, escape-decoded by Babel parser",
+  "literal_source_range": {
+    "utf16": {
+      "start": 2151186,
+      "end": 2306106,
+      "end_exclusive": true
+    },
+    "bytes": {
+      "start": 2151190,
+      "end": 2306110,
+      "end_exclusive": true
+    },
+    "line_column": {
+      "start": {
+        "line": 61114,
+        "column": 2
+      },
+      "end": {
+        "line": 61114,
+        "column": 154922
+      },
+      "line_base": 1,
+      "column_base": 0
+    }
+  },
+  "literal_sha256": "3b46dd5fd73e4f7040951491f5ef90da30d01501f50c0d746a6436770b186783",
+  "decoded": {
+    "path": "embedded/browser-service.mjs.61114.PlaywrightInjected.decoded.js",
+    "bytes": 154469,
+    "sha256": "7970824c76e6bb9f77ad7617e2f3f86d9704bdcd4c2218c7a7bdf5f6a9499d23"
+  },
+  "expression_wrapper": null,
+  "derived": {
+    "file": {
+      "path": "embedded/browser-service.mjs.61114.PlaywrightInjected.js",
+      "bytes": 233031,
+      "sha256": "6ce28f269f49581ecd91c27ed72aec47c3fda1a1156a0eb972512bc24f86263c"
+    },
+    "map": {
+      "path": "embedded/browser-service.mjs.61114.PlaywrightInjected.js.map",
+      "bytes": 494645,
+      "sha256": "5b54e13dbe02875f54f1c95db4f4ecb58748022aff3d53356e0a989a52ce2e1a"
+    },
+    "ast_round_trip": "passed",
+    "normalized_ast_sha256": "cc6b952a2e4fd2720480c1badd22c7d16cf0718e8426e30f2de93da5cb861dd1",
+    "source_map_check": {
+      "checked_statement_positions": 1,
+      "sources_content_sha256": "7970824c76e6bb9f77ad7617e2f3f86d9704bdcd4c2218c7a7bdf5f6a9499d23",
+      "maps_to": "browser-service.mjs.61114.PlaywrightInjected.decoded.js",
+      "recovered_pre_minification_source": false
+    },
+    "syntax_check": {
+      "command": "/opt/homebrew/Cellar/node/26.5.0/bin/node --check scripts/codex-computer-use-source/readable-browser/embedded/browser-service.mjs.61114.PlaywrightInjected.js",
+      "exit_code": 0,
+      "executed_target": false
+    }
+  },
+  "transformations": {
+    "boolean_literals_expanded": 342,
+    "declarations_split": 169,
+    "sequence_statements_split": 132,
+    "explicit_if_blocks_added_for_generator": 6
+  },
+  "source_map_boundary": "Map addresses decoded literal text; literal_source_range links that text to shipped carrier bytes.",
+  "original_module_boundaries_recovered": false
+}

@@ -1,0 +1,70 @@
+{
+  "containing_snapshot_file": "browser-desktop/scripts/browser-service.mjs",
+  "shipped_literal_identifier": "jme",
+  "descriptive_label": "n",
+  "representation": "Base64 decoded from a JavaScript string literal",
+  "literal_source_range": {
+    "utf16": {
+      "start": 2807896,
+      "end": 2812134,
+      "end_exclusive": true
+    },
+    "bytes": {
+      "start": 2807900,
+      "end": 2812138,
+      "end_exclusive": true
+    },
+    "line_column": {
+      "start": {
+        "line": 79094,
+        "column": 2
+      },
+      "end": {
+        "line": 79094,
+        "column": 4240
+      },
+      "line_base": 1,
+      "column_base": 0
+    }
+  },
+  "literal_sha256": "86b95dd7833e1f9ac5796fed08bd7a92861f252b57eae1458c0a1e637929b891",
+  "decoded": {
+    "path": "embedded/browser-service.mjs.79094.n.decoded.mjs",
+    "bytes": 3176,
+    "sha256": "7c17a7d7f312bc5be8dc5ec2dec8a2f090696a463de08ceb4d3685de3532a43f"
+  },
+  "expression_wrapper": null,
+  "derived": {
+    "file": {
+      "path": "embedded/browser-service.mjs.79094.n.mjs",
+      "bytes": 4577,
+      "sha256": "69a5c7d7d05f420ba8f76e1ad319c6266acdcd88ec27cde6df960fea5c393acb"
+    },
+    "map": {
+      "path": "embedded/browser-service.mjs.79094.n.mjs.map",
+      "bytes": 10727,
+      "sha256": "9f75f824c054f0da4db6978e738c703b9d8ba39fa210de822af8c9cee7de3304"
+    },
+    "ast_round_trip": "passed",
+    "normalized_ast_sha256": "1a100371d1aa8ae7e4b6a6d30897dae336664085e2557ef384c000bf78241e3b",
+    "source_map_check": {
+      "checked_statement_positions": 14,
+      "sources_content_sha256": "7c17a7d7f312bc5be8dc5ec2dec8a2f090696a463de08ceb4d3685de3532a43f",
+      "maps_to": "browser-service.mjs.79094.n.decoded.mjs",
+      "recovered_pre_minification_source": false
+    },
+    "syntax_check": {
+      "command": "/opt/homebrew/Cellar/node/26.5.0/bin/node --check scripts/codex-computer-use-source/readable-browser/embedded/browser-service.mjs.79094.n.mjs",
+      "exit_code": 0,
+      "executed_target": false
+    }
+  },
+  "transformations": {
+    "boolean_literals_expanded": 8,
+    "declarations_split": 5,
+    "sequence_statements_split": 9,
+    "explicit_if_blocks_added_for_generator": 0
+  },
+  "source_map_boundary": "Map addresses decoded literal text; literal_source_range links that text to shipped carrier bytes.",
+  "original_module_boundaries_recovered": false
+}

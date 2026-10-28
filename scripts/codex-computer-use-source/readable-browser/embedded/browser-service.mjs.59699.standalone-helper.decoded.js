@@ -1,0 +1,1 @@
+(() => { const body = document.body; return { readyState: document.readyState, elementCount: body?.querySelectorAll('*').length ?? 0, textLength: body?.innerText?.length ?? 0 }; })()

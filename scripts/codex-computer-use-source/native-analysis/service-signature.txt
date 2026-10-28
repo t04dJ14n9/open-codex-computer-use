@@ -1,0 +1,23 @@
+Executable=${CODEX_HOME}/computer-use/Codex Computer Use.app/Contents/MacOS/SkyComputerUseService
+Identifier=com.openai.sky.CUAService
+Format=app bundle with Mach-O thin (arm64)
+CodeDirectory v=20500 size=194949 flags=0x10000(runtime) hashes=6081+7 location=embedded
+Hash type=sha256 size=32
+CandidateCDHash sha256=d8ca2c1ded1fc0672b9dbc27f7d24c0d14d042d5
+CandidateCDHashFull sha256=d8ca2c1ded1fc0672b9dbc27f7d24c0d14d042d570b3dc00604e8648357572ec
+Hash choices=sha256
+CMSDigest=d8ca2c1ded1fc0672b9dbc27f7d24c0d14d042d570b3dc00604e8648357572ec
+CMSDigestType=2
+CDHash=d8ca2c1ded1fc0672b9dbc27f7d24c0d14d042d5
+Signature size=9048
+Authority=Developer ID Application: OpenAI OpCo, LLC (2DC432GLL2)
+Authority=Developer ID Certification Authority
+Authority=Apple Root CA
+Timestamp=22 Oct 2026 at 23:48:21
+Info.plist entries=33
+TeamIdentifier=2DC432GLL2
+Runtime Version=26.1.0
+Sealed Resources version=2 rules=13 files=163
+Internal requirements count=1 size=188
+Total signatures=1
+Chosen signature=1

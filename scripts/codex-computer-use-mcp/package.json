@@ -1,0 +1,26 @@
+{
+  "name": "codex-computer-use-mac",
+  "version": "0.2.0",
+  "private": true,
+  "type": "module",
+  "description": "Source-backed macOS computer-use MCP and CLI for Claude Code",
+  "engines": { "node": ">=24.11.0" },
+  "bin": {
+    "codex-computer-use": "bin/codex-computer-use",
+    "codex-computer-use-mcp": "bin/codex-computer-use-mcp"
+  },
+  "scripts": {
+    "start": "./bin/codex-computer-use-mcp",
+    "test": "./bin/codex-computer-use test/protocol.mjs",
+    "test:actions": "./bin/codex-computer-use test/actions.mjs",
+    "recover": "node scripts/snapshot-runtime.mjs",
+    "build:native": "node scripts/build-native.mjs",
+    "package": "node scripts/package.mjs",
+    "install-claude": "./install.sh"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/server": "2.3.1",
+    "@modelcontextprotocol/client": "2.3.1",
+    "zod": "4.4.3"
+  }
+}

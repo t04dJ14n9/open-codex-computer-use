@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 1,
+  "backend": "standalone",
+  "builtAt": "2026-10-28T05:09:38.435Z",
+  "bundleIdentifier": "local.codex.computer-use.standalone",
+  "appPath": "build/Codex Computer Use Standalone.app",
+  "executablePath": "build/Codex Computer Use Standalone.app/Contents/MacOS/ComputerUse",
+  "sourcePath": "native/ComputerUse.swift",
+  "infoPlistPath": "native/Info.plist",
+  "architecture": "arm64",
+  "target": "arm64-apple-macosx14.0",
+  "minimumSystemVersion": "14.0",
+  "swiftVersion": "5",
+  "compilerVersion": "Apple Swift version 6.4 (swiftlang-6.4.0.34.1 clang-2100.3.34.1)\nTarget: arm64-apple-macosx27.0.0",
+  "signing": {
+    "identity": "ad-hoc",
+    "designatedRequirement": "designated => identifier \"local.codex.computer-use.standalone\"",
+    "details": "designated => identifier \"local.codex.computer-use.standalone\"\nExecutable=build/${BUILD_DIR}/Codex Computer Use Standalone.app/Contents/MacOS/ComputerUse\nIdentifier=local.codex.computer-use.standalone\nFormat=app bundle with Mach-O thin (arm64)\nCodeDirectory v=20400 size=636 flags=0x2(adhoc) hashes=13+3 location=embedded\nSignature=adhoc\nInfo.plist entries=15\nTeamIdentifier=not set\nSealed Resources version=2 rules=13 files=0\nTotal signatures=1\nChosen signature=1"
+  },
+  "sha256": {
+    "source": "78eabea7d0023cd424929a8f513700efbb61210fd08fc9fdb11547b58ed68679",
+    "infoPlist": "64e07990e64983e6f1cb3f7ee59df9e7f6a845979ad0bd22b70fe78880e3b6d2",
+    "executable": "901b76e95abcdc2b64af37d85afe3148a924544be99a5d3d526c677a0b43e187"
+  },
+  "buildCommand": {
+    "executable": "/usr/bin/xcrun",
+    "arguments": [
+      "swiftc",
+      "-O",
+      "-swift-version",
+      "5",
+      "-target",
+      "arm64-apple-macosx14.0",
+      "-sdk",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk",
+      "-module-cache-path",
+      "${BUILD_DIR}/module-cache",
+      "-framework",
+      "Foundation",
+      "-framework",
+      "AppKit",
+      "-framework",
+      "ApplicationServices",
+      "-framework",
+      "ScreenCaptureKit",
+      "native/ComputerUse.swift",
+      "-o",
+      "${BUILD_DIR}/Codex Computer Use Standalone.app/Contents/MacOS/ComputerUse"
+    ]
+  }
+}

@@ -1,0 +1,418 @@
+{
+  "original": {
+    "path": "browser-desktop/scripts/browser-accessibility.wasm.br",
+    "bytes": 4084148,
+    "sha256": "97d2773f1f0d3f890e2dc8bbf7da5745cfb9c2686d893579ffc35bb9608185ee"
+  },
+  "preserved_copy": {
+    "path": "wasm/original/browser-accessibility.wasm.br",
+    "bytes": 4084148,
+    "sha256": "97d2773f1f0d3f890e2dc8bbf7da5745cfb9c2686d893579ffc35bb9608185ee"
+  },
+  "original_copy_byte_identical": true,
+  "decoding": "Node.js Brotli decompression; no recompression or original modification",
+  "decoded": {
+    "path": "wasm/browser-accessibility.wasm",
+    "bytes": 20208690,
+    "sha256": "489ab336ff6956ff66af93ad997e75f3d29fad395bc06e10afb1d68c60fec346"
+  },
+  "header_hex": "0061736d01000000",
+  "sections": [
+    {
+      "id": 1,
+      "kind": "Type",
+      "custom_name": null,
+      "header_offset": 8,
+      "payload_start": 11,
+      "payload_end": 5843,
+      "payload_bytes": 5832
+    },
+    {
+      "id": 2,
+      "kind": "Import",
+      "custom_name": null,
+      "header_offset": 5843,
+      "payload_start": 5846,
+      "payload_end": 7178,
+      "payload_bytes": 1332
+    },
+    {
+      "id": 3,
+      "kind": "Function",
+      "custom_name": null,
+      "header_offset": 7178,
+      "payload_start": 7182,
+      "payload_end": 89954,
+      "payload_bytes": 82772
+    },
+    {
+      "id": 4,
+      "kind": "Table",
+      "custom_name": null,
+      "header_offset": 89954,
+      "payload_start": 89956,
+      "payload_end": 89965,
+      "payload_bytes": 9
+    },
+    {
+      "id": 5,
+      "kind": "Memory",
+      "custom_name": null,
+      "header_offset": 89965,
+      "payload_start": 89967,
+      "payload_end": 89971,
+      "payload_bytes": 4
+    },
+    {
+      "id": 6,
+      "kind": "Global",
+      "custom_name": null,
+      "header_offset": 89971,
+      "payload_start": 89975,
+      "payload_end": 129300,
+      "payload_bytes": 39325
+    },
+    {
+      "id": 7,
+      "kind": "Export",
+      "custom_name": null,
+      "header_offset": 129300,
+      "payload_start": 129303,
+      "payload_end": 129756,
+      "payload_bytes": 453
+    },
+    {
+      "id": 9,
+      "kind": "Element",
+      "custom_name": null,
+      "header_offset": 129756,
+      "payload_start": 129760,
+      "payload_end": 251874,
+      "payload_bytes": 122114
+    },
+    {
+      "id": 10,
+      "kind": "Code",
+      "custom_name": null,
+      "header_offset": 251874,
+      "payload_start": 251879,
+      "payload_end": 16313375,
+      "payload_bytes": 16061496
+    },
+    {
+      "id": 11,
+      "kind": "Data",
+      "custom_name": null,
+      "header_offset": 16313375,
+      "payload_start": 16313380,
+      "payload_end": 20123966,
+      "payload_bytes": 3810586
+    },
+    {
+      "id": 0,
+      "kind": "Custom",
+      "custom_name": ".swift1_autolink_entries",
+      "header_offset": 20123966,
+      "payload_start": 20123970,
+      "payload_end": 20208539,
+      "payload_bytes": 84569
+    },
+    {
+      "id": 0,
+      "kind": "Custom",
+      "custom_name": "target_features",
+      "header_offset": 20208539,
+      "payload_start": 20208542,
+      "payload_end": 20208690,
+      "payload_bytes": 148
+    }
+  ],
+  "tooling": {
+    "package": "wabt",
+    "version": "1.0.39",
+    "features": {
+      "exceptions": true,
+      "mutable_globals": true,
+      "sat_float_to_int": true,
+      "sign_extension": true,
+      "simd": true,
+      "threads": true,
+      "function_references": true,
+      "multi_value": true,
+      "tail_call": true,
+      "bulk_memory": true,
+      "reference_types": true,
+      "annotations": true,
+      "code_metadata": true,
+      "gc": true,
+      "memory64": true,
+      "extended_const": true,
+      "relaxed_simd": true
+    }
+  },
+  "runtime_execution": false,
+  "original_high_level_source_recovered": false,
+  "unknowns": [
+    "WAT is a disassembly of compiled WASM, not original Rust/C/C++/TypeScript source.",
+    "Only retained WASM custom names and export/import strings can be recovered; absent identifiers stay unknown.",
+    "WABT JavaScript wat2wasm reassembly failed with a toolkit memory-access error; binary validation and WABT disassembly succeeded."
+  ],
+  "wat": {
+    "path": "wasm/browser-accessibility.wat",
+    "bytes": 202768105,
+    "sha256": "0c3a0d52906550f80f6fa8157ab057cfad5eee5fe809d7b93b5403bf3b794d8a"
+  },
+  "wat_representation": "WABT decoded text with retained debug names; generateNames() is not called",
+  "validation": "passed",
+  "interface": {
+    "extractor": "Node.js v26.5.0 WebAssembly.Module static metadata; compiled but not instantiated",
+    "imports": [
+      {
+        "module": "wasi_snapshot_preview1",
+        "name": "args_get",
+        "kind": "function"
+      },
+      {
+        "module": "wasi_snapshot_preview1",
+        "name": "args_sizes_get",
+        "kind": "function"
+      },
+      {
+        "module": "wasi_snapshot_preview1",
+        "name": "environ_get",
+        "kind": "function"
+      },
+      {
+        "module": "wasi_snapshot_preview1",
+        "name": "environ_sizes_get",
+        "kind": "function"
+      },
+      {
+        "module": "wasi_snapshot_preview1",
+        "name": "clock_res_get",
+        "kind": "function"
+      },
+      {
+        "module": "wasi_snapshot_preview1",
+        "name": "clock_time_get",
+        "kind": "function"
+      },
+      {
+        "module": "wasi_snapshot_preview1",
+        "name": "fd_close",
+        "kind": "function"
+      },
+      {
+        "module": "wasi_snapshot_preview1",
+        "name": "fd_fdstat_get",
+        "kind": "function"
+      },
+      {
+        "module": "wasi_snapshot_preview1",
+        "name": "fd_fdstat_set_flags",
+        "kind": "function"
+      },
+      {
+        "module": "wasi_snapshot_preview1",
+        "name": "fd_filestat_get",
+        "kind": "function"
+      },
+      {
+        "module": "wasi_snapshot_preview1",
+        "name": "fd_filestat_set_size",
+        "kind": "function"
+      },
+      {
+        "module": "wasi_snapshot_preview1",
+        "name": "fd_filestat_set_times",
+        "kind": "function"
+      },
+      {
+        "module": "wasi_snapshot_preview1",
+        "name": "fd_pread",
+        "kind": "function"
+      },
+      {
+        "module": "wasi_snapshot_preview1",
+        "name": "fd_prestat_get",
+        "kind": "function"
+      },
+      {
+        "module": "wasi_snapshot_preview1",
+        "name": "fd_prestat_dir_name",
+        "kind": "function"
+      },
+      {
+        "module": "wasi_snapshot_preview1",
+        "name": "fd_read",
+        "kind": "function"
+      },
+      {
+        "module": "wasi_snapshot_preview1",
+        "name": "fd_readdir",
+        "kind": "function"
+      },
+      {
+        "module": "wasi_snapshot_preview1",
+        "name": "fd_seek",
+        "kind": "function"
+      },
+      {
+        "module": "wasi_snapshot_preview1",
+        "name": "fd_sync",
+        "kind": "function"
+      },
+      {
+        "module": "wasi_snapshot_preview1",
+        "name": "fd_tell",
+        "kind": "function"
+      },
+      {
+        "module": "wasi_snapshot_preview1",
+        "name": "fd_write",
+        "kind": "function"
+      },
+      {
+        "module": "wasi_snapshot_preview1",
+        "name": "path_create_directory",
+        "kind": "function"
+      },
+      {
+        "module": "wasi_snapshot_preview1",
+        "name": "path_filestat_get",
+        "kind": "function"
+      },
+      {
+        "module": "wasi_snapshot_preview1",
+        "name": "path_filestat_set_times",
+        "kind": "function"
+      },
+      {
+        "module": "wasi_snapshot_preview1",
+        "name": "path_link",
+        "kind": "function"
+      },
+      {
+        "module": "wasi_snapshot_preview1",
+        "name": "path_open",
+        "kind": "function"
+      },
+      {
+        "module": "wasi_snapshot_preview1",
+        "name": "path_readlink",
+        "kind": "function"
+      },
+      {
+        "module": "wasi_snapshot_preview1",
+        "name": "path_remove_directory",
+        "kind": "function"
+      },
+      {
+        "module": "wasi_snapshot_preview1",
+        "name": "path_rename",
+        "kind": "function"
+      },
+      {
+        "module": "wasi_snapshot_preview1",
+        "name": "path_symlink",
+        "kind": "function"
+      },
+      {
+        "module": "wasi_snapshot_preview1",
+        "name": "path_unlink_file",
+        "kind": "function"
+      },
+      {
+        "module": "wasi_snapshot_preview1",
+        "name": "poll_oneoff",
+        "kind": "function"
+      },
+      {
+        "module": "wasi_snapshot_preview1",
+        "name": "proc_exit",
+        "kind": "function"
+      },
+      {
+        "module": "wasi_snapshot_preview1",
+        "name": "random_get",
+        "kind": "function"
+      }
+    ],
+    "exports": [
+      {
+        "name": "memory",
+        "kind": "memory"
+      },
+      {
+        "name": "_initialize",
+        "kind": "function"
+      },
+      {
+        "name": "computer_use_browser_wasm_allocate",
+        "kind": "function"
+      },
+      {
+        "name": "computer_use_browser_wasm_deallocate",
+        "kind": "function"
+      },
+      {
+        "name": "computer_use_browser_wasm_revision_create",
+        "kind": "function"
+      },
+      {
+        "name": "computer_use_browser_wasm_revision_release",
+        "kind": "function"
+      },
+      {
+        "name": "computer_use_browser_wasm_revision_text_length",
+        "kind": "function"
+      },
+      {
+        "name": "computer_use_browser_wasm_revision_copy_text",
+        "kind": "function"
+      },
+      {
+        "name": "computer_use_browser_wasm_revision_identity_length",
+        "kind": "function"
+      },
+      {
+        "name": "computer_use_browser_wasm_revision_copy_identity",
+        "kind": "function"
+      },
+      {
+        "name": "computer_use_browser_wasm_revision_is_value_settable",
+        "kind": "function"
+      }
+    ]
+  },
+  "headers": {
+    "path": "wasm/browser-accessibility.wasm.headers.txt",
+    "bytes": 933,
+    "sha256": "7f3e0fa58ee18eb43d2c7f02c47d81517304b277ab7becd463e14915701b4f92"
+  },
+  "wat_round_trip": {
+    "command": [
+      "/opt/homebrew/Cellar/node/26.5.0/bin/node",
+      "${WORK_DIR}/browser-recovery/node_modules/wabt/bin/wat2wasm",
+      "--enable-all",
+      "scripts/codex-computer-use-source/readable-browser/wasm/browser-accessibility.wat",
+      "-o",
+      "${WORK_DIR}/browser-recovery/browser-accessibility.wasm.wat-roundtrip.wasm"
+    ],
+    "timeout_ms": 45000,
+    "validated": false,
+    "exit_code": 1,
+    "signal": null,
+    "error": null,
+    "stderr": "wasm://wasm/00221aa2:1\n\n\nRuntimeError: memory access out of bounds\n    at wasm://wasm/00221aa2:wasm-function[245]:0x21d74\n    at wasm://wasm/00221aa2:wasm-function[17]:0x170a\n    at wasm://wasm/00221aa2:wasm-function[165]:0xdc01\n    at wasm://wasm/00221aa2:wasm-function[164]:0xd80f\n    at wasm://wasm/00221aa2:wasm-function[165]:0xdc95\n    at wasm://wasm/00221aa2:wasm-function[164]:0xd80f\n    at wasm://wasm/00221aa2:wasm-function[165]:0xdc95\n    at wasm://wasm/00221aa2:wasm-function[164]:0xd80f\n    at wasm://wasm/00221aa2:wasm-function[165]:0xdc95\n    at wasm://wasm/00221aa2:wasm-function[164]:0xd80f\n\nNode.js v26.5.0\n",
+    "algorithm": "Compare exact original core section payloads with WABT wat2wasm output; debug/custom sections are excluded.",
+    "previous_in_process_check": "Interrupted after more than eight minutes; no final result was produced by the unbounded JS reserialization check.",
+    "canonical_module_byte_identical": null
+  },
+  "installed_origin": {
+    "path": "@oai/browser-desktop/scripts/browser-accessibility.wasm.br",
+    "bytes": 4084148,
+    "sha256": "97d2773f1f0d3f890e2dc8bbf7da5745cfb9c2686d893579ffc35bb9608185ee"
+  },
+  "original_matches_installed": true
+}

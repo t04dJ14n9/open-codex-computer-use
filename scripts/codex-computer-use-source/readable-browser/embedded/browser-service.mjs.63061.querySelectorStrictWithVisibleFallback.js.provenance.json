@@ -1,0 +1,70 @@
+{
+  "containing_snapshot_file": "browser-desktop/scripts/browser-service.mjs",
+  "shipped_literal_identifier": "al",
+  "descriptive_label": "querySelectorStrictWithVisibleFallback",
+  "representation": "Static JavaScript template literal, cooked value from Babel parser",
+  "literal_source_range": {
+    "utf16": {
+      "start": 2370780,
+      "end": 2371552,
+      "end_exclusive": true
+    },
+    "bytes": {
+      "start": 2370784,
+      "end": 2371556,
+      "end_exclusive": true
+    },
+    "line_column": {
+      "start": {
+        "line": 63061,
+        "column": 9
+      },
+      "end": {
+        "line": 63084,
+        "column": 1
+      },
+      "line_base": 1,
+      "column_base": 0
+    }
+  },
+  "literal_sha256": "84e902bf0a65a2df1b343965e2f97f485a033c9176f3a950c4265f07ff4a84bc",
+  "decoded": {
+    "path": "embedded/browser-service.mjs.63061.querySelectorStrictWithVisibleFallback.decoded.js",
+    "bytes": 770,
+    "sha256": "757e9f40e72c0c82f0c9d7c60468ecb192757e2d1000ab5fe19f4d503b77cd52"
+  },
+  "expression_wrapper": null,
+  "derived": {
+    "file": {
+      "path": "embedded/browser-service.mjs.63061.querySelectorStrictWithVisibleFallback.js",
+      "bytes": 975,
+      "sha256": "99b72106b3251bf1a3dd1ccfd15fe00d686c2b2039243291bbf156ef4b174282"
+    },
+    "map": {
+      "path": "embedded/browser-service.mjs.63061.querySelectorStrictWithVisibleFallback.js.map",
+      "bytes": 2167,
+      "sha256": "66dbd0d3a2c2373a7d8b5529e89a6c21417dca8bc9955e773c622848914ae88f"
+    },
+    "ast_round_trip": "passed",
+    "normalized_ast_sha256": "95c36c0ac9c0d7bc2e2d06254a5cc488e07b9c285b81cb6b69f9f410033a72ca",
+    "source_map_check": {
+      "checked_statement_positions": 1,
+      "sources_content_sha256": "757e9f40e72c0c82f0c9d7c60468ecb192757e2d1000ab5fe19f4d503b77cd52",
+      "maps_to": "browser-service.mjs.63061.querySelectorStrictWithVisibleFallback.decoded.js",
+      "recovered_pre_minification_source": false
+    },
+    "syntax_check": {
+      "command": "/opt/homebrew/Cellar/node/26.5.0/bin/node --check scripts/codex-computer-use-source/readable-browser/embedded/browser-service.mjs.63061.querySelectorStrictWithVisibleFallback.js",
+      "exit_code": 0,
+      "executed_target": false
+    }
+  },
+  "transformations": {
+    "boolean_literals_expanded": 0,
+    "declarations_split": 0,
+    "sequence_statements_split": 0,
+    "explicit_if_blocks_added_for_generator": 0
+  },
+  "source_map_boundary": "Map addresses decoded literal text; literal_source_range links that text to shipped carrier bytes.",
+  "original_module_boundaries_recovered": false
+}

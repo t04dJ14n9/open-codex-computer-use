@@ -1,0 +1,79 @@
+{
+  "containing_snapshot_file": "browser-desktop/scripts/browser-service.mjs",
+  "shipped_literal_identifier": "functionDeclaration",
+  "descriptive_label": "functionDeclaration",
+  "representation": "Static JavaScript template literal, cooked value from Babel parser",
+  "literal_source_range": {
+    "utf16": {
+      "start": 2341035,
+      "end": 2341207,
+      "end_exclusive": true
+    },
+    "bytes": {
+      "start": 2341039,
+      "end": 2341211,
+      "end_exclusive": true
+    },
+    "line_column": {
+      "start": {
+        "line": 62151,
+        "column": 33
+      },
+      "end": {
+        "line": 62157,
+        "column": 10
+      },
+      "line_base": 1,
+      "column_base": 0
+    }
+  },
+  "literal_sha256": "e3e01b5de6c76d65b857164a5fc9d82500d991e5654b1a13b7fce0232c662cb6",
+  "decoded": {
+    "path": "embedded/browser-service.mjs.62151.functionDeclaration.decoded.js",
+    "bytes": 170,
+    "sha256": "4e10698be0574f372a3ebfbd6bf6b18ce35c2ccaf476a8e1dadcc0b96f42d919"
+  },
+  "expression_wrapper": {
+    "file": {
+      "path": "embedded/browser-service.mjs.62151.functionDeclaration.expression-view.js",
+      "bytes": 175,
+      "sha256": "30940deb6743cb13d1115543caf422d9ebeb14e42131d4530a46929486f1037d"
+    },
+    "prefix": "(",
+    "suffix": "\\n);\\n",
+    "reason": "Anonymous function text is an expression, not a standalone declaration."
+  },
+  "derived": {
+    "file": {
+      "path": "embedded/browser-service.mjs.62151.functionDeclaration.js",
+      "bytes": 319,
+      "sha256": "6cc99ee6e5196a424f222f04dd19de1531f866729ba0c59f0e7a3795179e5e09"
+    },
+    "map": {
+      "path": "embedded/browser-service.mjs.62151.functionDeclaration.js.map",
+      "bytes": 638,
+      "sha256": "dad272fa2a1a186628b587faf9ed2a3b5fab76c9da24193148c25bce6a0dd83a"
+    },
+    "ast_round_trip": "passed",
+    "normalized_ast_sha256": "b39f92c0629abcf6e4b8fff465e9c4323b3ced2bd5a24825de78eebc1b95cec1",
+    "source_map_check": {
+      "checked_statement_positions": 1,
+      "sources_content_sha256": "30940deb6743cb13d1115543caf422d9ebeb14e42131d4530a46929486f1037d",
+      "maps_to": "browser-service.mjs.62151.functionDeclaration.expression-view.js",
+      "recovered_pre_minification_source": false
+    },
+    "syntax_check": {
+      "command": "/opt/homebrew/Cellar/node/26.5.0/bin/node --check scripts/codex-computer-use-source/readable-browser/embedded/browser-service.mjs.62151.functionDeclaration.js",
+      "exit_code": 0,
+      "executed_target": false
+    }
+  },
+  "transformations": {
+    "boolean_literals_expanded": 0,
+    "declarations_split": 0,
+    "sequence_statements_split": 0,
+    "explicit_if_blocks_added_for_generator": 0
+  },
+  "source_map_boundary": "Map addresses decoded literal text; literal_source_range links that text to shipped carrier bytes.",
+  "original_module_boundaries_recovered": false
+}

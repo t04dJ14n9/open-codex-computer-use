@@ -1,0 +1,12 @@
+.DS_Store
+/.local/
+/scripts/codex-computer-use-mcp/node_modules/
+/scripts/codex-computer-use-mcp/installation-backup/
+/scripts/codex-computer-use-mcp/build/.native-build-*/
+*.tmp
+/references/*-smoke.jsonl
+/references/*-ui.jsonl
+/scripts/codex-computer-use-mcp/test/*-final.jsonl
+/scripts/codex-computer-use-mcp/test/*-result.json
+!/scripts/codex-computer-use-mcp/test/protocol-result.json
+!/scripts/codex-computer-use-mcp/test/actions-result.json

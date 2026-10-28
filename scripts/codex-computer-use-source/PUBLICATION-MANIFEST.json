@@ -1,0 +1,244 @@
+{
+  "schemaVersion": 1,
+  "recordedAt": "2026-10-28T06:20:13.531Z",
+  "scope": "Publication metadata and native-analysis records; not original shipped executable/package bytes",
+  "redactions": [
+    "local home/workspace paths replaced by symbolic roots",
+    "local client transcripts omitted",
+    "personal Git authorship removed by a new root commit"
+  ],
+  "evidenceNote": "Native capture text and embedded JSON may have redacted paths. Original ev_* IDs identify the prior capture, not a new cryptographically authenticated redacted record. Published file hashes below verify the redacted files only.",
+  "originalRuntime": "SHIPPED-RUNTIME-MANIFEST.json verifies unchanged original runtime files",
+  "files": [
+    {
+      "path": "../codex-computer-use-mcp/build/native-manifest.json",
+      "bytes": 2219,
+      "sha256": "0a23d359cd722d6504b3e0e5e4902fb4cab09afba1c417a14fc849cdf626040d"
+    },
+    {
+      "path": "README.md",
+      "bytes": 5053,
+      "sha256": "ea85ea089a9ee340861f113ab9e4007ee14b23c937c73c5de2fc2ef425e898e7"
+    },
+    {
+      "path": "RECOVERY-MANIFEST.json",
+      "bytes": 3847348,
+      "sha256": "9b7bb19779ad39c0786c8a04f4b172fd35ec30b58cdb263a3aa7240cd01a50bc"
+    },
+    {
+      "path": "SHIPPED-RUNTIME-MANIFEST.json",
+      "bytes": 605291,
+      "sha256": "c593eaaed26fa16b38fa1d47345f795b04d0875c502bd1930bb11d460d831a20"
+    },
+    {
+      "path": "native-analysis/REPORT.md",
+      "bytes": 6618,
+      "sha256": "01e814dff1ee183f95d315242d6925b27515f60fb519f11d338b30b6d4d4d19b"
+    },
+    {
+      "path": "native-analysis/bundled-node-signature.txt",
+      "bytes": 907,
+      "sha256": "10deac6f363a49934b36481eed9df22f57152e73611796a7436c3d7417b3c4a4"
+    },
+    {
+      "path": "native-analysis/calls/service-auth-pseudocode-attempt.json",
+      "bytes": 3460,
+      "sha256": "7ced4665ea18991e893a26fa6797b37411555f8250b01bb917dd3f6c08ca8974"
+    },
+    {
+      "path": "native-analysis/calls/service-auth-strings-attempt.json",
+      "bytes": 3518,
+      "sha256": "b314a688fa0b7a6d801f7e80a936ffedfccc5cfa1d72779976e3db0d9d801b92"
+    },
+    {
+      "path": "native-analysis/calls/service-copy-auth-search.json",
+      "bytes": 3510,
+      "sha256": "a390b549174ce7c1c8723303f6871a84ff14f4e0b50ace8476791c0f9d6960ca"
+    },
+    {
+      "path": "native-analysis/calls/service-copy-open.json",
+      "bytes": 962,
+      "sha256": "e635fd2aef48e14919a88f4e3418d0fccfcb08021b46397932785fdeb8f24175"
+    },
+    {
+      "path": "native-analysis/calls/service-dispatch-metadata.json",
+      "bytes": 353765,
+      "sha256": "23ebd56f97aa09bf691b8294bed8792ac9838afaef2731264257d3ddd45030fb"
+    },
+    {
+      "path": "native-analysis/calls/service-driver-unused-close.json",
+      "bytes": 408,
+      "sha256": "333889f4800b6dac54baf44fceea3d8668414b3c171b7a96f3dca1403877504e"
+    },
+    {
+      "path": "native-analysis/calls/service-open.json",
+      "bytes": 1068,
+      "sha256": "ef43d2400ad81efa86193915b317d8be23b306e70c93558f8e461f48aad1bd6e"
+    },
+    {
+      "path": "native-analysis/calls/service-sender-authorization-search.json",
+      "bytes": 1004,
+      "sha256": "0f28be4ddbbc88bda0a7a7cc569932be01094374ed09aafee97d0a9e9b7896d5"
+    },
+    {
+      "path": "native-analysis/calls/service-signature-rea.json",
+      "bytes": 9034,
+      "sha256": "9adb1a92c458608ede60005f1e49ea99cdb083bd02c0982b8bbe69fb03484e88"
+    },
+    {
+      "path": "native-analysis/calls/service-static-export.json",
+      "bytes": 681,
+      "sha256": "48546165466c79957b24ff8e33b4b27b71774f88600c753ac8a596c4bb5bdf5a"
+    },
+    {
+      "path": "native-analysis/client-signature.txt",
+      "bytes": 1041,
+      "sha256": "ac8119e14a70d25f13e74aa372123dfc95e7521236ac5f9757b8c148f478c4f4"
+    },
+    {
+      "path": "native-analysis/client-symbols.demangled.txt",
+      "bytes": 10078116,
+      "sha256": "528cc4c5ef403b9f5f09e99280587aaea6e223477f4bf9dfbdab7ae52b71a5b5"
+    },
+    {
+      "path": "native-analysis/client-symbols.raw.txt",
+      "bytes": 8480623,
+      "sha256": "caac9e2f3bd9a61bd497974bb2d15bcf8e39e310512719a557ea28f74dc2ade5"
+    },
+    {
+      "path": "native-analysis/node-repl-signature.txt",
+      "bytes": 916,
+      "sha256": "f8f1cb9cbcbda026124a8001fff9a50d2565996cccf0c4943a46f8ee368edd3e"
+    },
+    {
+      "path": "native-analysis/node-repl-symbols.raw.txt",
+      "bytes": 5416447,
+      "sha256": "4abe2dde662905ef59523730aa76c2b710ad5c34fc1874efb06fd40453b1bff0"
+    },
+    {
+      "path": "native-analysis/rea-service-preflight.json",
+      "bytes": 11453075,
+      "sha256": "14330cbb12abb849ca33ad5469b8688fa8704f59a01013ab189183c2ff632d32"
+    },
+    {
+      "path": "native-analysis/rea-service-static.json",
+      "bytes": 116513,
+      "sha256": "2a1c558d9749c1755adaf5122f0e0597caeb390697ae07337ce8052d6a952b7b"
+    },
+    {
+      "path": "native-analysis/service-auth-admission.asm.txt",
+      "bytes": 20628,
+      "sha256": "d4b9ad40426d77339598bd01aac6394abbd414b17bbf0ef35d9c10428cae91c8"
+    },
+    {
+      "path": "native-analysis/service-auth-default-requirements.asm.txt",
+      "bytes": 9847,
+      "sha256": "3915ee782ab66c1c901bcc9614b60a17cfeb852ba06979c00116381ef804f298"
+    },
+    {
+      "path": "native-analysis/service-auth-initializer.asm.txt",
+      "bytes": 2568,
+      "sha256": "1d3a670da42c75f03b62c321d47155fb97debcdd603733b630269347f479f19b"
+    },
+    {
+      "path": "native-analysis/service-auth-requirement-builder.asm.txt",
+      "bytes": 6256,
+      "sha256": "3564f996a20723de00e55927648d96faf9f1efd4ec17b2dc2e5aafaf465b144a"
+    },
+    {
+      "path": "native-analysis/service-imports.raw.txt",
+      "bytes": 94299,
+      "sha256": "e5638ce7311fc4f81bb4131e4397a31519a70ca38aeb76f040349057444bd7d7"
+    },
+    {
+      "path": "native-analysis/service-signature.txt",
+      "bytes": 992,
+      "sha256": "691dfcfa30a4d45dd57cbd334c49e1d4a2cbe7bf6453c9b5f68b9b81ce0879bd"
+    },
+    {
+      "path": "native-analysis/service-symbols.demangled.txt",
+      "bytes": 13681020,
+      "sha256": "fa15ca3004778c2cf3b785e3995d8e59e38ebeeaecd2fed2bedc67bc0592cbe8"
+    },
+    {
+      "path": "native-analysis/service-symbols.raw.txt",
+      "bytes": 11501232,
+      "sha256": "730ce96caa0b2a476545f38007b8600fb0035858b86696b059051b1b0296e6d8"
+    },
+    {
+      "path": "readable-browser/browser-desktop/scripts/browser-client.mjs.source-ranges.json",
+      "bytes": 504090,
+      "sha256": "d59100cceb47a60a0d18efc74687ac2d1938a1d90cfc4d451ccce1298bf5ab50"
+    },
+    {
+      "path": "readable-browser/browser-desktop/scripts/browser-service.mjs.source-ranges.json",
+      "bytes": 2897157,
+      "sha256": "ea6e4767a2572516e4f5066b08423004abf0c58c0fc4c73fabcbd8aaf08600dc"
+    },
+    {
+      "path": "readable-browser/cua/dist/lib/js/oai_js_browser/dist/skill/scripts/browser-client.js.source-ranges.json",
+      "bytes": 444263,
+      "sha256": "6882ee2792fe46fde0f830f5a1783480b70ddcbcdf543740afc798afdcea81c5"
+    },
+    {
+      "path": "readable-browser/embedded/browser-service.mjs.31601.q5.js.provenance.json",
+      "bytes": 2366,
+      "sha256": "a9d3f115887f3db78621f623da4768df05fbf5731f09df39ce2cc1293513b2bf"
+    },
+    {
+      "path": "readable-browser/embedded/browser-service.mjs.53666.webMcp.js.provenance.json",
+      "bytes": 2393,
+      "sha256": "668d0857f20d48d9c23e486d02ec2e4752bde6bad0fd0ec4cf3deffcdd08f9d3"
+    },
+    {
+      "path": "readable-browser/embedded/browser-service.mjs.59699.standalone-helper.js.provenance.json",
+      "bytes": 2449,
+      "sha256": "0bd8ffe9cbc87749396233b76ed8f3c6bd52cdb0ecbce57aa4c6575625034fa4"
+    },
+    {
+      "path": "readable-browser/embedded/browser-service.mjs.61114.PlaywrightInjected.js.provenance.json",
+      "bytes": 2472,
+      "sha256": "5e718f2767069a7a3409cce42c82b61fe1b58915086b4161045cf55e48740da9"
+    },
+    {
+      "path": "readable-browser/embedded/browser-service.mjs.62151.functionDeclaration.js.provenance.json",
+      "bytes": 2843,
+      "sha256": "b4c8e042cdde200fe1f6cc45ae0a335476afee5166fa7c6bf510eb63113d56c2"
+    },
+    {
+      "path": "readable-browser/embedded/browser-service.mjs.63061.querySelectorStrictWithVisibleFallback.js.provenance.json",
+      "bytes": 2582,
+      "sha256": "a25ade5e13daadde5cf0574c42cdc59ba900397d601a94f6d23eba3640f7facf"
+    },
+    {
+      "path": "readable-browser/embedded/browser-service.mjs.79094.n.mjs.provenance.json",
+      "bytes": 2354,
+      "sha256": "260cb6e67dd560df5559539704404356280cd105c2025e718b5c0323da1292d1"
+    },
+    {
+      "path": "readable-browser/wasm/browser-accessibility.wasm.metadata.json",
+      "bytes": 11718,
+      "sha256": "195c838b7869921cf2730d2782a7b17027ff71b0f08b25bc294e5b1a512b8593"
+    },
+    {
+      "path": "readable-browser/wasm/zxing_reader.wasm.metadata.json",
+      "bytes": 16383,
+      "sha256": "a7042180da077cc2b525c10876a880fbeff990269e30b62331122af9922dacbe"
+    },
+    {
+      "path": "runtime-config/.mcp.json",
+      "bytes": 2488,
+      "sha256": "dc36332c28306380365fe1a63c9cff3d7062fb26d4b378f447fabb7175c01edc"
+    },
+    {
+      "path": "runtime-config/plugin.json",
+      "bytes": 1398,
+      "sha256": "5b596b2dc323594c2fa67f17ec715c08e1e325422dcae1c7fc9797f7792e2bcd"
+    },
+    {
+      "path": "runtime-config/require-browser-access.mjs",
+      "bytes": 51,
+      "sha256": "d314c3f98b63d8c23c9989a3ef9c036e5d0e530d6c4a6a01e4d53da451aba815"
+    }
+  ]
+}

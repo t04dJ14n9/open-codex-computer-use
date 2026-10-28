@@ -1,0 +1,29 @@
+{
+  "version": 3,
+  "file": "browser-service.mjs.63061.querySelectorStrictWithVisibleFallback.js",
+  "names": [
+    "querySelectorStrictWithVisibleFallback",
+    "injected",
+    "parsedSelector",
+    "root",
+    "strict",
+    "matches",
+    "querySelectorAll",
+    "length",
+    "checkDeprecatedSelectorUsage",
+    "strictModeViolationError",
+    "visibleMatches",
+    "filter",
+    "element",
+    "state",
+    "elementState"
+  ],
+  "sources": [
+    "browser-service.mjs.63061.querySelectorStrictWithVisibleFallback.decoded.js"
+  ],
+  "sourcesContent": [
+    "\nfunction querySelectorStrictWithVisibleFallback(injected, parsedSelector, root, strict = false) {\n  const matches = injected.querySelectorAll(parsedSelector, root);\n  if (!matches.length) {\n    injected.checkDeprecatedSelectorUsage(parsedSelector, matches);\n    return null;\n  }\n\n  if (matches.length === 1) {\n    injected.checkDeprecatedSelectorUsage(parsedSelector, matches);\n    return matches[0];\n  }\n\n  if (strict) throw injected.strictModeViolationError(parsedSelector, matches);\n\n  const visibleMatches = matches.filter((element) => {\n    const state = injected.elementState(element, \"visible\");\n    return !!state.matches;\n  });\n  if (visibleMatches.length === 1) return visibleMatches[0];\n\n  throw injected.strictModeViolationError(parsedSelector, matches);\n}\n"
+  ],
+  "mappings": ";AACA,SAASA,sCAAsCA,CAACC,QAAQ,EAAEC,cAAc,EAAEC,IAAI,EAAEC,MAAM,GAAG,KAAK,EAAE;EAC9F,MAAMC,OAAO,GAAGJ,QAAQ,CAACK,gBAAgB,CAACJ,cAAc,EAAEC,IAAI,CAAC;EAC/D,IAAI,CAACE,OAAO,CAACE,MAAM,EAAE;IACnBN,QAAQ,CAACO,4BAA4B,CAACN,cAAc,EAAEG,OAAO,CAAC;IAC9D,OAAO,IAAI;EACb;EAEA,IAAIA,OAAO,CAACE,MAAM,KAAK,CAAC,EAAE;IACxBN,QAAQ,CAACO,4BAA4B,CAACN,cAAc,EAAEG,OAAO,CAAC;IAC9D,OAAOA,OAAO,CAAC,CAAC,CAAC;EACnB;EAEA,IAAID,MAAM,EAAE,MAAMH,QAAQ,CAACQ,wBAAwB,CAACP,cAAc,EAAEG,OAAO,CAAC;EAE5E,MAAMK,cAAc,GAAGL,OAAO,CAACM,MAAM,CAAEC,OAAO,IAAK;IACjD,MAAMC,KAAK,GAAGZ,QAAQ,CAACa,YAAY,CAACF,OAAO,EAAE,SAAS,CAAC;IACvD,OAAO,CAAC,CAACC,KAAK,CAACR,OAAO;EACxB,CAAC,CAAC;EACF,IAAIK,cAAc,CAACH,MAAM,KAAK,CAAC,EAAE,OAAOG,cAAc,CAAC,CAAC,CAAC;EAEzD,MAAMT,QAAQ,CAACQ,wBAAwB,CAACP,cAAc,EAAEG,OAAO,CAAC;AAClE",
+  "ignoreList": []
+}

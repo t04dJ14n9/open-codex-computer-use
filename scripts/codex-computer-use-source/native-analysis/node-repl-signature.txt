@@ -1,0 +1,23 @@
+Executable=/Applications/ChatGPT.app/Contents/Resources/cua_node/bin/node_repl
+Identifier=node_repl
+Format=Mach-O thin (arm64)
+CodeDirectory v=20500 size=149909 flags=0x10000(runtime) hashes=4674+7 location=embedded
+Hash type=sha256 size=32
+CandidateCDHash sha256=d60091e70e4f44ef147852e065a3a2ff9e081dfd
+CandidateCDHashFull sha256=d60091e70e4f44ef147852e065a3a2ff9e081dfd2990b79fbfe0342add7cf051
+Hash choices=sha256
+CMSDigest=d60091e70e4f44ef147852e065a3a2ff9e081dfd2990b79fbfe0342add7cf051
+CMSDigestType=2
+CDHash=d60091e70e4f44ef147852e065a3a2ff9e081dfd
+Signature size=9047
+Authority=Developer ID Application: OpenAI OpCo, LLC (2DC432GLL2)
+Authority=Developer ID Certification Authority
+Authority=Apple Root CA
+Timestamp=27 Oct 2026 at 22:42:20
+Info.plist=not bound
+TeamIdentifier=2DC432GLL2
+Runtime Version=11.3.0
+Sealed Resources=none
+Internal requirements count=1 size=172
+Total signatures=1
+Chosen signature=1

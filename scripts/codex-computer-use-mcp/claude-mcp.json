@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "codex-computer-use": {
+      "command": "/absolute/path/open-codex-computer-use/scripts/computer-use",
+      "args": ["mcp"],
+      "type": "stdio",
+      "env": { "CODEX_CUA_BACKEND": "standalone" }
+    }
+  }
+}
