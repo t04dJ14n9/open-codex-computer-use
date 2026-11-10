@@ -55,7 +55,7 @@ the grants can be requested through the CLI's `permissions --request`.
 
 ## Rebuilding from source
 
-Requirements: macOS 14+, Node.js 18+, and the Xcode Command Line Tools
+Requirements: macOS 14+, Node.js 20+, and the Xcode Command Line Tools
 (`xcode-select --install`) so `swiftc` is available.
 
 ```sh

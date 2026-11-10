@@ -2,24 +2,34 @@
 // Setup helper for the portable computer-use skill.
 //   node scripts/setup.mjs --check   read-only validation, no side effects
 //   node scripts/setup.mjs           run `npm ci` in the skill root
-// Neither mode touches any config file or macOS permission.
+// Neither mode touches any config file or OS permission.
+//
+// macOS is the shipped backend. Windows / Wayland are researched but not yet
+// implemented (see porting/PORTING-RESEARCH.md); --check reports that
+// explicitly instead of failing as "not darwin".
 import { createHash } from "node:crypto";
 import { createRequire } from "node:module";
 import { execFileSync, spawnSync } from "node:child_process";
 import { accessSync, constants, readFileSync, statSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { platformInfo } from "../src/backend.mjs";
 
 const skillRoot = fileURLToPath(new URL("../", import.meta.url));
 const manifestPath = path.join(skillRoot, "build", "native-manifest.json");
 const isCheck = process.argv.includes("--check");
+const info = platformInfo();
 
 const result = {
   mode: isCheck ? "check" : "setup",
   platform: process.platform,
+  sessionType: info.sessionType,
+  nativeBackend: info.nativeBackend,
+  backendStatus: info.backendStatus,
   node: process.versions.node,
   skillRoot,
   checks: [],
+  warnings: [],
   ok: true,
 };
 
@@ -42,74 +52,87 @@ function fileInfo(rel) {
 }
 
 if (isCheck) {
-  // (a) platform is macOS
-  check("platform-darwin", process.platform === "darwin", { platform: process.platform });
-
-  // (b) macOS >= 14, read from /usr/bin/sw_vers
-  let macVersion = null, macOk = false, macError = null;
-  try {
-    macVersion = execFileSync("/usr/bin/sw_vers", ["-productVersion"], { encoding: "utf8" }).trim();
-    macOk = parseInt(macVersion.split(".")[0], 10) >= 14;
-  } catch (error) { macError = error.message; }
-  check("macos-14-or-newer", macOk, { productVersion: macVersion, error: macError });
-
-  // (c) Node major >= 18
-  const nodeMajor = parseInt(process.versions.node.split(".")[0], 10);
-  check("node-18-or-newer", nodeMajor >= 18, { version: process.versions.node });
-
-  // Load the manifest (required by d and e).
-  let manifest = null;
-  try {
-    manifest = JSON.parse(readFileSync(manifestPath, "utf8"));
-    check("manifest-readable", true, { path: "build/native-manifest.json" });
-  } catch (error) {
-    check("manifest-readable", false, { error: error.message });
-  }
-
-  if (manifest) {
-    const exeRel = manifest.executablePath;
-
-    // (d) helper executable exists and is executable
-    const info = fileInfo(exeRel);
-    check("helper-executable", info.exists && info.executable, { path: exeRel, ...info });
-
-    // (e) executable, three Swift sources and Info.plist hashes match the manifest
-    const targets = [
-      { key: "executable", path: exeRel, expected: manifest.sha256?.executable },
-      { key: "infoPlist", path: manifest.infoPlistPath, expected: manifest.sha256?.infoPlist },
-      { key: "source", path: manifest.sourcePath ?? "native/ComputerUse.swift", expected: manifest.sha256?.source },
-    ];
-    const sourceFiles = manifest.sourceFiles ?? [];
-    for (const sf of sourceFiles) {
-      targets.push({ key: "sourceFile", path: sf.path, expected: sf.sha256 });
-    }
-    const files = targets.map((t) => {
-      let actual = null, error = null;
-      try { actual = sha256(t.path); } catch (e) { error = e.message; }
-      return {
-        key: t.key,
-        path: t.path,
-        expected: t.expected ?? null,
-        actual,
-        error,
-        match: !!actual && !!t.expected && actual === t.expected,
-      };
+  // (a) platform and backend status — informational on non-macOS targets.
+  const supported = ["darwin", "win32", "linux"].includes(info.platform);
+  check("platform-supported", supported, {
+    platform: info.platform,
+    sessionType: info.sessionType,
+    nativeBackend: info.nativeBackend,
+    backendStatus: info.backendStatus,
+    helper: info.helper,
+    helperPresent: info.helperPresent,
+  });
+  if (!supported || info.backendStatus !== "ready") {
+    result.warnings.push({
+      platform: info.platform,
+      backendStatus: info.backendStatus,
+      requiredHelper: info.helperCandidates[0] ?? null,
+      note: "Native helper is not available on this platform. The JS/MCP layers are portable; see porting/PORTING-RESEARCH.md and porting/BACKEND-CONTRACT.md.",
     });
-    check("sha256-matches-manifest",
-      sourceFiles.length >= 3 && files.every((f) => f.match),
-      { files, sourceFilesCount: sourceFiles.length });
-  } else {
-    check("helper-executable", false, { error: "manifest unavailable" });
-    check("sha256-matches-manifest", false, { error: "manifest unavailable" });
   }
 
-  // (f) required packages resolve from the skill root
+  // (b) Node major >= 20 (MCP SDK requirement), all platforms.
+  const nodeMajor = parseInt(process.versions.node.split(".")[0], 10);
+  check("node-20-or-newer", nodeMajor >= 20, { version: process.versions.node });
+
+  // (c) macOS-only: OS version, helper signature/hashes.
+  if (info.platform === "darwin") {
+    let macVersion = null, macOk = false, macError = null;
+    try {
+      macVersion = execFileSync("/usr/bin/sw_vers", ["-productVersion"], { encoding: "utf8" }).trim();
+      macOk = parseInt(macVersion.split(".")[0], 10) >= 14;
+    } catch (error) { macError = error.message; }
+    check("macos-14-or-newer", macOk, { productVersion: macVersion, error: macError });
+
+    let manifest = null;
+    try {
+      manifest = JSON.parse(readFileSync(manifestPath, "utf8"));
+      check("manifest-readable", true, { path: "build/native-manifest.json" });
+    } catch (error) {
+      check("manifest-readable", false, { error: error.message });
+    }
+
+    if (manifest) {
+      const exeRel = manifest.executablePath;
+      const executable = fileInfo(exeRel);
+      check("helper-executable", executable.exists && executable.executable, { path: exeRel, ...executable });
+
+      const targets = [
+        { key: "executable", path: exeRel, expected: manifest.sha256?.executable },
+        { key: "infoPlist", path: manifest.infoPlistPath, expected: manifest.sha256?.infoPlist },
+        { key: "source", path: manifest.sourcePath ?? "native/ComputerUse.swift", expected: manifest.sha256?.source },
+      ];
+      const sourceFiles = manifest.sourceFiles ?? [];
+      for (const sf of sourceFiles) targets.push({ key: "sourceFile", path: sf.path, expected: sf.sha256 });
+      const files = targets.map(t => {
+        let actual = null, error = null;
+        try { actual = sha256(t.path); } catch (e) { error = e.message; }
+        return { key: t.key, path: t.path, expected: t.expected ?? null, actual, error,
+          match: !!actual && !!t.expected && actual === t.expected };
+      });
+      check("sha256-matches-manifest", sourceFiles.length >= 3 && files.every(f => f.match),
+        { files, sourceFilesCount: sourceFiles.length });
+    } else {
+      check("helper-executable", false, { error: "manifest unavailable" });
+      check("sha256-matches-manifest", false, { error: "manifest unavailable" });
+    }
+  } else {
+    // (c') Non-macOS: no native hash checks exist yet; record it honestly.
+    check("platform-backend", true, {
+      backendStatus: info.backendStatus,
+      requiredHelperPath: info.helperCandidates[0] ?? null,
+      note: "Backend not implemented; this is expected during the porting phase, not a failure.",
+      research: info.portingResearch,
+    });
+  }
+
+  // (d) required packages resolve from the skill root, all platforms.
   const req = createRequire(path.join(skillRoot, "package.json"));
-  const dependencies = ["@modelcontextprotocol/server", "zod"].map((pkg) => {
+  const dependencies = ["@modelcontextprotocol/server", "zod"].map(pkg => {
     try { return { package: pkg, resolved: req.resolve(pkg), ok: true }; }
     catch (error) { return { package: pkg, resolved: null, error: error.code || error.message, ok: false }; }
   });
-  check("dependencies-resolve", dependencies.every((d) => d.ok), { dependencies });
+  check("dependencies-resolve", dependencies.every(d => d.ok), { dependencies });
 } else {
   const run = spawnSync("npm", ["ci", "--ignore-scripts", "--no-audit", "--no-fund"], {
     cwd: skillRoot,

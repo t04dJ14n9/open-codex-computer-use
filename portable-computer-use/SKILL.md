@@ -103,3 +103,12 @@ Screen Recording must be granted to the bundled helper for AX trees,
 screenshots, clicks and typing. Private window/focus APIs are
 capability-checked and version-sensitive. App-defined AX actions can have
 semantic focus effects that cannot be inferred universally.
+
+**Platform:** the shipped native helper is macOS-only. Check `status` first on
+any other OS — it reports `backendStatus: "not-implemented"` for Windows and
+Linux Wayland rather than pretending a helper exists. The MCP tools, `js`
+runtime and CLI are portable; only the helper is platform-specific. Porting
+research and the exact backend contract are in
+[porting/](porting/README.md). A non-macOS port will not have macOS
+background-only, window-targeted input, so verify capabilities with `status`
+before relying on them.
