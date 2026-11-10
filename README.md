@@ -6,10 +6,11 @@ sources and binaries live under `scripts/`.
 
 **Looking for a clean, agent-agnostic skill?** See
 [`portable-computer-use/`](portable-computer-use/README.md): a separate,
-self-contained skill with a freshly authored runtime and no `node_repl`,
-`@oai/*`, ChatGPT.app or `CODEX_*` dependency. It works with any stdio MCP
-client (Claude Code, Codex, DSH, Cursor, Windsurf, Gemini CLI) and has its own
-[MCP server, CLI, Swift helper and installer](portable-computer-use/README.md).
+self-contained **cross-platform** skill (macOS, Windows, Linux X11/Wayland)
+with a freshly authored runtime and no `node_repl`, `@oai/*`, ChatGPT.app or
+`CODEX_*` dependency. It works with any stdio MCP client (Claude Code, Codex,
+DSH, Cursor, Windsurf, Gemini CLI) and has its own
+[MCP server, CLI, native helpers and installer](portable-computer-use/README.md).
 The rest of this README documents the source-recovery reconstruction and its
 original Codex-compatible runtime.
 

@@ -117,11 +117,52 @@ if (isCheck) {
       check("sha256-matches-manifest", false, { error: "manifest unavailable" });
     }
   } else {
-    // (c') Non-macOS: no native hash checks exist yet; record it honestly.
+    // (c') Windows / Linux: verify the cross-platform Python helper instead.
+    let crossManifest = null;
+    try {
+      crossManifest = JSON.parse(readFileSync(path.join(skillRoot, "build", "cross-platform-manifest.json"), "utf8"));
+      check("cross-platform-manifest-readable", true, { path: "build/cross-platform-manifest.json" });
+    } catch (error) {
+      check("cross-platform-manifest-readable", false, { error: error.message });
+    }
+    const target = info.platform === "win32" ? "windows" : "linux";
+    const rel = `build/${target}/computer_use_helper.py`;
+    const script = fileInfo(rel);
+    check("cross-platform-helper-present", script.exists, { path: rel, ...script });
+    const sourceRel = "native/crossplatform/computer_use_helper.py";
+    let hashMatch = false, actual = null, expected = null;
+    try {
+      actual = sha256(rel);
+      expected = crossManifest?.targets?.[target]?.sha256 ?? crossManifest?.sourceSha256 ?? null;
+      hashMatch = !!actual && actual === expected;
+    } catch (error) { /* reported below */ }
+    check("cross-platform-helper-hash", hashMatch, { path: rel, actual, expected, source: sourceRel });
+    const candidates = process.env.COMPUTER_USE_PYTHON
+      ? [process.env.COMPUTER_USE_PYTHON]
+      : (info.platform === "win32" ? ["python", "py", "python3"] : ["python3", "python"]);
+    let interpreter = null, version = null;
+    for (const candidate of candidates) {
+      const probe = spawnSync(candidate, ["--version"], { encoding: "utf8" });
+      if (probe.status === 0) {
+        interpreter = candidate;
+        version = (probe.stdout || probe.stderr || "").trim().slice(0, 120);
+        break;
+      }
+    }
+    check("python-interpreter", !!interpreter, {
+      candidates,
+      selected: interpreter,
+      version,
+      note: interpreter && interpreter !== (info.platform === "win32" ? "python" : "python3")
+        ? `Set COMPUTER_USE_PYTHON=${interpreter} so the helper uses this interpreter.`
+        : "Set COMPUTER_USE_PYTHON to override (Windows installs often use `py` or `python3`).",
+    });
     check("platform-backend", true, {
       backendStatus: info.backendStatus,
-      requiredHelperPath: info.helperCandidates[0] ?? null,
-      note: "Backend not implemented; this is expected during the porting phase, not a failure.",
+      nativeBackend: info.nativeBackend,
+      sessionType: info.sessionType,
+      helperSpec: info.helperSpec,
+      note: "Helper is present; OS API behaviour (UIA, portals, PipeWire, AT-SPI) must be verified on the target desktop.",
       research: info.portingResearch,
     });
   }

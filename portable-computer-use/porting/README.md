@@ -1,25 +1,29 @@
 # Porting
 
-Research and design for taking `portable-computer-use` beyond macOS.
+The `portable-computer-use` skill now ships **three** native backends:
+
+| Backend | Helper | Status |
+| --- | --- | --- |
+| macOS | `build/Computer Use Helper.app` (Swift, ad-hoc signed) | shipped, runtime-verified on macOS |
+| Windows | `build/windows/computer_use_helper.py` (Python 3, Win32 ctypes + PowerShell UIA) | implemented, OS APIs unverified from macOS |
+| Linux X11 / Wayland | `build/linux/computer_use_helper.py` (Python 3, xdotool / portals / AT-SPI) | implemented, OS APIs unverified from macOS |
 
 | Document | Contents |
 | --- | --- |
-| [PORTING-RESEARCH.md](PORTING-RESEARCH.md) | Full research: Windows and Linux Wayland API mappings, permissions/signing, compositor support matrix, the background-only-input problem, prior art in this repo, phased plan, open questions, and 19 cited sources |
-| [BACKEND-CONTRACT.md](BACKEND-CONTRACT.md) | The exact JSON-lines helper protocol a port must implement (methods, params, results, cancellation, capability negotiation, helper discovery) |
+| [PORTING-RESEARCH.md](PORTING-RESEARCH.md) | Windows/Wayland API mappings, permissions, compositor support matrix, prior art, capability matrix, phased plan, verification boundary, 19 cited sources |
+| [BACKEND-CONTRACT.md](BACKEND-CONTRACT.md) | The JSON-lines helper protocol all three backends implement |
+| [native/crossplatform/README.md](../native/crossplatform/README.md) | Helper install, optional OS dependencies, capability honesty, target-OS verification checklist |
 
-**Current status:** macOS backend is shipped and verified. The JS/MCP layers are
-platform-neutral; [`src/backend.mjs`](../src/backend.mjs) detects the platform,
-session type and helper, and reports `backendStatus: "not-implemented"` for
-Windows/Wayland rather than pretending a helper exists. `scripts/setup.mjs
---check` and the `status` MCP tool surface that state to any agent.
+The JS/MCP layers are unchanged across platforms.
+[`src/backend.mjs`](../src/backend.mjs) detects platform/session and returns a
+helper spec `{ command, args }` (native binary on macOS, Python interpreter +
+script on Windows/Linux). `npm test` runs 4 suites: backend detection, a
+mock-helper seam test driving the unchanged MCP server, the real Python helper
+with stubbed OS tools for Windows/X11/Wayland, and the live macOS protocol test.
 
-The backend seam is verified by a **test-only** mock helper
-([`test/mock-helper.mjs`](../test/mock-helper.mjs) +
-[`test/portable-seam.mjs`](../test/portable-seam.mjs)): the real MCP server is
-driven unchanged against a fake contract-compliant helper, so a future
-Windows/Wayland helper can be validated in CI. `npm test` runs 25 checks across
-three suites.
-
-This is research, not a claim that Windows or Wayland helpers exist. No code in
-`src/` fakes a non-macOS backend. Validate any future implementation on real
-Windows and Linux VMs (see §6 open questions in the research document).
+**Verification boundary:** this workspace is macOS. Win32/UIA/portal/PipeWire/
+AT-SPI API behaviour cannot be executed here; validate on real Windows and
+Linux desktops using the checklist in the helper README and §7 of the research
+document. No fake backend is shipped — the helpers are real implementations
+with typed refusals where macOS parity is impossible (notably Wayland
+background-only, window-targeted input).

@@ -1,7 +1,10 @@
 # Porting research: Windows and Linux Wayland
 
-**Status:** research + design, 2026-11-10. **Companion:**
-[BACKEND-CONTRACT.md](BACKEND-CONTRACT.md) is the exact interface a port must
+**Status:** research + design + **implemented helpers**, 2026-11-10. The
+Windows and Linux helpers described below now exist as
+[`native/crossplatform/computer_use_helper.py`](../native/crossplatform/computer_use_helper.py)
+and are wired into the skill. **Companion:**
+[BACKEND-CONTRACT.md](BACKEND-CONTRACT.md) is the exact interface they
 implement. **Subject:** [`portable-computer-use/`](../README.md), the clean
 macOS skill (commit `ef0ca34`).
 
@@ -22,10 +25,17 @@ and SKILL.md are platform-neutral already. Only
 [`src/helper.mjs`](../src/helper.mjs)'s child process and
 [`src/config.mjs`](../src/config.mjs)'s helper path are macOS-specific.
 
-| Target | Feasibility | Hard part | Parity with macOS |
+| Target | Status | Hard part | Parity with macOS |
 | --- | --- | --- | --- |
-| **Windows 10/11** | High — mature APIs, and OpenAI already shipped a Windows helper | UIPI/integrity levels, `Windows.Graphics.Capture` consent, UIA tree completeness | Near-complete for observation; **background-only input is only partly achievable** |
-| **Linux Wayland** | Medium — standards exist but are fragmented across compositors | Portals + PipeWire + libei + AT-SPI + per-compositor protocols | Observation (AX tree + screenshot) is achievable; **background-only, window-targeted input is NOT achievable through standard portals** |
+| **Windows 10/11** | **Implemented** (Python helper: Win32 ctypes + PowerShell UIA) | UIPI/integrity levels, UIA tree completeness, consent for capture | Near-complete for observation; **background-only input is only partly achievable** |
+| **Linux X11 / XWayland** | **Implemented** (xdotool / xwininfo / import / optional pyatspi) | synthetic XSendEvent input is ignored by some toolkits | window-targeted input approximated via `xdotool --window` |
+| **Linux Wayland** | **Implemented with explicit downgrades** (AT-SPI2, portals, compositor tools, ydotool/wtype) | Portals + PipeWire + libei + per-compositor protocols | Observation is achievable; **background-only, window-targeted input is NOT achievable through standard portals** |
+
+The helpers are **real code**, not stubs: they implement the 19-method contract
+on each OS, report capabilities honestly via `permissionStatus`, and return
+typed `background_unavailable` refusals where parity is impossible. What could
+not be done from this macOS host is *executing the OS APIs themselves* — see
+§8 for the verification boundary.
 
 **The single most important finding:** the macOS helper's defining property —
 delivering synthetic input to one specific *background* window without
@@ -309,83 +319,145 @@ focused, and never claim parity. This mirrors the portable skill's existing
 | Python | `pyatspi2`, `dbus-python`, `gi` (GStreamer/PipeWire), `python-libei` | fastest prototype, heavyweight runtime dependency |
 | X11 fallback | XTest, Xlib window enumeration, AT-SPI | works under XWayland; reuse the recovered `@oai/sky` Linux API shape |
 
-### 4.7 Phased plan (estimates, not commitments)
+### 4.7 Phased plan — original estimates vs delivered
 
-| Phase | Deliverable | Rough effort |
-| --- | --- | --- |
-| 0 | Backend contract + platform detection + capability negotiation (this round) | done |
-| 1 | Windows helper: UIA tree, WGC screenshot, UIA-pattern actions, `SendInput` fallback, UIAccess manifest/signing | 2–3 dev-weeks |
-| 2 | Linux helper, portal-first: ScreenCast+RemoteDesktop via `ashpd`/`liboeffis`+libei, AT-SPI2 tree, PipeWire frame decode; GNOME + KDE targets | 3–5 dev-weeks |
-| 3 | wlroots fast path: `ext-foreign-toplevel-list-v1`, `ext-image-copy-capture-v1`, virtual pointer/keyboard; Hyprland/Sway | 1–2 dev-weeks |
-| 4 | Mock-backend JSON-lines harness so `npm test` runs on all three OSes in CI; compositor capability matrix tests | 1 dev-week |
+| Phase | Deliverable | Original estimate | Delivered |
+| --- | --- | --- | --- |
+| 0 | Backend contract + platform detection + capability negotiation | done | done ([BACKEND-CONTRACT.md](BACKEND-CONTRACT.md), `src/backend.mjs`) |
+| 1 | Windows helper: UIA tree, screenshot, UIA-pattern actions, `SendInput` | 2–3 dev-weeks | implemented (Python helper; `PrintWindow` instead of WGC, no signing) |
+| 2 | Linux helper, portal-first, AT-SPI2 tree, PipeWire frame decode | 3–5 dev-weeks | partially implemented (AT-SPI2 + portal Screenshot + compositor tools; **no PipeWire/libei decode** — see §7) |
+| 3 | wlroots fast path: foreign-toplevel-list, image-copy-capture, virtual pointer | 1–2 dev-weeks | not implemented; helper uses compositor tools instead |
+| 4 | Mock-backend harness so `npm test` runs on all three OSes | 1 dev-week | done (`test/mock-helper.mjs`, `test/portable-seam.mjs`, `test/cross-platform-helper.mjs`) |
 
-Estimates assume one engineer, no code signing infrastructure, and no
-distribution packaging. They exclude the deeper problem of achieving macOS-like
-background-only input, which may not be solvable on standard Wayland at all.
+The delivered Python helper deliberately favours **zero mandatory third-party
+packages** over using `ashpd`/`liboeffis`/PipeWire bindings directly. Screenshots
+come from compositor tools or the Screenshot portal; RemoteDesktop/libei input
+and PipeWire streams remain the main functional gap on Wayland (§7). macOS-like
+background-only input is still not achievable there.
 
 ---
 
-## 5. Cross-platform abstraction design (implemented in this round)
+## 5. Implemented cross-platform design
 
 - [`src/backend.mjs`](../src/backend.mjs) — platform detection (`darwin` /
   `win32` / `linux`), session type (`wayland` / `x11` / unknown, from
-  `XDG_SESSION_TYPE` / `WAYLAND_DISPLAY`), helper discovery per platform, and a
-  `capabilities()` report. It never guesses: a missing or unimplemented backend
-  is reported explicitly.
-- [`src/config.mjs`](../src/config.mjs) delegates helper resolution to
-  `backend.mjs` and keeps `COMPUTER_USE_HELPER` as an explicit override.
-- `runtimeStatus()` gains `platform`, `sessionType`, `backend`, `backendStatus`,
-  `helper`, `helperPresent`, `capabilities`. The MCP `status` tool therefore
-  tells any agent what is actually available on the current OS.
-- `setup.mjs --check` becomes platform-aware: macOS keeps its strict
-  hash/signature checks; Windows/Linux report `backendStatus:
-  "not-implemented"` with the required helper path and a pointer to this
-  research, instead of failing as "not darwin".
-- The MCP tools, `js` runtime, `cua` API, CLI and installer are unchanged. A
-  future helper drops into `build/<platform>/` and only `backend.mjs` needs a
-  new path entry.
+  `XDG_SESSION_TYPE` / `WAYLAND_DISPLAY` / `DISPLAY`), and a **helper spec**
+  `{ command, args }`. macOS spawns the Swift binary; Windows/Linux spawn a
+  Python 3 interpreter with the helper script. `COMPUTER_USE_HELPER` overrides
+  the helper, `COMPUTER_USE_PYTHON` overrides the interpreter (auto-detected
+  from `python` / `py` / `python3`). Missing helpers are reported explicitly.
+- [`native/crossplatform/computer_use_helper.py`](../native/crossplatform/computer_use_helper.py)
+  — one real helper implementing the contract on Windows (Win32 `ctypes` for
+  `EnumWindows` / `SendInput` / `PrintWindow` + PNG encoding, PowerShell and
+  .NET `UIAutomationClient` for the tree and control patterns), Linux X11
+  (`xdotool --window`, `xwininfo`, `import`/`scrot`, optional `pyatspi`), and
+  Linux Wayland (AT-SPI2, `grim`/`spectacle`/`gnome-screenshot`, the
+  `org.freedesktop.portal.Screenshot` D-Bus API via Gio, `wtype`/`ydotool`).
+  It uses only the Python standard library plus OS tools probed at runtime.
+- [`scripts/build-cross-platform.mjs`](../scripts/build-cross-platform.mjs)
+  copies that source into `build/windows/` and `build/linux/` and records
+  SHA-256 hashes; `--check` verifies them.
+- [`src/config.mjs`](../src/config.mjs) exposes `nativeBackend`,
+  `backendStatus`, `sessionType`, `helperSpec` and `platformDefaults` through
+  the `status` tool. `setup.mjs --check` is platform-aware: macOS keeps its
+  strict OS/signature/source-hash checks; Windows/Linux verify the Python
+  interpreter, helper presence and hash.
+- The MCP tools, `js` runtime, `cua` API, CLI and installer are unchanged.
 
-This is deliberately a **stub, not a fake implementation**: it does not
-pretend Windows/Wayland helpers exist. It makes the port measurable and gives
-the JS layer a stable seam. To prove the seam is real,
-[`test/mock-helper.mjs`](../test/mock-helper.mjs) is a contract-compliant fake
-helper and [`test/portable-seam.mjs`](../test/portable-seam.mjs) drives the
-*unchanged* MCP server against it (8 checks: server start, four tools, status
-capabilities, `list_apps`, AX tree, screenshot, `js` runtime, action dispatch).
-`npm test` runs the backend unit test, the seam test, and the macOS protocol
-test — 25 checks total. That harness is what a future Windows/Wayland helper
-can reuse in CI. The mock lives only under `test/`; it is never shipped as a
-backend.
-
----
-
-## 6. Open questions / residual unknowns
-
-1. Can a `GraphicsCaptureItem` be retained/reused across helper restarts
-   without re-prompting on Windows? [S2] documents one-time picker consent but
-   not persistence semantics for the item.
-2. Which GNOME / KDE portal versions ship `RemoteDesktop` v2 (`ConnectToEIS`)
-   and `ScreenCast` v6 (`pipewire-serial`, `mapping_id`)? Version negotiation is
-   required; the docs describe the interfaces, not per-distro availability.
-3. How reliably does AT-SPI2 expose trees for Chromium/Electron apps on Wayland,
-   and is an a11y bus proxy available on every compositor (COSMIC ships
-   `cosmic-atspi-unstable-v1`, others may not)?
-4. Can `xdg-activation-v1` raise the target window under a portal session, or
-   must the user focus it manually for input?
-5. Exact libei `region` ↔ screen-cast `mapping_id` pairing rules in practice
-   [S10][S15].
-6. Whether a signed UIAccess helper is acceptable in the target deployment
-   (requires Authenticode certificate + Program Files install [S7]).
-7. Whether to ship an XWayland/X11 backend as the pragmatic default on Linux
-   desktop sessions where XWayland is present, given the recovered prior art
-   was X11-based.
-8. No Windows or Wayland runtime was available in this macOS workspace, so all
-   platform claims are documentation-based, not execution-verified. Any
-   implementation must be validated on real target VMs.
+**Verification harness:** [`test/mock-helper.mjs`](../test/mock-helper.mjs) +
+[`test/portable-seam.mjs`](../test/portable-seam.mjs) drive the unchanged MCP
+server against a fake helper (8 checks).
+[`test/cross-platform-helper.mjs`](../test/cross-platform-helper.mjs) runs the
+real Python helper with `sys.platform` overridden and stubbed OS tools, covering
+the protocol core, Linux X11, Linux Wayland and Windows UIA paths. `npm test`
+runs 4 suites. The mock/stubs live only under `test/`.
 
 ---
 
-## 7. Sources
+## 6. Capability matrix (what the implemented helpers actually do)
+
+| Contract method | macOS (Swift) | Windows (Python) | Linux X11 (Python) | Linux Wayland (Python) |
+| --- | --- | --- | --- | --- |
+| `list_apps` | NSWorkspace | `EnumWindows` | `xdotool search` | `/proc` scan |
+| `get_app_state` | AX tree | UIA tree (PowerShell `-File`) | `xwininfo -tree` / AT-SPI | AT-SPI2 (else refusal) |
+| `screenshot` | ScreenCaptureKit | `PrintWindow` (window-scoped) | `import -window <id>` only | **refusal** unless `allow_fullscreen: true`, then tagged full-screen |
+| `click` (element) | AX action | UIA `InvokePattern` | refusal | refusal |
+| `click` (coordinate) | window-relative | `SetCursorPos`+`SendInput` | `xdotool --window <id>` | **refusal** |
+| `press_key` / `type_text` | CGEvent | `SendInput` unicode | `xdotool --window <id>` | `wtype`/`ydotool` (foreground) |
+| `scroll` | AX page scroll | `SendInput` wheel | `xdotool click 4/5 --window <id>` | refusal |
+| `set_value` / `select_text` / secondary action | AX | UIA patterns | refusal | refusal |
+| `paste` / `drag` | refusal | refusal | refusal | refusal |
+| `permissionStatus` | real grants | dependency-derived | dependency-derived | dependency-derived |
+
+All Windows/X11 targeted operations require exact-window binding: a bare app
+name is resolved through the window inventory or refused. No `xdotool` command
+is issued without `--window <id>`. X11 screenshots never fall back to focused-
+window or full-screen tools; Wayland screenshots never silently return a
+full-screen image.
+
+`backgroundAvailable` / `windowTargetedInput` are `true` only on macOS (and
+approximated on X11 when `xdotool` is present); Wayland reports `false` and
+refuses coordinate clicks. `globalInput` is reported truthfully (true on
+Windows and on Wayland when `wtype`/`ydotool` exist). Every unsupported
+operation returns `background_unavailable: …` rather than silently using
+global input.
+
+---
+
+## 7. Verification boundary (important)
+
+This workspace is **macOS**. The Windows and Linux helpers are real code, but
+the OS APIs they call cannot be executed here. What was verified on this host:
+
+- Python syntax (`python3 -m py_compile`), helper integrity hashes, and the
+  full JSON-lines protocol against stubbed OS tools for four platform/session
+  combinations (see `test/cross-platform-helper.mjs`).
+- `setup.mjs --check` under simulated `win32` and `linux` platforms (all 8
+  checks pass), the mock-helper seam test, the backend unit test, and the live
+  macOS protocol test — `npm test` passes 4 suites.
+
+What still requires a real Windows / Linux desktop:
+
+1. `ctypes.WinDLL` Win32 calls (`EnumWindows`, `SendInput`, `PrintWindow`) and
+   PowerShell `UIAutomationClient` assemblies — Windows-only [S1][S3][S6].
+2. UIPI / integrity-level behaviour against elevated applications [S3][S7].
+3. AT-SPI2 bus availability for Chromium/Electron apps on Wayland [S13].
+4. XDG portal dialogs, `ScreenCast`/`RemoteDesktop` versions, PipeWire frame
+   delivery and libei input on GNOME/KDE/wlroots [S10][S15][S16][S20].
+5. Whether `xdotool --window` synthetic events are accepted by the target
+   toolkit (X11/XWayland), and whether `ydotool`/`wtype` have `/dev/uinput`
+   access [S18].
+6. Retaining a `GraphicsCaptureItem` across restarts without re-prompting [S2].
+7. Whether a signed UIAccess helper is acceptable in the target deployment
+   (Authenticode + Program Files install [S7]).
+
+Recommended validation on each target OS: run `node scripts/setup.mjs --check`,
+`npm test`, `./bin/computer-use status`, `./bin/computer-use list-apps`, then
+`./bin/computer-use state <app>` and a screenshot. See
+[`native/crossplatform/README.md`](../native/crossplatform/README.md).
+
+### Review-driven fixes (landed on the stack tip)
+
+An independent read-only review of the four stacked PRs found four confirmed
+runtime/capability defects, all fixed and covered by regression tests:
+
+| Finding | Fix | Regression test |
+| --- | --- | --- |
+| High: X11 `xdotool` omitted `--window` for a bare app name, injecting into the focused window | `bind_window_id()` requires a numeric window id (resolving bare names through the window inventory) and refuses otherwise; `--window` is unconditional | `test/cross-platform-helper.mjs` asserts every logged `xdotool` invocation carries `--window` and bare names are refused |
+| Medium: `runInContext` had no synchronous timeout; `while(true){}` hung the MCP process | `runInContext(context, { timeout })` with a mapped `ERR_SCRIPT_EXECUTION_TIMEOUT` | `test/runtime-timeout.mjs` + `test/protocol.mjs` (200 ms interruption, `status` still responsive) |
+| Medium: X11 screenshot fallbacks captured the focused window; Wayland silently returned a full-screen image | X11 uses only `import -window <id>`; Wayland refuses unless `allow_fullscreen: true`, then tags `scope: "full-screen"` and the MCP layer warns | `test/cross-platform-helper.mjs` + `test/portable-seam.mjs` |
+| Low–Medium: `permissionStatus` hardcoded four capabilities to `true` | all capabilities derived from probed dependencies, with `capabilityBasis`/`missingTools` | `test/cross-platform-helper.mjs` asserts all-false when no tools exist |
+
+Also hardened: PowerShell UIA scripts are invoked via `-File` (not `-Command`
+with trailing named parameters), and Wayland `globalInput` is reported
+truthfully when `wtype`/`ydotool` are present. Residual limitation: an
+infinite loop that begins **after** an `await` runs in a microtask outside
+`runInContext` and cannot be interrupted by Node's VM watchdog (documented in
+SKILL.md / README.md / the runtime-timeout test).
+
+---
+
+## 8. Sources
 
 - **[S1]** Microsoft, *UI Automation (Win32)* — <https://learn.microsoft.com/en-us/windows/win32/winauto/entry-uiauto-win32>
 - **[S2]** Microsoft, *Screen capture (Windows.Graphics.Capture)* — <https://learn.microsoft.com/en-us/windows/uwp/audio-video-camera/screen-capture>

@@ -38,7 +38,9 @@ const results = {
     text: tree,
     screenshot: { url: `data:image/png;base64,${PNG_1X1}` },
   }),
-  screenshot: params => ({ url: `data:image/png;base64,${PNG_1X1}` }),
+  screenshot: params => params?.allow_fullscreen
+    ? { url: `data:image/png;base64,${PNG_1X1}`, scope: "full-screen" }
+    : { url: `data:image/png;base64,${PNG_1X1}`, scope: "window" },
   click: () => null,
   drag: () => null,
   paste: () => null,

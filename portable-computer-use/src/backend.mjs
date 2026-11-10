@@ -1,19 +1,35 @@
 // Platform detection and native-helper discovery.
 //
 // The JS/MCP layers of this skill are platform-neutral. The only OS-specific
-// piece is the helper binary, selected here. A Windows or Wayland port drops a
-// helper into build/<platform>/ and adds one path below; nothing else changes.
-// See porting/BACKEND-CONTRACT.md and porting/PORTING-RESEARCH.md.
+// piece is the helper process, selected here. A helper is a *spec*
+// ({ command, args }) so it can be a native binary (macOS) or an interpreter
+// running a script (Windows/Linux). See porting/BACKEND-CONTRACT.md and
+// porting/PORTING-RESEARCH.md.
+import { spawnSync } from "node:child_process";
 import { existsSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 export const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
+// `script` is the file that must exist; `command` is the interpreter/binary
+// spawned with `args = [script]`. Override order is in describePlatform().
 const PLATFORM_HELPERS = {
-  darwin: "build/Computer Use Helper.app/Contents/MacOS/ComputerUse",
-  win32: "build/windows/computer-use-helper.exe",
-  linux: "build/linux/computer-use-helper",
+  darwin: {
+    script: "build/Computer Use Helper.app/Contents/MacOS/ComputerUse",
+    command: null, // the script itself is the executable
+    defaultInterpreter: null,
+  },
+  win32: {
+    script: "build/windows/computer_use_helper.py",
+    command: null,
+    defaultInterpreter: "python",
+  },
+  linux: {
+    script: "build/linux/computer_use_helper.py",
+    command: null,
+    defaultInterpreter: "python3",
+  },
 };
 
 const NATIVE_BACKENDS = {
@@ -22,9 +38,18 @@ const NATIVE_BACKENDS = {
   linux: null, // resolved from the session type below
 };
 
+function probeInterpreter(candidate) {
+  try {
+    return spawnSync(candidate, ["--version"], { stdio: "ignore" }).status === 0;
+  } catch {
+    return false;
+  }
+}
+
 // Pure, testable: given a platform string and an environment object, describe
-// what backend would be used. No filesystem access for the non-active cases.
-export function describePlatform(platform, env = {}, { fileExists = existsSync } = {}) {
+// what backend would be used. `fileExists` / `interpreterExists` are injectable
+// for unit tests so no OS probing is needed there.
+export function describePlatform(platform, env = {}, { fileExists = existsSync, interpreterExists = probeInterpreter } = {}) {
   const sessionType = platform === "linux"
     ? (env.XDG_SESSION_TYPE || (env.WAYLAND_DISPLAY ? "wayland" : env.DISPLAY ? "x11" : "unknown"))
     : platform === "darwin" ? "quartz" : platform === "win32" ? "win32" : "unknown";
@@ -32,20 +57,60 @@ export function describePlatform(platform, env = {}, { fileExists = existsSync }
     ? (sessionType === "wayland" ? "wayland-portal" : "linux-x11")
     : (NATIVE_BACKENDS[platform] ?? "none");
 
+  const entry = PLATFORM_HELPERS[platform] ?? null;
   const override = env.COMPUTER_USE_HELPER || null;
-  const relative = PLATFORM_HELPERS[platform] ?? null;
-  const candidates = [override, relative ? path.join(root, relative) : null].filter(Boolean);
-  const helper = candidates.find(candidate => fileExists(candidate)) ?? candidates[0] ?? null;
-  const helperPresent = !!helper && fileExists(helper);
-  const supported = !!PLATFORM_HELPERS[platform];
+  const script = entry ? path.join(root, entry.script) : null;
+  let interpreter = null;
+  if (entry?.defaultInterpreter) {
+    const candidates = env.COMPUTER_USE_PYTHON
+      ? [env.COMPUTER_USE_PYTHON]
+      : platform === "win32" ? ["python", "py", "python3"] : ["python3", "python"];
+    interpreter = env.COMPUTER_USE_PYTHON || candidates.find(interpreterExists) || candidates[0];
+  }
 
+  let helper = null;
+  let helperSpec = null;
+  let helperCandidates = [];
+  if (override) {
+    // COMPUTER_USE_HELPER_ARGS lets a caller supply an interpreter plus script
+    // without a platform-specific shell wrapper. Accept a JSON array (safe for
+    // paths with spaces) or a whitespace-separated string.
+    let overrideArgs = [];
+    const rawArgs = env.COMPUTER_USE_HELPER_ARGS?.trim();
+    if (rawArgs) {
+      if (rawArgs.startsWith("[")) {
+        try {
+          const parsed = JSON.parse(rawArgs);
+          if (Array.isArray(parsed)) overrideArgs = parsed.map(String);
+        } catch { /* fall through to whitespace splitting */ }
+      }
+      if (!overrideArgs.length) overrideArgs = rawArgs.split(/\s+/).filter(Boolean);
+    }
+    helperSpec = { command: override, args: overrideArgs };
+    // When a script is supplied, report/check that file rather than the
+    // interpreter name (which is a command, not a filesystem path).
+    helper = overrideArgs.length ? overrideArgs[overrideArgs.length - 1] : override;
+    helperCandidates = [override, ...overrideArgs];
+  } else if (script) {
+    helper = script;
+    helperSpec = entry.defaultInterpreter
+      ? { command: interpreter, args: [script] }
+      : { command: script, args: [] };
+    helperCandidates = entry.defaultInterpreter ? [interpreter, script] : [script];
+  }
+
+  const helperPresent = !!helper && fileExists(helper);
+  const supported = !!entry;
   let backendStatus;
   if (!supported) backendStatus = "unsupported-platform";
+  else if (override && helperPresent) backendStatus = "ready";
   else if (helperPresent) backendStatus = "ready";
   else if (platform === "darwin") backendStatus = "missing-helper";
   else backendStatus = "not-implemented";
 
-  const helperApp = platform === "darwin" && helper ? path.resolve(helper, "../../..") : null;
+  const helperApp = platform === "darwin" && helper && !override
+    ? path.resolve(helper, "../../..")
+    : null;
 
   // Static platform defaults only — NOT verified capabilities. The authoritative
   // values come from the helper's `permissionStatus` (see BACKEND-CONTRACT.md)
@@ -68,7 +133,9 @@ export function describePlatform(platform, env = {}, { fileExists = existsSync }
     helper,
     helperApp,
     helperPresent,
-    helperCandidates: candidates,
+    helperSpec,
+    helperCandidates,
+    interpreter,
     platformDefaults,
     portingResearch: "porting/PORTING-RESEARCH.md",
   };
@@ -79,6 +146,7 @@ const active = describePlatform(process.platform, process.env);
 export const helperCandidates = active.helperCandidates;
 export const helperPath = active.helper;
 export const helperApp = active.helperApp;
+export const helperSpec = active.helperSpec;
 export const backendStatus = active.backendStatus;
 
 export function platformInfo() {

@@ -8,8 +8,12 @@ import { fileURLToPath } from "node:url";
 
 const root = await realpath(fileURLToPath(new URL("../", import.meta.url)));
 const name = "portable-computer-use";
-const launcher = path.join(root, "bin/computer-use");
-const entry = { type: "stdio", command: launcher, args: ["mcp"] };
+const launcher = path.join(root, "bin/computer-use"); // POSIX CLI wrapper
+const cli = path.join(root, "src", "cli.mjs");
+// Register `node <skill>/src/cli.mjs mcp` rather than the zsh wrapper: this
+// works unchanged on Windows, macOS and Linux (Windows cannot spawn shebang
+// scripts). `bin/computer-use` remains available as an interactive CLI.
+const entry = { type: "stdio", command: process.execPath, args: [cli, "mcp"] };
 const universal = { mcpServers: { [name]: entry } };
 const toolIds = ["computer", "js", "js_reset", "status"].map(tool => `mcp__${name}__${tool}`);
 const home = homedir();
@@ -163,8 +167,9 @@ if (flags.dsh) {
         "      config:",
         `        serverName: ${name}`,
         "        transport: stdio",
-        `        command: ${quote(launcher)}`,
+        `        command: ${quote(process.execPath)}`,
         "        args:",
+        `          - ${quote(cli)}`,
         "          - mcp",
         `# === ${name} MCP END ===`,
       ].join("\n") + "\n";

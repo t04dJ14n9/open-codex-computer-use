@@ -1,15 +1,18 @@
 ---
 name: portable-computer-use
-description: Read and operate macOS app windows through a self-contained computer-use MCP server or CLI. Use for accessibility inspection, screenshots, clicks, typing and native browser UI tasks; prefer dedicated APIs when UI interaction is unnecessary.
+description: Read and operate macOS, Windows and Linux app windows through a self-contained computer-use MCP server or CLI. Use for accessibility inspection, screenshots, clicks, typing and native browser UI tasks; prefer dedicated APIs when UI interaction is unnecessary.
 ---
 
 # Portable Computer Use
 
-A self-contained macOS skill. It needs only Node.js 20+, macOS 14+, and the
-bundled helper app. It does **not** require any product host, signed runtime,
-IPC daemon, account, or third-party service. Input is background-only: the
-physical pointer is never driven, and target windows are never activated or
-raised. An animated teal `AI` cursor is a click-through visual overlay.
+A self-contained cross-platform skill. It needs only Node.js 20+, a platform
+helper (binary on macOS, Python 3 on Windows/Linux), and the relevant OS
+grants/tools. It does **not** require any product host, signed runtime,
+IPC daemon, account, or third-party service. On macOS input is background-only:
+the physical pointer is never driven, and target windows are never activated or
+raised; an animated teal `AI` cursor is a click-through visual overlay. On
+Windows/Linux capabilities are reduced — check `status` and treat
+`background_unavailable:` refusals as final.
 
 ## Connect
 
@@ -98,17 +101,38 @@ implemented.
 
 ## Limits
 
-This is a finite, background-only implementation. macOS Accessibility and
+The `js` runtime carries a VM watchdog timeout that interrupts synchronous
+infinite loops (e.g. `while(true){}`) so `status` and `js_reset` stay
+responsive. An infinite loop that begins **after** an `await` runs in a
+microtask outside `runInContext`; Node's VM watchdog cannot interrupt that, so
+such code can still block the process. Avoid unbounded loops in asynchronous
+code.
+
+This is a finite, background-only implementation on macOS. macOS Accessibility and
 Screen Recording must be granted to the bundled helper for AX trees,
 screenshots, clicks and typing. Private window/focus APIs are
 capability-checked and version-sensitive. App-defined AX actions can have
 semantic focus effects that cannot be inferred universally.
 
-**Platform:** the shipped native helper is macOS-only. Check `status` first on
-any other OS — it reports `backendStatus: "not-implemented"` for Windows and
-Linux Wayland rather than pretending a helper exists. The MCP tools, `js`
-runtime and CLI are portable; only the helper is platform-specific. Porting
-research and the exact backend contract are in
-[porting/](porting/README.md). A non-macOS port will not have macOS
-background-only, window-targeted input, so verify capabilities with `status`
-before relying on them.
+**Platform:** macOS, Windows and Linux (X11 and Wayland) backends ship. Check
+`status` first: it reports `backendStatus`, `nativeBackend` and the helper's
+`permissions`, which are the authoritative capabilities (derived from probed
+OS dependencies, not hardcoded). The MCP tools, `js` runtime and CLI are
+identical on all platforms; only the helper differs.
+Windows needs Python 3 (`python`/`py`), Linux needs `python3`; optional OS
+tools are listed in [native/crossplatform/README.md](native/crossplatform/README.md).
+Non-macOS backends do **not** have macOS background-only, window-targeted
+input: Wayland refuses coordinate clicks and Windows uses foreground input.
+
+**Exact-window binding:** on Windows/X11 every targeted action requires a
+numeric window id (`app#window=ID` from `list_apps`, or `window_id`). A bare
+app name is refused with `background_unavailable:` instead of injecting input
+into whatever window happens to have focus. On Wayland no per-window id exists.
+
+**Screenshots:** X11/Windows capture only the requested window. Wayland cannot
+scope a capture to one window, so `screenshot` is refused unless you
+explicitly pass `allow_fullscreen: true`; the result is then tagged
+`scope: "full-screen"` and a warning is surfaced, because it may include other
+applications and notifications. Never assume a capability — read `status` and
+treat a `background_unavailable:` refusal as final. Porting research and the
+exact backend contract are in [porting/](porting/README.md).

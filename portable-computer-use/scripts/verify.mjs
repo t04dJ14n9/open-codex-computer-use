@@ -1,19 +1,17 @@
 #!/usr/bin/env node
 // Read-only self-check for the portable computer-use skill.
 //   1. runs `scripts/setup.mjs --check` via spawnSync
-//   2. spawns `bin/computer-use mcp`, drives an MCP handshake, collects tool names
+//   2. spawns `node src/cli.mjs mcp`, drives an MCP handshake, collects tools
 //   3. prints { ok, checks, tools }; exits nonzero unless every check passes
-// NOTE: bin/computer-use and src/** are authored by a separate component. This
-// script only references them; if they are not ready it reports that the
-// handshake could not be run rather than creating any files.
+// Uses the Node CLI entry directly (not the zsh wrapper) so this works on
+// Windows, macOS and Linux.
 import { spawn, spawnSync } from "node:child_process";
-import { accessSync, constants } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const skillRoot = fileURLToPath(new URL("../", import.meta.url));
 const setupPath = path.join(skillRoot, "scripts", "setup.mjs");
-const cliPath = path.join(skillRoot, "bin", "computer-use");
+const cliPath = path.join(skillRoot, "src", "cli.mjs");
 
 const EXPECTED_TOOLS = ["computer", "js", "js_reset", "status"];
 const PROTOCOL_VERSION = "2024-11-05"; // legacy version accepted by the MCP SDK
@@ -40,12 +38,10 @@ check("setup-check", setup.status === 0 && setupJson?.ok === true, {
     : { parseError: "setup.mjs --check produced no JSON" }),
 });
 
-// (b) MCP handshake with `bin/computer-use mcp`
-let cliExecutable = false;
-try { accessSync(cliPath, constants.X_OK); cliExecutable = true; } catch {}
-const child = cliExecutable
-  ? spawn(cliPath, ["mcp"], { cwd: skillRoot, stdio: ["pipe", "pipe", "pipe"] })
-  : spawn("/bin/zsh", [cliPath, "mcp"], { cwd: skillRoot, stdio: ["pipe", "pipe", "pipe"] });
+// (b) MCP handshake with `node src/cli.mjs mcp` (portable, no shell wrapper)
+const child = spawn(process.execPath, [cliPath, "mcp"], {
+  cwd: skillRoot, stdio: ["pipe", "pipe", "pipe"],
+});
 
 let buffer = "";
 let stderr = "";

@@ -122,10 +122,21 @@ export function createRuntime() {
     let work;
     try {
       const script = new vm.Script(wrapped, { filename: "computer-use.js" });
-      work = Promise.resolve(script.runInContext(context));
+      // A Promise.race deadline cannot fire while the event loop is blocked by
+      // a synchronous infinite loop (`while(true){}`). Node's VM `timeout`
+      // runs a watchdog OUTSIDE that loop, so it can terminate the script and
+      // leave the MCP process responsive for `status` / `js_reset`.
+      // It bounds only synchronous execution: `await cua.listApps()` still
+      // resolves normally through host promises, and the async deadline below
+      // remains the bound for genuinely asynchronous work.
+      const syncTimeoutMs = Math.max(1, Math.min(Math.floor(timeoutMs), 120000));
+      work = Promise.resolve(script.runInContext(context, { timeout: syncTimeoutMs }));
     } catch (error) {
       controller = null;
-      return { isError: true, content: [{ type: "text", text: error.message }] };
+      const message = error.code === "ERR_SCRIPT_EXECUTION_TIMEOUT"
+        ? `JavaScript execution exceeded ${timeoutMs} ms (synchronous VM timeout)`
+        : error.message;
+      return { isError: true, content: [{ type: "text", text: message }] };
     }
     let timer;
     const deadline = new Promise((_, reject) => {

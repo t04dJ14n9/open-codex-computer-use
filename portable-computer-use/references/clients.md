@@ -3,24 +3,30 @@
 This skill is a standard Agent Skill folder plus a stdio MCP server. Any agent
 that can read `SKILL.md` and launch a stdio MCP server can use it. No product
 host, signed runtime, account, IPC socket or environment variables are
-required — only Node.js 20+, macOS 14+, and the bundled helper.
+required — only Node.js 20+ and the platform helper. macOS needs 14+ and grants;
+Windows needs Python 3.8+ (`python`/`py`) and PowerShell; Linux needs Python
+3.8+ (`python3`) plus optional `xdotool`/AT-SPI2/portal tools. See
+[../native/crossplatform/README.md](../native/crossplatform/README.md).
 
 ## Universal MCP entry
 
-Paste this into any MCP client's configuration (replace the command with the
-absolute path to this folder's `bin/computer-use`):
+Paste this into any MCP client's configuration (use absolute paths). Registering
+`node src/cli.mjs mcp` instead of the `bin/computer-use` zsh wrapper is what
+makes it work on Windows too:
 
 ```json
 {
   "mcpServers": {
     "portable-computer-use": {
       "type": "stdio",
-      "command": "/absolute/path/portable-computer-use/bin/computer-use",
-      "args": ["mcp"]
+      "command": "/absolute/path/to/node",
+      "args": ["/absolute/path/portable-computer-use/src/cli.mjs", "mcp"]
     }
   }
 }
 ```
+
+`scripts/install.mjs` writes this form automatically using `process.execPath`.
 
 The server exposes `computer`, `js`, `js_reset`, `status` and a `computer-use`
 prompt. In clients that prefix tool names they appear as
@@ -59,6 +65,8 @@ Environment overrides for isolated testing (and for nonstandard installs):
 | `CUA_GEMINI_CONFIG_FILE` | Gemini config |
 | `COMPUTER_USE_NODE` | Node binary used by `bin/computer-use` |
 | `COMPUTER_USE_HELPER` | Alternate helper executable |
+| `COMPUTER_USE_HELPER_ARGS` | Args for that executable (JSON array, e.g. a Python script) |
+| `COMPUTER_USE_PYTHON` | Python interpreter for the Windows/Linux helper |
 
 `--help` prints every flag and the universal snippet.
 

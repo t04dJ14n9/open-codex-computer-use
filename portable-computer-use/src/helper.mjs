@@ -1,9 +1,10 @@
-// JSON-lines bridge to the bundled macOS helper. This is a plain local
-// subprocess; there is no signed supervisor, no XPC service and no socket.
+// JSON-lines bridge to the platform helper (macOS binary or Windows/Linux
+// Python script). This is a plain local subprocess; there is no signed
+// supervisor, no XPC service and no socket.
 import { spawn } from "node:child_process";
 import { existsSync } from "node:fs";
 import { createInterface } from "node:readline";
-import { helperPath, root } from "./config.mjs";
+import { helperPath, root, helperSpec } from "./config.mjs";
 
 export const METHODS = [
   "list_apps", "get_app_state", "screenshot", "click", "drag", "paste",
@@ -37,13 +38,15 @@ function cancelRequest(id, reason) {
 
 function ensureHelper() {
   if (child) return;
-  if (!helperPath || !existsSync(helperPath)) {
+  if (!helperPath || !existsSync(helperPath) || !helperSpec) {
     throw new Error(
       `No native helper is available for ${process.platform} (${helperPath ?? "no candidate"}). ` +
-      "On macOS rebuild with `node scripts/build-native.mjs`; for other platforms see porting/PORTING-RESEARCH.md."
+      "On macOS rebuild with `node scripts/build-native.mjs`; on Windows/Linux run `node scripts/build-cross-platform.mjs`; see porting/PORTING-RESEARCH.md."
     );
   }
-  const handle = spawn(helperPath, [], { stdio: ["pipe", "pipe", "pipe"] });
+  // macOS ships a native binary; Windows/Linux ship a Python script run by the
+  // platform interpreter. `helperSpec` carries { command, args } for both.
+  const handle = spawn(helperSpec.command, helperSpec.args, { stdio: ["pipe", "pipe", "pipe"] });
   child = handle;
   let diagnostics = "";
   handle.stderr.on("data", chunk => { diagnostics = (diagnostics + chunk).slice(-4000); });
