@@ -1,0 +1,21 @@
+{
+  "name": "portable-computer-use",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Self-contained macOS computer-use Agent Skill: stdio MCP server and CLI with no product-host dependency",
+  "engines": { "node": ">=20" },
+  "bin": { "portable-computer-use": "bin/computer-use" },
+  "scripts": {
+    "start": "./bin/computer-use mcp",
+    "setup": "node scripts/setup.mjs",
+    "check": "node scripts/setup.mjs --check",
+    "verify": "node scripts/verify.mjs",
+    "test": "node test/protocol.mjs",
+    "build:native": "node scripts/build-native.mjs"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/server": "2.3.1",
+    "zod": "4.4.3"
+  }
+}

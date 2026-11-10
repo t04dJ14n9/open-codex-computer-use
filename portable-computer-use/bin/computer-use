@@ -1,0 +1,14 @@
+#!/bin/zsh
+set -euo pipefail
+root="${0:A:h:h}"
+node_bin="${COMPUTER_USE_NODE:-}"
+if [[ -z "$node_bin" ]]; then
+  node_bin="$(command -v node || true)"
+fi
+if [[ -z "$node_bin" || ! -x "$node_bin" ]]; then
+  print -u2 "Node.js 20 or later is missing"
+  exit 1
+fi
+# The runtime is self-contained; do not let a caller inject Node flags.
+unset NODE_OPTIONS
+exec "$node_bin" "$root/src/cli.mjs" "$@"

@@ -4,6 +4,15 @@ A self-contained macOS agent skill with a CLI and stdio MCP server for Claude
 Code and other MCP clients. The repository root is the skill folder; runtime
 sources and binaries live under `scripts/`.
 
+**Looking for a clean, agent-agnostic skill?** See
+[`portable-computer-use/`](portable-computer-use/README.md): a separate,
+self-contained skill with a freshly authored runtime and no `node_repl`,
+`@oai/*`, ChatGPT.app or `CODEX_*` dependency. It works with any stdio MCP
+client (Claude Code, Codex, DSH, Cursor, Windsurf, Gemini CLI) and has its own
+[MCP server, CLI, Swift helper and installer](portable-computer-use/README.md).
+The rest of this README documents the source-recovery reconstruction and its
+original Codex-compatible runtime.
+
 The default runtime is a functional reconstruction. It preserves the recovered
 Codex CUA JavaScript API while replacing the unavailable original native
 service with a source-built Swift helper.
