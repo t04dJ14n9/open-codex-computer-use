@@ -9,9 +9,22 @@ import { mkdtempSync, writeFileSync, chmodSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { pythonCommand } from "./python.mjs";
+
+// Stub OS tools are POSIX shell/Python scripts, so this particular harness is
+// POSIX-only. On Windows the real OS tools exist and the live protocol test
+// (test/protocol.mjs) plus setup --check validate the helper instead.
+if (process.platform === "win32") {
+  console.log(JSON.stringify({
+    passed: true, checks: [],
+    skipped: "stubbed-tool harness is POSIX-only; validate the real Windows helper with setup --check and the target-OS checklist",
+  }, null, 2));
+  process.exit(0);
+}
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const helper = path.join(root, "native/crossplatform/computer_use_helper.py");
+const python = pythonCommand();
 const tmp = mkdtempSync(path.join(tmpdir(), "pcu-cross-"));
 const PNG = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8DwHwAFAAH/q842iQAAAABJRU5ErkJggg==";
 
@@ -76,7 +89,7 @@ function bootstrap(platform, session) {
 
 function talk(platform, session, requests) {
   const input = requests.map((r, i) => JSON.stringify({ id: i + 1, ...r })).join("\n") + "\n";
-  const result = spawnSync("python3", ["-c", bootstrap(platform, session)], {
+  const result = spawnSync(python, ["-c", bootstrap(platform, session)], {
     input,
     encoding: "utf8",
     env: { ...process.env, PATH: `${tmp}:${process.env.PATH}` },
@@ -91,7 +104,7 @@ const checks = [];
 // 1. Core protocol on an unsupported host (this macOS box): status works,
 //    unsupported methods refuse, malformed input and cancel are ignored.
 {
-  const core = spawnSync("python3", ["-c", bootstrap("darwin", null)], {
+  const core = spawnSync(python, ["-c", bootstrap("darwin", null)], {
     input: [
       JSON.stringify({ id: 1, method: "permissionStatus", params: {} }),
       "not-json",

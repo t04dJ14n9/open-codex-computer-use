@@ -6,8 +6,8 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-const launcher = path.join(root, "bin/computer-use");
-const child = spawn(launcher, ["mcp"], { stdio: ["pipe", "pipe", "pipe"] });
+const cli = path.join(root, "src", "cli.mjs");
+const child = spawn(process.execPath, [cli, "mcp"], { stdio: ["pipe", "pipe", "pipe"] });
 let buffer = "";
 let stderr = "";
 const waiting = new Map();
@@ -47,6 +47,10 @@ function assertOk(result, label) {
 const checks = [];
 const skipped = [];
 const started = Date.now();
+// Finder / ScreenCaptureKit assertions are macOS-specific. On Windows/Linux
+// the same protocol is exercised, but OS-dependent operations may legitimately
+// return a typed background_unavailable refusal when tools are missing.
+const isMac = process.platform === "darwin";
 try {
   const init = await request("initialize", {
     protocolVersion: "2025-06-18", capabilities: {}, clientInfo: { name: "portable-computer-use-test", version: "1.0.0" },
@@ -72,16 +76,26 @@ try {
   assert.equal(statusValue.helperPresent, true);
   checks.push("standalone backend with bundled helper, no product host");
 
-  const apps = await call("computer", { action: "list_apps" });
-  assertOk(apps, "list_apps");
-  const appList = JSON.parse(text(apps));
-  assert(appList.some(app => app.id === "com.apple.finder"));
-  checks.push(`running app inventory (${appList.length} apps)`);
+  if (isMac) {
+    const apps = await call("computer", { action: "list_apps" });
+    assertOk(apps, "list_apps");
+    const appList = JSON.parse(text(apps));
+    assert(appList.some(app => app.id === "com.apple.finder"));
+    checks.push(`running app inventory (${appList.length} apps)`);
 
-  const state = await call("computer", { action: "get_app_state", app: "com.apple.finder" });
-  assertOk(state, "get_app_state");
-  assert.match(text(state), /\d+ (?:standard )?(?:window|menu bar|toolbar|application|outline|AXWindow)/);
-  checks.push("numbered accessibility tree");
+    const state = await call("computer", { action: "get_app_state", app: "com.apple.finder" });
+    assertOk(state, "get_app_state");
+    assert.match(text(state), /\d+ (?:standard )?(?:window|menu bar|toolbar|application|outline|AXWindow)/);
+    checks.push("numbered accessibility tree");
+  } else {
+    // A real result OR a typed refusal is acceptable: both prove the helper
+    // answered over the contract, without assuming OS tools are installed.
+    const apps = await call("computer", { action: "list_apps" });
+    assert(apps.result?.content?.length > 0, "list_apps returned no content");
+    const refused = apps.result.isError && /background_unavailable/.test(text(apps));
+    checks.push(refused ? "list_apps returned a typed refusal (OS tools absent)" : "list_apps through the platform helper");
+    skipped.push("Finder AX tree (macOS-specific; use the target-OS checklist)");
+  }
 
   const first = await call("js", { code: "var counter = 40; nodeRepl.write(counter);" });
   assertOk(first, "js first");
@@ -113,9 +127,11 @@ try {
   assert.match(text(invalid), /x is required/);
   checks.push("invalid actions rejected before interaction");
 
-  const screenshot = await call("computer", { action: "screenshot", app: "com.apple.finder" });
-  if (screenshot.result.isError && /Screen Recording/.test(text(screenshot))) {
-    skipped.push("app screenshot (macOS Screen Recording not granted)");
+  const screenshot = await call("computer", {
+    action: "screenshot", app: isMac ? "com.apple.finder" : (process.platform === "win32" ? "notepad" : "xterm"),
+  });
+  if (screenshot.result.isError && /Screen Recording|background_unavailable/.test(text(screenshot))) {
+    skipped.push("app screenshot (permission or OS tool unavailable)");
   } else {
     assertOk(screenshot, "screenshot");
     const image = screenshot.result.content.find(item => item.type === "image");

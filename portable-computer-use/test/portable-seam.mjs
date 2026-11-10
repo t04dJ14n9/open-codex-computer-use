@@ -1,25 +1,25 @@
 #!/usr/bin/env node
-// Verifies the platform-neutral seam: point COMPUTER_USE_HELPER at a fake
+// Verifies the platform-neutral seam: point the helper override at a fake
 // contract-compliant helper and drive the real MCP server unchanged. This is
-// the harness a Windows/Wayland port can reuse in CI.
+// the harness a Windows/Wayland port can reuse in CI on any OS.
 import assert from "node:assert/strict";
 import { spawn } from "node:child_process";
-import { writeFileSync, unlinkSync } from "node:fs";
-import { tmpdir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-const launcher = path.join(root, "bin/computer-use");
+const cli = path.join(root, "src", "cli.mjs");
 const mockHelper = path.join(root, "test", "mock-helper.mjs");
 
-// bin/computer-use spawns the helper with no arguments, so wrap the mock in a
-// tiny executable shell script.
-const wrapper = path.join(tmpdir(), `pcu-mock-helper-${process.pid}.sh`);
-writeFileSync(wrapper, `#!/bin/sh\nexec "${process.execPath}" "${mockHelper}"\n`, { mode: 0o755 });
-
-const server = spawn(launcher, ["mcp"], {
-  env: { ...process.env, COMPUTER_USE_HELPER: wrapper },
+// The mock helper is a Node.js script. COMPUTER_USE_HELPER +
+// COMPUTER_USE_HELPER_ARGS form a helper spec that works on Windows, macOS and
+// Linux without a shell wrapper.
+const server = spawn(process.execPath, [cli, "mcp"], {
+  env: {
+    ...process.env,
+    COMPUTER_USE_HELPER: process.execPath,
+    COMPUTER_USE_HELPER_ARGS: JSON.stringify([mockHelper]),
+  },
   stdio: ["pipe", "pipe", "pipe"],
 });
 let buffer = "";
@@ -99,5 +99,4 @@ try {
   console.log(JSON.stringify({ passed: true, checks, stderr }, null, 2));
 } finally {
   server.kill();
-  try { unlinkSync(wrapper); } catch {}
 }

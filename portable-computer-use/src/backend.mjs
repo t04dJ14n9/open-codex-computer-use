@@ -72,9 +72,25 @@ export function describePlatform(platform, env = {}, { fileExists = existsSync, 
   let helperSpec = null;
   let helperCandidates = [];
   if (override) {
-    helper = override;
-    helperSpec = { command: override, args: [] };
-    helperCandidates = [override];
+    // COMPUTER_USE_HELPER_ARGS lets a caller supply an interpreter plus script
+    // without a platform-specific shell wrapper. Accept a JSON array (safe for
+    // paths with spaces) or a whitespace-separated string.
+    let overrideArgs = [];
+    const rawArgs = env.COMPUTER_USE_HELPER_ARGS?.trim();
+    if (rawArgs) {
+      if (rawArgs.startsWith("[")) {
+        try {
+          const parsed = JSON.parse(rawArgs);
+          if (Array.isArray(parsed)) overrideArgs = parsed.map(String);
+        } catch { /* fall through to whitespace splitting */ }
+      }
+      if (!overrideArgs.length) overrideArgs = rawArgs.split(/\s+/).filter(Boolean);
+    }
+    helperSpec = { command: override, args: overrideArgs };
+    // When a script is supplied, report/check that file rather than the
+    // interpreter name (which is a command, not a filesystem path).
+    helper = overrideArgs.length ? overrideArgs[overrideArgs.length - 1] : override;
+    helperCandidates = [override, ...overrideArgs];
   } else if (script) {
     helper = script;
     helperSpec = entry.defaultInterpreter

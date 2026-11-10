@@ -79,16 +79,19 @@ Any stdio MCP client can register the same entry:
   "mcpServers": {
     "portable-computer-use": {
       "type": "stdio",
-      "command": "/absolute/path/portable-computer-use/bin/computer-use",
-      "args": ["mcp"]
+      "command": "/absolute/path/to/node",
+      "args": ["/absolute/path/portable-computer-use/src/cli.mjs", "mcp"]
     }
   }
 }
 ```
 
-No environment variables are required. Optional overrides:
-`COMPUTER_USE_NODE` (Node binary) and `COMPUTER_USE_HELPER` (alternate helper
-executable).
+Registering `node src/cli.mjs mcp` (rather than the `bin/computer-use` zsh
+wrapper) is what makes the entry work unchanged on Windows, macOS and Linux.
+`scripts/install.mjs` writes exactly this form using `process.execPath`. No
+environment variables are required. Optional overrides: `COMPUTER_USE_NODE`
+(Node binary for the CLI wrapper), `COMPUTER_USE_HELPER` (alternate helper
+executable) and `COMPUTER_USE_PYTHON` (Windows/Linux helper interpreter).
 
 ## CLI fallback
 
