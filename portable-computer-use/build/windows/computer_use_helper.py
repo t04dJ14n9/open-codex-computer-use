@@ -175,12 +175,57 @@ def app_records(windows):
 
 
 def resolve_window(params) -> str:
-    """Parse app spec, returning the platform window id as a string."""
+    """Parse an app spec, returning the raw window id or app name."""
     app = params.get("app") or ""
     match = re.search(r"#window=(\d+)$", app)
     if match:
         return match.group(1)
     return app
+
+
+def bind_window_id(params) -> str:
+    """Return a NUMERIC window id, or refuse.
+
+    This deliberately never falls back to the focused window or the global
+    pointer. Bare app names are resolved through the platform's own window
+    inventory; if resolution is ambiguous or impossible the operation is
+    refused with a typed error. This is what prevents an `app="Firefox"` request
+    from injecting input into an unrelated foreground application.
+    """
+    app = params.get("app") or ""
+    match = re.search(r"#window=(\d+)$", app)
+    if match:
+        return match.group(1)
+    if app.isdigit():
+        return app
+    if not app:
+        refuse("an exact window target is required; pass app#window=ID from list_apps")
+
+    if PLATFORM != "win32" and SESSION == "wayland":
+        refuse("standard Wayland exposes no per-window id; exact window binding "
+               "is unavailable (windowTargetedInput=false)")
+
+    try:
+        windows = win32_list_windows() if PLATFORM == "win32" else x11_list_windows()
+    except Exception:
+        windows = []
+    name = app.split("#", 1)[0].lower()
+    matches = []
+    for window in windows:
+        fields = (str(window.get("app") or ""), str(window.get("appName") or ""),
+                  str(window.get("title") or ""), str(window.get("id") or ""))
+        if any(name == field.lower() for field in fields):
+            wid = str(window.get("id") or "")
+            if wid.isdigit():
+                matches.append(wid)
+    unique = list(dict.fromkeys(matches))
+    if len(unique) == 1:
+        return unique[0]
+    if len(unique) > 1:
+        refuse(f"app {app!r} matches {len(unique)} windows; pass app#window=ID "
+               "from list_apps for exact-window binding")
+    refuse(f"cannot bind app {app!r} to a window; pass app#window=ID from "
+           "list_apps (no silent fallback to the focused window)")
 
 
 def target_point(params):
@@ -315,14 +360,25 @@ def win32_list_windows():
 
 
 def win32_powershell(script: str, hwnd: int, extra=None):
+    """Invoke a UIA script via `-File`, not `-Command`.
+
+    Passing a multi-line script plus named parameters to `-Command` relies on
+    PowerShell appending the trailing tokens to the command text; parameter
+    binding and quoting are ambiguous there. A temporary .ps1 with `-File` and
+    named parameters is unambiguous and avoids shell-interpolation surprises.
+    """
     exe = which("powershell") or which("pwsh")
     if not exe:
         refuse("PowerShell is required for UI Automation actions")
-    argv = [exe, "-NoProfile", "-NonInteractive", "-Command", script,
-            "-Hwnd", str(hwnd)]
-    for key, value in (extra or {}).items():
-        argv += [f"-{key}", str(value)]
-    code, out, err = run(argv, timeout=20.0)
+    with tempfile.TemporaryDirectory(prefix="pcu-win32-") as tmp:
+        script_path = os.path.join(tmp, "action.ps1")
+        with open(script_path, "w", encoding="utf-8") as handle:
+            handle.write(script)
+        argv = [exe, "-NoProfile", "-NonInteractive", "-ExecutionPolicy", "Bypass",
+                "-File", script_path, "-Hwnd", str(hwnd)]
+        for key, value in (extra or {}).items():
+            argv += [f"-{key}", str(value)]
+        code, out, err = run(argv, timeout=20.0)
     if code != 0:
         refuse(f"UI Automation call failed: {(err or out).strip()[:300]}")
     return out.strip()
@@ -464,7 +520,7 @@ def win32_pattern_action(params, action: str):
     index = params.get("element_index")
     if index is None:
         refuse("element_index is required for this action")
-    hwnd = resolve_window(params)
+    hwnd = bind_window_id(params)
     value = params.get("value", params.get("text", ""))
     out = win32_powershell(PS_UIA_ACTION, int(hwnd), {
         "Index": index, "Action": action, "Value": value,
@@ -554,28 +610,40 @@ def atspi_tree(pyatspi, target_id):
 
 
 def x11_screenshot(wid: str):
+    """Capture exactly the requested window.
+
+    Only `import -window <id>` is window-scoped. `scrot -u` and
+    `gnome-screenshot -w` capture the *focused* window, which may be a
+    different application, so they are deliberately NOT used as fallbacks:
+    a wrong capture is worse than an explicit refusal.
+    """
+    if not str(wid).isdigit():
+        refuse("X11 screenshots require an exact numeric window id "
+               "(app#window=ID from list_apps)")
+    importer = which("import")
+    if not importer:
+        refuse("window-scoped X11 screenshots require ImageMagick `import`; "
+               "install imagemagick (focused-window and full-screen tools are "
+               "deliberately not used)")
     with tempfile.TemporaryDirectory(prefix="pcu-x11-") as tmp:
         path = os.path.join(tmp, "window.png")
-        for argv in (
-            [which("import"), "-window", wid, path] if which("import") else None,
-            [which("scrot"), "-u", "-o", path] if which("scrot") else None,
-            [which("gnome-screenshot"), "-w", "-f", path] if which("gnome-screenshot") else None,
-        ):
-            if not argv or not argv[0]:
-                continue
-            code, _out, _err = run([a for a in argv if a], timeout=15.0)
-            if code == 0 and os.path.isfile(path):
-                return data_url_from_file(path)
-    refuse("no X11 screenshot tool available (install imagemagick, scrot or gnome-screenshot)")
+        code, _out, err = run([importer, "-window", str(wid), path], timeout=15.0)
+        if code == 0 and os.path.isfile(path):
+            return data_url_from_file(path)
+    refuse(f"`import -window {wid}` failed: {err.strip()[:160]}. Refusing to "
+           "capture a different window or the full screen")
 
 
 def x11_input(params, kind: str):
+    # Bind FIRST, before xdotool is even resolved. A non-window-id `app` must
+    # never produce an xdotool invocation without `--window`, because that
+    # would inject into whatever window happens to have focus.
+    wid = bind_window_id(params)
     xdotool = x11_tool("xdotool")
-    wid = resolve_window(params)
     # --window sends synthetic events to that specific X window without
     # activating it. Many modern toolkits ignore XSendEvent input; note it.
     prefix = [xdotool]
-    window_flag = ["--window", wid] if wid.isdigit() else []
+    window_flag = ["--window", wid]
     if kind == "click":
         x, y = target_point(params)
         argv = prefix + ["mousemove"] + window_flag + ["--sync", str(int(x)), str(int(y)),
@@ -634,7 +702,19 @@ def wayland_tree(_wid: str):
                "enable org.a11y.Status.IsEnabled and install python3-pyatspi")
 
 
-def wayland_screenshot(_wid: str):
+def wayland_screenshot(params):
+    """Full-screen capture only with explicit consent.
+
+    Standard Wayland portals / compositor tools cannot scope a capture to a
+    single window. Returning a full-screen image for a window-targeted request
+    would silently expose other applications and notifications, so the caller
+    must opt in with `allow_fullscreen: true`. The result is tagged with its
+    scope so the JS layer can surface the warning to the agent.
+    """
+    if params.get("allow_fullscreen") is not True:
+        refuse("Wayland cannot scope a screenshot to one window; full-screen "
+               "capture (which may include other applications and notifications) "
+               "requires an explicit allow_fullscreen=true opt-in")
     with tempfile.TemporaryDirectory(prefix="pcu-wl-") as tmp:
         path = os.path.join(tmp, "screen.png")
         for argv in (
@@ -645,16 +725,16 @@ def wayland_screenshot(_wid: str):
             if argv and argv[0]:
                 code, _out, _err = run(argv, timeout=20.0)
                 if code == 0 and os.path.isfile(path):
-                    return data_url_from_file(path)
+                    return {"url": data_url_from_file(path), "scope": "full-screen"}
         # xdg-desktop-portal Screenshot returns a file URI via Gio D-Bus.
         uri = portal_screenshot_uri()
         if uri:
             from urllib.parse import urlparse, unquote
             candidate = unquote(urlparse(uri).path)
             if os.path.isfile(candidate):
-                return data_url_from_file(candidate)
-    refuse("Wayland screenshot unavailable: compositor capture tool or "
-           "org.freedesktop.portal.Screenshot (Gio) is required, with user consent")
+                return {"url": data_url_from_file(candidate), "scope": "full-screen"}
+    refuse("Wayland full-screen screenshot unavailable: compositor capture tool "
+           "or org.freedesktop.portal.Screenshot (Gio) is required, with user consent")
 
 
 def portal_screenshot_uri(timeout_s: float = 20.0):
@@ -723,6 +803,14 @@ def wayland_input(params, kind: str):
 # ---------------------------------------------------------------------------
 
 def permission_status():
+    """Report capabilities derived from dependencies actually present.
+
+    Earlier builds hardcoded accessibility/screenRecording/axTree/screenshot to
+    `true`, which overstated readiness when the required OS tools were missing.
+    Nothing here claims OS consent: `accessibility`/`screenRecording` are
+    capability probes (can the helper read a tree / capture pixels), not a
+    statement that a TCC/consent dialog has been accepted.
+    """
     tools = {name: bool(which(name)) for name in (
         "powershell", "pwsh", "xdotool", "xprop", "xwininfo", "import", "scrot",
         "gnome-screenshot", "grim", "spectacle", "wtype", "ydotool",
@@ -738,25 +826,50 @@ def permission_status():
     except Exception:
         tools["gi"] = False
 
-    if PLATFORM == "win32":
-        background, targeted, input_mode = False, False, "foreground-only"
-    elif SESSION == "x11":
-        background, targeted, input_mode = True, True, "background-synthetic"
-    elif SESSION == "wayland":
-        background, targeted, input_mode = False, False, "foreground-only"
-    else:
-        background, targeted, input_mode = False, False, "unavailable"
+    uia = bool(tools["powershell"] or tools["pwsh"])
+    capture_tool = bool(tools["import"] or tools["grim"] or tools["spectacle"]
+                        or tools["gnome-screenshot"] or tools["gi"])
 
+    keyboard_injector = bool(tools["wtype"] or tools["ydotool"])
+
+    if PLATFORM == "win32":
+        # UIA tree comes from PowerShell; PrintWindow needs no external tool.
+        ax_tree = uia
+        screenshot = True
+        background, targeted, input_mode = False, False, "foreground-only"
+        global_input = True  # SendInput drives the physical pointer
+    elif SESSION == "x11":
+        ax_tree = bool(tools["xwininfo"] or tools["pyatspi"])
+        screenshot = bool(tools["import"])  # only window-scoped capture tool
+        background = targeted = bool(tools["xdotool"])
+        input_mode = "background-synthetic" if targeted else "unavailable"
+        global_input = False
+    elif SESSION == "wayland":
+        ax_tree = bool(tools["pyatspi"])  # AT-SPI2 only
+        screenshot = capture_tool
+        background, targeted = False, False
+        input_mode = "foreground-only" if keyboard_injector else "unavailable"
+        # wtype/ydotool inject via uinput into the focused surface: that is a
+        # GLOBAL input path, not window-targeted input. Report it truthfully.
+        global_input = keyboard_injector
+    else:
+        ax_tree = screenshot = False
+        background, targeted, input_mode = False, False, "unavailable"
+        global_input = False
+
+    missing = [name for name, present in tools.items() if not present]
     return {
-        "accessibility": True,
-        "screenRecording": True,
+        "accessibility": ax_tree,
+        "screenRecording": screenshot,
         "backgroundAvailable": background,
         "windowTargetedInput": targeted,
         "inputMode": input_mode,
-        "globalInput": PLATFORM == "win32",
-        "axTree": True,
-        "screenshot": True,
+        "globalInput": global_input,
+        "axTree": ax_tree,
+        "screenshot": screenshot,
         "consentRequired": SESSION == "wayland",
+        "fullScreenCaptureRequiresOptIn": SESSION == "wayland",
+        "capabilityBasis": "dependency-probe; no OS consent is claimed",
         "compositor": BACKEND,
         "sessionType": SESSION,
         "platform": PLATFORM,
@@ -764,6 +877,7 @@ def permission_status():
         "helper": HELPER_NAME,
         "helperVersion": VERSION,
         "tools": tools,
+        "missingTools": missing,
         "missingSymbols": [],
         "pid": os.getpid(),
         "cursor": {"enabled": False, "visible": False, "phase": "hidden",
@@ -792,14 +906,18 @@ def dispatch(method: str, params: dict):
     if PLATFORM == "unsupported":
         refuse(f"no helper backend for platform {sys.platform}")
 
-    wid = resolve_window(params)
-
     if method == "list_apps":
         if PLATFORM == "win32":
             return app_records(win32_list_windows())
         if SESSION == "x11":
             return app_records(x11_list_windows())
         return wayland_list_apps()
+
+    # Every remaining operation is window-targeted. On Windows/X11 bind to an
+    # exact numeric window id first; on Wayland no per-window id exists, so
+    # desktop-wide operations (AT-SPI tree, foreground keyboard) keep the raw
+    # spec while window-scoped ones refuse.
+    wid = bind_window_id(params) if (PLATFORM == "win32" or SESSION == "x11") else resolve_window(params)
 
     if method == "get_app_state":
         if PLATFORM == "win32":
@@ -810,10 +928,10 @@ def dispatch(method: str, params: dict):
 
     if method == "screenshot":
         if PLATFORM == "win32":
-            return {"url": win32_screenshot(wid)}
+            return {"url": win32_screenshot(wid), "scope": "window"}
         if SESSION == "x11":
-            return {"url": x11_screenshot(wid)}
-        return {"url": wayland_screenshot(wid)}
+            return {"url": x11_screenshot(wid), "scope": "window"}
+        return wayland_screenshot(params)
 
     if method == "click":
         if PLATFORM == "win32":

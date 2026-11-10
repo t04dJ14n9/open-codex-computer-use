@@ -379,20 +379,28 @@ runs 4 suites. The mock/stubs live only under `test/`.
 | Contract method | macOS (Swift) | Windows (Python) | Linux X11 (Python) | Linux Wayland (Python) |
 | --- | --- | --- | --- | --- |
 | `list_apps` | NSWorkspace | `EnumWindows` | `xdotool search` | `/proc` scan |
-| `get_app_state` | AX tree | UIA tree (PowerShell) | `xwininfo -tree` / AT-SPI | AT-SPI2 (else refusal) |
-| `screenshot` | ScreenCaptureKit | `PrintWindow` + PNG encoder | `import`/`scrot` | grim/spectacle/GNOME / portal Screenshot |
+| `get_app_state` | AX tree | UIA tree (PowerShell `-File`) | `xwininfo -tree` / AT-SPI | AT-SPI2 (else refusal) |
+| `screenshot` | ScreenCaptureKit | `PrintWindow` (window-scoped) | `import -window <id>` only | **refusal** unless `allow_fullscreen: true`, then tagged full-screen |
 | `click` (element) | AX action | UIA `InvokePattern` | refusal | refusal |
-| `click` (coordinate) | window-relative | `SetCursorPos`+`SendInput` | `xdotool --window` | **refusal** |
-| `press_key` / `type_text` | CGEvent | `SendInput` unicode | `xdotool --window` | `wtype`/`ydotool` (foreground) |
-| `scroll` | AX page scroll | `SendInput` wheel | `xdotool click 4/5` | refusal |
+| `click` (coordinate) | window-relative | `SetCursorPos`+`SendInput` | `xdotool --window <id>` | **refusal** |
+| `press_key` / `type_text` | CGEvent | `SendInput` unicode | `xdotool --window <id>` | `wtype`/`ydotool` (foreground) |
+| `scroll` | AX page scroll | `SendInput` wheel | `xdotool click 4/5 --window <id>` | refusal |
 | `set_value` / `select_text` / secondary action | AX | UIA patterns | refusal | refusal |
 | `paste` / `drag` | refusal | refusal | refusal | refusal |
-| `permissionStatus` | real grants | capability report | capability report | capability report |
+| `permissionStatus` | real grants | dependency-derived | dependency-derived | dependency-derived |
+
+All Windows/X11 targeted operations require exact-window binding: a bare app
+name is resolved through the window inventory or refused. No `xdotool` command
+is issued without `--window <id>`. X11 screenshots never fall back to focused-
+window or full-screen tools; Wayland screenshots never silently return a
+full-screen image.
 
 `backgroundAvailable` / `windowTargetedInput` are `true` only on macOS (and
-approximated on X11); Wayland reports `false` and refuses coordinate clicks.
-Every unsupported operation returns `background_unavailable: …` rather than
-silently using global input.
+approximated on X11 when `xdotool` is present); Wayland reports `false` and
+refuses coordinate clicks. `globalInput` is reported truthfully (true on
+Windows and on Wayland when `wtype`/`ydotool` exist). Every unsupported
+operation returns `background_unavailable: …` rather than silently using
+global input.
 
 ---
 
@@ -427,6 +435,25 @@ Recommended validation on each target OS: run `node scripts/setup.mjs --check`,
 `npm test`, `./bin/computer-use status`, `./bin/computer-use list-apps`, then
 `./bin/computer-use state <app>` and a screenshot. See
 [`native/crossplatform/README.md`](../native/crossplatform/README.md).
+
+### Review-driven fixes (landed on the stack tip)
+
+An independent read-only review of the four stacked PRs found four confirmed
+runtime/capability defects, all fixed and covered by regression tests:
+
+| Finding | Fix | Regression test |
+| --- | --- | --- |
+| High: X11 `xdotool` omitted `--window` for a bare app name, injecting into the focused window | `bind_window_id()` requires a numeric window id (resolving bare names through the window inventory) and refuses otherwise; `--window` is unconditional | `test/cross-platform-helper.mjs` asserts every logged `xdotool` invocation carries `--window` and bare names are refused |
+| Medium: `runInContext` had no synchronous timeout; `while(true){}` hung the MCP process | `runInContext(context, { timeout })` with a mapped `ERR_SCRIPT_EXECUTION_TIMEOUT` | `test/runtime-timeout.mjs` + `test/protocol.mjs` (200 ms interruption, `status` still responsive) |
+| Medium: X11 screenshot fallbacks captured the focused window; Wayland silently returned a full-screen image | X11 uses only `import -window <id>`; Wayland refuses unless `allow_fullscreen: true`, then tags `scope: "full-screen"` and the MCP layer warns | `test/cross-platform-helper.mjs` + `test/portable-seam.mjs` |
+| Low–Medium: `permissionStatus` hardcoded four capabilities to `true` | all capabilities derived from probed dependencies, with `capabilityBasis`/`missingTools` | `test/cross-platform-helper.mjs` asserts all-false when no tools exist |
+
+Also hardened: PowerShell UIA scripts are invoked via `-File` (not `-Command`
+with trailing named parameters), and Wayland `globalInput` is reported
+truthfully when `wtype`/`ydotool` are present. Residual limitation: an
+infinite loop that begins **after** an `await` runs in a microtask outside
+`runInContext` and cannot be interrupted by Node's VM watchdog (documented in
+SKILL.md / README.md / the runtime-timeout test).
 
 ---
 

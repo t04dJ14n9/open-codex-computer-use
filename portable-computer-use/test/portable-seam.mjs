@@ -85,7 +85,14 @@ try {
   const shot = await call("computer", { action: "screenshot", app: "com.example.Mock" });
   assert.equal(shot.result?.isError, undefined, text(shot));
   assert(shot.result.content.some(i => i.type === "image"));
-  checks.push("screenshot image through the fake helper");
+  assert(!shot.result.content.some(i => i.type === "text" && /full-screen/i.test(i.text)));
+  checks.push("screenshot image through the fake helper (no full-screen warning for a window capture)");
+
+  const full = await call("computer", { action: "screenshot", app: "com.example.Mock", allow_fullscreen: true });
+  assert.equal(full.result?.isError, undefined, text(full));
+  assert(full.result.content.some(i => i.type === "image"));
+  assert(full.result.content.some(i => i.type === "text" && /full-screen/i.test(i.text)));
+  checks.push("explicit allow_fullscreen surfaces a full-screen warning to the agent");
 
   const js = await call("js", { code: 'var a = await cua.listApps(); nodeRepl.write(a[0].displayName);' });
   assert.equal(js.result?.isError, undefined, text(js));

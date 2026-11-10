@@ -70,9 +70,20 @@ Semantics the macOS helper provides but a port may not:
 
 - **Background-only input** — synthetic events to one specific window without
   activating it or moving the physical pointer (`backgroundAvailable: true`).
-- **Exact-window binding** — `app#window=ID`, no largest-window fallback.
+- **Exact-window binding** — `app#window=ID`, no largest-window fallback. A
+  bare app name must be resolved through `list_apps` or **refused**; it must
+  never produce an untargeted `xdotool` invocation.
 - **Explicit refusals** — unsupported actions return a typed error rather than
   silently falling back to global input.
+- **Honest capabilities** — `permissionStatus` derives `axTree`, `screenshot`,
+  `accessibility`, `screenRecording`, `windowTargetedInput`,
+  `backgroundAvailable`, `globalInput` and `inputMode` from dependencies
+  actually probed; none may be hardcoded `true`. `capabilityBasis` and
+  `missingTools` make the basis explicit. No OS consent is claimed.
+- **Screenshot scope** — a `screenshot` result carries `scope: "window"` or
+  `"full-screen"`. Full-screen capture requires an explicit
+  `allow_fullscreen: true` request parameter; without it the helper refuses.
+  The JS layer surfaces a warning for `scope: "full-screen"`.
 
 Any method that cannot be honoured must return an `error.message` prefixed with
 `background_unavailable:` (or a documented capability code), matching the

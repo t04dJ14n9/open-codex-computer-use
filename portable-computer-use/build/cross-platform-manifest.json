@@ -1,21 +1,21 @@
 {
   "schemaVersion": 1,
   "helper": "cross-platform-python",
-  "builtAt": "2026-11-10T07:34:26.313Z",
+  "builtAt": "2026-11-10T09:01:59.214Z",
   "runtime": "python3 >= 3.8 (Windows: python or py)",
   "source": "native/crossplatform/computer_use_helper.py",
-  "sourceSha256": "1af7922f7f50222f44706621075a7cee0e4548439bf03c123786555b49a60d1d",
-  "byteCount": 34863,
+  "sourceSha256": "888c44fc2c13e7d712e2ddb95e2f951728e385049b7a5dfdcd54f1f5373648a2",
+  "byteCount": 40951,
   "targets": {
     "windows": {
       "path": "build/windows/computer_use_helper.py",
-      "sha256": "1af7922f7f50222f44706621075a7cee0e4548439bf03c123786555b49a60d1d",
-      "bytes": 34863
+      "sha256": "888c44fc2c13e7d712e2ddb95e2f951728e385049b7a5dfdcd54f1f5373648a2",
+      "bytes": 40951
     },
     "linux": {
       "path": "build/linux/computer_use_helper.py",
-      "sha256": "1af7922f7f50222f44706621075a7cee0e4548439bf03c123786555b49a60d1d",
-      "bytes": 34863
+      "sha256": "888c44fc2c13e7d712e2ddb95e2f951728e385049b7a5dfdcd54f1f5373648a2",
+      "bytes": 40951
     }
   },
   "notes": [

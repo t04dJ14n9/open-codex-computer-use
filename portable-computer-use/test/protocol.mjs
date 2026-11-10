@@ -115,6 +115,18 @@ try {
   assert.match(text(failure), /intentional-verification-error/);
   checks.push("error results do not break the session");
 
+  // A synchronous infinite loop must not hang the MCP process: the VM watchdog
+  // interrupts it at the requested timeout and `status` stays responsive.
+  const spinStart = Date.now();
+  const spin = await call("js", { code: "while(true){}", timeout_ms: 200 });
+  const spinElapsed = Date.now() - spinStart;
+  assert.equal(spin.result.isError, true, "infinite loop must return an error");
+  assert.match(text(spin), /exceeded 200 ms|timed out/i);
+  assert(spinElapsed < 5000, `VM watchdog too slow: ${spinElapsed} ms`);
+  const afterSpin = await call("status", {});
+  assertOk(afterSpin, "status after VM timeout");
+  checks.push(`synchronous infinite loop interrupted (${spinElapsed} ms); status still responsive`);
+
   const reset = await call("js_reset", {});
   assertOk(reset, "js_reset");
   const afterReset = await call("js", { code: "nodeRepl.write(typeof counter);" });

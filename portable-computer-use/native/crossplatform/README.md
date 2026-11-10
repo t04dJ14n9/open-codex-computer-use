@@ -8,9 +8,9 @@ core. Platform features use OS-provided tools/libraries probed at runtime.
 
 | Platform | Backend | Window list | AX tree | Screenshot | Input |
 | --- | --- | --- | --- | --- | --- |
-| Windows | `windows-uia` | `EnumWindows` (ctypes) | PowerShell + .NET `UIAutomationClient` | `PrintWindow` + pure-Python PNG encoder | `SendInput` / UIA control patterns |
-| Linux X11 / XWayland | `linux-x11` | `xdotool search` | `xwininfo -tree`, optional `pyatspi` | `import` (ImageMagick) / `scrot` / `gnome-screenshot` | `xdotool --window` (targeted synthetic events) |
-| Linux Wayland | `wayland-portal` | `/proc` scan | `pyatspi` (AT-SPI2), else refusal | `grim` / `spectacle` / `gnome-screenshot` / `org.freedesktop.portal.Screenshot` via Gio | `wtype` / `ydotool` (foreground keyboard), coordinate clicks refused |
+| Windows | `windows-uia` | `EnumWindows` (ctypes) | PowerShell `-File` + .NET `UIAutomationClient` | `PrintWindow(hwnd)` (window-scoped) + pure-Python PNG encoder | `SendInput` / UIA control patterns, exact-window binding required |
+| Linux X11 / XWayland | `linux-x11` | `xdotool search` | `xwininfo -tree`, optional `pyatspi` | `import -window <id>` only (window-scoped) | `xdotool --window <id>` (targeted synthetic events, exact-window binding required) |
+| Linux Wayland | `wayland-portal` | `/proc` scan | `pyatspi` (AT-SPI2), else refusal | full-screen only, requires explicit `allow_fullscreen: true` | `wtype` / `ydotool` (foreground keyboard), coordinate clicks refused |
 
 ## Install / build
 
@@ -50,17 +50,53 @@ Install whichever tools your desktop provides. Missing tools produce explicit
   `org.a11y.Status.IsEnabled` / `QT_ACCESSIBILITY=1` /
   `GTK_MODULES=gail:atk-bridge` [S13].
 
+## Exact-window binding (no silent global fallback)
+
+On Windows and Linux X11, **every targeted action** binds to a numeric window
+id first. Accept `app#window=ID` (from `list_apps`) or `window_id`. A bare app
+name (e.g. `Firefox`) is resolved through the platform window inventory; if it
+matches zero or more than one window, the operation is **refused** with a typed
+`background_unavailable:` error. No `xdotool` invocation is ever emitted
+without `--window <id>`, so input can never land on an unrelated focused
+application.
+
+Wayland has no per-window id. Desktop-wide operations (AT-SPI tree, foreground
+keyboard via `wtype`/`ydotool`) keep the raw app spec; window-scoped ones
+refuse. Coordinate clicks always refuse.
+
+## Screenshot scope
+
+- **Windows** — `PrintWindow(hwnd)`, window-scoped only.
+- **Linux X11** — `import -window <id>` only. Focused-window tools
+  (`scrot -u`, `gnome-screenshot -w`) are deliberately **not** used: they can
+  capture a different application than the one requested. If ImageMagick is
+  missing, the operation refuses rather than silently over-capturing.
+- **Linux Wayland** — no window-scoped capture exists. `screenshot` is
+  **refused** unless the caller explicitly passes `allow_fullscreen: true`.
+  With that opt-in the result is tagged `scope: "full-screen"` and the MCP
+  layer surfaces a warning, because the image may include other applications
+  and notifications.
+
+`permissionStatus` `screenshotScope` is `window`, `full-screen-opt-in` or
+`none`; `fullScreenCaptureRequiresOptIn` is true on Wayland.
+
 ## Capability honesty
 
-`permissionStatus` reports what is actually available:
+`permissionStatus` derives every capability from dependencies actually probed
+on the host; nothing is hardcoded `true`. It never claims OS consent —
+`capabilityBasis: "dependency-probe; no OS consent is claimed"` and
+`missingTools` list exactly what is absent.
 
-- Windows: `backgroundAvailable: false`, `inputMode: "foreground-only"`.
-- Linux X11: `backgroundAvailable: true`, `windowTargetedInput: true`
-  (approximated via `xdotool --window`; some toolkits ignore XSendEvent).
-- Linux Wayland: `backgroundAvailable: false`, `windowTargetedInput: false`,
-  `consentRequired: true`. Coordinate clicks return a typed refusal —
-  standard Wayland portals inject into the compositor's normal input stack and
-  cannot target a background window [S10][S15][S16].
+- Windows: `axTree`/`accessibility` require PowerShell (UIA);
+  `screenshot`/`screenRecording` require no external tool (PrintWindow);
+  `globalInput: true`, `inputMode: "foreground-only"`.
+- Linux X11: `axTree` requires `xwininfo` or `pyatspi`; `screenshot` requires
+  `import`; `windowTargetedInput`/`backgroundAvailable` require `xdotool`;
+  `globalInput: false`.
+- Linux Wayland: `axTree` requires `pyatspi`; `screenshot` requires a capture
+  tool; `backgroundAvailable`/`windowTargetedInput` are `false`;
+  `globalInput` is true only when `wtype`/`ydotool` are present (they inject
+  globally via uinput); `consentRequired: true`.
 
 Unsupported operations (`paste`, `drag`, Wayland coordinate clicks, Linux
 `set_value`/`select_text`/secondary actions, unsupported test hooks) return

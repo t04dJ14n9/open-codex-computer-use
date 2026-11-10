@@ -152,11 +152,39 @@ The Windows/Linux helpers are real code and are protocol-tested with stubbed OS
 tools on this macOS host; their native OS APIs must be validated on real
 Windows/Linux desktops (see the verification checklist linked above).
 
-## Limits
+## Safety and limits
+
+**Exact-window binding (no silent global fallback).** On Windows and Linux X11,
+every targeted action requires a numeric window id (`app#window=ID` from
+`list_apps`). A bare app name is resolved through the window inventory or
+refused with `background_unavailable:`; no `xdotool` command is issued without
+`--window <id>`, so input cannot land on an unrelated focused application.
+Wayland has no per-window id and refuses window-scoped actions.
+
+**Screenshot scope.** X11 uses only `import -window <id>` — focused-window or
+full-screen fallbacks are deliberately removed. Windows uses `PrintWindow`.
+Wayland refuses `screenshot` unless `allow_fullscreen: true` is passed
+explicitly; the result is tagged `scope: "full-screen"` and a warning is
+surfaced, because the image may include other applications and notifications.
+
+**Honest capabilities.** `permissionStatus` derives `axTree`, `screenshot`,
+`accessibility`, `screenRecording`, `windowTargetedInput`,
+`backgroundAvailable`, `globalInput` and `inputMode` from dependencies actually
+probed on the host. It never claims OS consent; `capabilityBasis` and
+`missingTools` make that explicit.
+
+**VM watchdog.** The `js` runtime passes a synchronous `timeout` to
+`runInContext`, so `while(true){}` is interrupted at the requested deadline and
+`status`/`js_reset` stay responsive. An infinite loop that starts **after** an
+`await` runs in a microtask outside `runInContext` and cannot be interrupted by
+Node's VM watchdog; avoid unbounded loops in asynchronous code.
 
 Native audio recording, lock-screen, policy/telemetry and browser DOM/CDP
 integrations are not implemented. Browser windows are controlled through their
 native AX surface. Private macOS ABI is capability-checked but
 version-sensitive. App-defined AX actions can have semantic focus effects that
-cannot be inferred universally. On Windows/Wayland the helper is absent until a
-port is built; the `status` tool reports this explicitly.
+cannot be inferred universally. The Windows/Linux OS APIs (UIA, portals,
+PipeWire, ctypes Win32, AT-SPI buses) are implemented but could not be
+executed on the macOS host where this was authored; see
+[native/crossplatform/README.md](native/crossplatform/README.md) for the
+target-OS validation checklist.

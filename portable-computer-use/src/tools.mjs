@@ -27,6 +27,7 @@ export const computerSchema = z.object({
   selection_type: z.enum(["text", "cursor_before", "cursor_after"]).optional(),
   secondary_action: z.string().optional().describe("Exact secondary action name from the tree"),
   disableDiff: z.boolean().optional(),
+  allow_fullscreen: z.boolean().optional().describe("Explicitly permit a full-screen screenshot when the backend cannot scope capture to one window (Wayland). Without it such requests are refused."),
 });
 
 export const jsSchema = z.object({
@@ -36,7 +37,7 @@ export const jsSchema = z.object({
 });
 
 export const descriptions = {
-  computer: "Read and operate macOS applications through the bundled helper. list_apps lists apps; get_app_state returns numbered accessibility text; screenshot returns a window image. Other actions operate the named app using fresh element_index values or window-screenshot coordinates. Input is background-only: the target is never activated and the physical pointer is never driven. Use window_id from list_apps for exact-window binding. Unsupported drag, shared-clipboard paste, command shortcuts and window-raising actions return explicit refusals. macOS Accessibility and Screen Recording permissions are required.",
+  computer: "Read and operate macOS, Windows and Linux applications through the platform helper. list_apps lists apps; get_app_state returns numbered accessibility text; screenshot returns a window image. Other actions operate the named app using fresh element_index values or window-screenshot coordinates. Use window_id from list_apps for exact-window binding (required on Windows/X11 input and screenshots; a bare app name is refused rather than sent to the focused window). On macOS input is background-only: the target is never activated and the physical pointer is never driven. On Windows input is foreground/global; on Linux X11 it is window-targeted synthetic input; on Wayland per-window input is unavailable and returns explicit refusals. Wayland cannot scope a screenshot to one window: pass allow_fullscreen=true to explicitly permit a tagged full-screen capture (which may include other apps/notifications). macOS Accessibility and Screen Recording permissions are required.",
   js: "Run JavaScript in a persistent local runtime. `cua` and `nodeRepl` are already loaded: await cua.listApps(), var app = await cua.getApp(\"TextEdit\"), await app.getAXState(), await app.getScreenshot(), app.click(index or [x,y]), app.typeText(text), app.pressKey(key), app.setValue(index, value). Use nodeRepl.write(value) for text and await nodeRepl.emitImage(bytesOrUrl) for images. Variables declared with var/let/const at the top level persist until js_reset; nodeRepl.state is also available. Dynamic import() is supported. Batch predictable actions with the resulting state read in one call.",
   js_reset: "Reset persistent JavaScript bindings and the runtime context.",
   status: "Inspect runtime paths, backend and macOS permission state without interacting with apps.",
@@ -103,8 +104,14 @@ export async function callTool(runtime, name, input, options = {}) {
     return textResult(state.text);
   }
   if (parsed.action === "screenshot") {
-    const result = await nativeRequest("screenshot", { app: spec });
-    return imageResult(result?.url);
+    const params = { app: spec };
+    if (parsed.allow_fullscreen) params.allow_fullscreen = true;
+    const result = await nativeRequest("screenshot", params);
+    const image = await imageResult(result?.url);
+    if (result?.scope === "full-screen") {
+      image.content.push({ type: "text", text: "Warning: full-screen capture (may include other applications and notifications); no window-scoped capture is available on this backend." });
+    }
+    return image;
   }
 
   const { action, app, window_id, secondary_action, ...params } = parsed;
