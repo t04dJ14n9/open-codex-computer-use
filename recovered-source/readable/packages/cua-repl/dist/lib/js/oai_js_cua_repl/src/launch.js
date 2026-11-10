@@ -1,0 +1,92 @@
+import { __awaiter as o } from "../../oai_js/node_modules/tslib/tslib.es6.js";
+import { spawn as e } from "node:child_process";
+import { once as r } from "node:events";
+import { readFileSync as s } from "node:fs";
+import { isAbsolute as n } from "node:path";
+import t from "node:process";
+import { load_instructions as i } from "./instructions.js";
+function E() {
+  return o(this, void 0, void 0, function* () {
+    var o, E;
+    const _ = t.env.CUA_REPL_NODE_REPL_PATH;
+    if (!_ || !n(_))
+      throw new Error(
+        "CUA_REPL_NODE_REPL_PATH must name an absolute executable",
+      );
+    const R = i(
+        t.platform,
+        t.env.CUA_REPL_BROWSER_ENV,
+        t.env.CUA_REPL_BROWSER_GUIDANCE,
+      ),
+      c = t.env.CUA_REPL_ENABLED_SURFACES;
+    if (void 0 === c) throw new Error("CUA_REPL_ENABLED_SURFACES is required");
+    const S = new Set(
+        c
+          .split(",")
+          .map((o) => o.trim())
+          .filter(Boolean),
+      ),
+      p = ["browser", "computer"];
+    for (const o of S)
+      if (!p.includes(o))
+        throw new Error(`unknown CUA_REPL_ENABLED_SURFACES surface=${o}`);
+    const L = {},
+      d = [R.description];
+    (S.has("browser")
+      ? ((L.browser = "@oai/browser-desktop/service"), d.push(R.browser))
+      : d.push(R.browser_disabled),
+      S.has("computer")
+        ? ((L.sky = "@oai/sky/service"), d.push(R.computer))
+        : d.push(R.computer_disabled),
+      d.push(R.output),
+      S.has("computer") &&
+        "1" === t.env.SKY_ENABLE_AUDIO &&
+        "1" === t.env.SKY_AUDIO_ATTACHMENTS &&
+        d.push(R.audio_attachments));
+    const l = {
+        server_instructions: R.server,
+        tools: {
+          js: {
+            description: d.join("\n\n"),
+            field_descriptions: { code: R.code },
+          },
+          js_reset: { description: R.reset },
+        },
+      },
+      u = e(_, [], {
+        env: Object.assign(Object.assign({}, t.env), {
+          CUA_REPL_ENABLED_SURFACES: [...S].join(","),
+          NODE_REPL_UNTRUSTED_ENV_ALLOWLIST: [
+            t.env.NODE_REPL_UNTRUSTED_ENV_ALLOWLIST,
+            "CUA_REPL_ENABLED_SURFACES",
+            "CUA_REPL_BROWSER_ENV",
+          ]
+            .filter(Boolean)
+            .join(","),
+          NODE_REPL_TRUSTED_SERVICES:
+            null !== (o = t.env.NODE_REPL_TRUSTED_SERVICES) && void 0 !== o
+              ? o
+              : JSON.stringify(L),
+          NODE_REPL_JS_BANNER:
+            null !== (E = t.env.NODE_REPL_JS_BANNER) && void 0 !== E
+              ? E
+              : s(
+                  new URL(import.meta.resolve("#instructions/banner.js")),
+                  "utf8",
+                ),
+          NODE_REPL_TOOL_OVERRIDES: JSON.stringify(l),
+        }),
+        stdio: "inherit",
+      }),
+      A = ["SIGINT", "SIGTERM", "SIGHUP"],
+      f = (o) => {
+        u.kill(o);
+      };
+    for (const o of A) t.on(o, f);
+    const [N, m] = yield r(u, "close").finally(() => {
+      for (const o of A) t.off(o, f);
+    });
+    m ? t.kill(t.pid, m) : (t.exitCode = null != N && N >= 0 ? N : 1);
+  });
+}
+export { E as launch };

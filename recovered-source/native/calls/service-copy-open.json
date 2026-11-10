@@ -1,0 +1,33 @@
+{
+  "request": {
+    "tool": "open_binary",
+    "args": {
+      "path": "${WORK_DIR}/native-analysis/SkyComputerUseService",
+      "provider_id": "hopper"
+    },
+    "label": "service-copy-open"
+  },
+  "response": {
+    "_meta": {
+      "provenance": {
+        "untrusted_content": true,
+        "source": "analysis_target"
+      }
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"result\":{\"path\":\"${WORK_DIR}/native-analysis/SkyComputerUseService\",\"format\":\"mach-o\",\"kind\":\"executable\",\"sha256\":\"e798d6a292fb5d93536ae9f6954e9809f0833bcf38d1ff50624f1e2268723dea\",\"architecture\":\"arm64\"}}"
+      }
+    ],
+    "structuredContent": {
+      "result": {
+        "path": "${WORK_DIR}/native-analysis/SkyComputerUseService",
+        "format": "mach-o",
+        "kind": "executable",
+        "sha256": "e798d6a292fb5d93536ae9f6954e9809f0833bcf38d1ff50624f1e2268723dea",
+        "architecture": "arm64"
+      }
+    }
+  }
+}

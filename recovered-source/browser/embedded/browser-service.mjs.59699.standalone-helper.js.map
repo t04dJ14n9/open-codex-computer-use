@@ -1,0 +1,22 @@
+{
+  "version": 3,
+  "file": "browser-service.mjs.59699.standalone-helper.js",
+  "names": [
+    "body",
+    "document",
+    "readyState",
+    "elementCount",
+    "querySelectorAll",
+    "length",
+    "textLength",
+    "innerText"
+  ],
+  "sources": [
+    "browser-service.mjs.59699.standalone-helper.decoded.js"
+  ],
+  "sourcesContent": [
+    "(() => { const body = document.body; return { readyState: document.readyState, elementCount: body?.querySelectorAll('*').length ?? 0, textLength: body?.innerText?.length ?? 0 }; })()"
+  ],
+  "mappings": ";AAAA,CAAC,MAAM;EAAE,MAAMA,IAAI,GAAGC,QAAQ,CAACD,IAAI;EAAE,OAAO;IAAEE,UAAU,EAAED,QAAQ,CAACC,UAAU;IAAEC,YAAY,EAAEH,IAAI,EAAEI,gBAAgB,CAAC,GAAG,CAAC,CAACC,MAAM,IAAI,CAAC;IAAEC,UAAU,EAAEN,IAAI,EAAEO,SAAS,EAAEF,MAAM,IAAI;EAAE,CAAC;AAAE,CAAC,EAAE,CAAC",
+  "ignoreList": []
+}

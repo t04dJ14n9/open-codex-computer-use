@@ -1,0 +1,17 @@
+{
+  "version": 3,
+  "file": "browser-service.mjs.62151.functionDeclaration.js",
+  "names": [
+    "ownerDocument",
+    "defaultView",
+    "frameElement"
+  ],
+  "sources": [
+    "browser-service.mjs.62151.functionDeclaration.expression-view.js"
+  ],
+  "sourcesContent": [
+    "(function () {\n          try {\n            return this.ownerDocument?.defaultView?.frameElement ?? null;\n          } catch {\n            return null;\n          }\n        }\n);\n"
+  ],
+  "mappings": ";AAAA,CAAC,YAAY;EACH,IAAI;IACF,OAAO,IAAI,CAACA,aAAa,EAAEC,WAAW,EAAEC,YAAY,IAAI,IAAI;EAC9D,CAAC,CAAC,MAAM;IACN,OAAO,IAAI;EACb;AACF,CAAC",
+  "ignoreList": []
+}

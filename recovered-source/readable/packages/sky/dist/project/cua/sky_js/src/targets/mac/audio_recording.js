@@ -1,0 +1,106 @@
+import { __awaiter as o } from "../../../../../../lib/js/oai_js/node_modules/tslib/tslib.es6.js";
+import { fileURLToPath as t } from "node:url";
+import { from_filepath as e, to_data_url as i } from "../../core/uint8.js";
+import { require_audio_model_support as r } from "../../require_audio_model_support.js";
+import {
+  setComputerUseResponseMeta as n,
+  withComputerUseToolTelemetry as u,
+  requestComputerAudioApproval as d,
+} from "./computer-use-policy.js";
+import { getClient as s } from "./lazy-client.js";
+import { requestComputerUseHost as l } from "./native-pipe.js";
+const a = 3e5,
+  c = 100;
+function p() {
+  return o(this, arguments, void 0, function* (t = {}) {
+    return (
+      n(null),
+      u("start_audio_recording", void 0, () =>
+        o(this, void 0, void 0, function* () {
+          var o;
+          const e = null !== (o = t.max_duration_ms) && void 0 !== o ? o : 6e4;
+          (!(function (o) {
+            if (!Number.isInteger(o) || o < c || o > a)
+              throw new Error(
+                "audio recording duration must be an integer from 100 through 300000",
+              );
+          })(e),
+            yield d());
+          const i = yield s();
+          yield i.startAudioRecording({ maxDurationMilliseconds: e });
+        }),
+      )
+    );
+  });
+}
+function f() {
+  return o(this, void 0, void 0, function* () {
+    return (
+      n(null),
+      u("stop_audio_recording", void 0, () =>
+        (function (o) {
+          var t;
+          const e =
+            null === (t = globalThis.nodeRepl) || void 0 === t
+              ? void 0
+              : t.withSuspendedTimeout;
+          return "function" == typeof e ? e(o) : o();
+        })(() =>
+          o(this, void 0, void 0, function* () {
+            var n;
+            const u = yield s(),
+              d = yield (function (r) {
+                return o(this, void 0, void 0, function* () {
+                  const o = (function (o) {
+                      if ("string" != typeof o.url || 0 === o.url.length)
+                        throw new Error(
+                          "computer-use service did not return a computer audio URL",
+                        );
+                      const e = new URL(o.url);
+                      if ("file:" !== e.protocol)
+                        throw new Error(
+                          "computer-use service did not return a local computer audio URL",
+                        );
+                      return t(e);
+                    })(r),
+                    n = yield e(o);
+                  return { filepath: o, bytes: n, data_url: i(n, "audio/wav") };
+                });
+              })(yield u.stopAudioRecording());
+            if ("1" === process.env.SKY_AUDIO_ATTACHMENTS) {
+              const o =
+                null === (n = globalThis.nodeRepl) || void 0 === n
+                  ? void 0
+                  : n.requestMeta;
+              r({
+                model_allowlist: process.env.SKY_AUDIO_MODEL_ALLOWLIST,
+                request_meta: o,
+              });
+              let t = null == o ? void 0 : o["x-codex-turn-metadata"];
+              "string" == typeof t && (t = JSON.parse(t));
+              const e =
+                  null != t && "object" == typeof t
+                    ? Reflect.get(t, "session_id")
+                    : void 0,
+                i =
+                  null != t && "object" == typeof t
+                    ? Reflect.get(t, "turn_id")
+                    : void 0;
+              if ("string" != typeof e || "string" != typeof i)
+                throw new Error(
+                  "Computer audio attachments require the active Codex turn metadata",
+                );
+              yield l("attachComputerAudio", {
+                threadId: e,
+                turnId: i,
+                filepath: d.filepath,
+              });
+            }
+            return d;
+          }),
+        ),
+      )
+    );
+  });
+}
+export { p as start_audio_recording, f as stop_audio_recording };

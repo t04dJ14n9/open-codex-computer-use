@@ -77,3 +77,51 @@ audio attachment features are not independently implemented. Drag, shared
 clipboard paste, raw canvas input, and universal scroll behavior remain
 unverified and refuse. Private ABI and app-defined AX semantics remain
 version- and application-dependent.
+
+## 2026-11-10 addendum — fresh REA pass and DSH support
+
+A second REA pass (6.7.0) ran against the currently installed
+`~/.codex/computer-use/Codex Computer Use.app`. The installed service is a
+**newer build** than the one analyzed in October: SHA-256
+`469500545c940ecb20541d71a979461ea6bd22e92b513a87fa57eab90cd1061a`,
+21,633,216 bytes, UUID `6B24ECFC-AD72-3AAF-93F3-7CE459EE0D4D`, Info.plist
+version `26.1102.1001824` (macOS 26.1 SDK), versus `e798d6a2…` / `AD22C18C-…`
+in the archived snapshot. Evidence IDs are indexed in
+`../../recovered-source/REA-EVIDENCE.md`; the complete canonical bundle is
+`../../.local/rea-evidence-bundle.json` (gitignored, 130 MB).
+
+`../../recovered-source/` now consolidates all source-bearing shipped material
+(865 files, ~38 MB): the byte-for-byte shipped `computer-use` plugin including
+the full SKILL.md and Computer Use Confirmations Policy, the `@oai/*` packages'
+JS/TS declarations, cua-repl instructions, browser-desktop scripts and
+formatted derivatives, source-map-decoded chunks, WAT disassembly, the
+`node_repl` embedded kernel, runtime config, and bounded native static-analysis
+evidence. Hopper remains blocked by a macOS Automation permission denial; no
+native pseudocode was produced, so exact Swift/Rust source is still unavailable.
+
+The reconstruction was made usable on DeepSeek Harness:
+`node scripts/install.mjs --dsh` links the skill into `~/.agents/skills/` and
+appends one `codex-computer-use` stdio MCP entry to `~/.dsh/cordis.patch.yml`
+(backed up and idempotent). See `../../references/dsh.md`. Verified: the patch
+YAML parses to three inserts with existing entries intact; the MCP stdio
+handshake exposes `computer`, `js`, `js_reset`, `status`; `list_apps` returns
+real running apps; and CLI `status` now reports permissions without a spurious
+error. A new DSH session is required before the MCP tools attach. macOS
+Accessibility and Screen Recording remain ungranted on this Mac, so AX trees,
+screenshots, clicks and typing still require the user to grant those
+permissions.
+
+### Readable source, architecture documentation and version skew
+
+`recovered-source/readable/` now holds prettier-formatted implementation JS
+(230 JS/MJS outputs, all parse-checked) plus three earlier Babel-based,
+normalized-AST-verified browser views. `recovered-source/ARCHITECTURE.md`
+(570 lines) documents the full shipped system and reconstruction;
+`architecture/KEY-MODULES.md` annotates `sky.js`, `cua.js` and
+`browser-service.mjs` with inferred binding glossaries. A read-only coverage
+audit found the installed ChatGPT.app ships newer `@oai` packages
+(`@oai/sky` 0.7.17, `@oai/cua-repl` 0.1.3) adding 44 source-bearing files;
+these are recovered byte-for-byte in `recovered-source/installed-newer/`
+(with formatted copies) so both builds are covered. `packages/` remains the
+byte-faithful October snapshot. See
+`../../recovered-source/installed-newer/VERSION-SKEW.md`.

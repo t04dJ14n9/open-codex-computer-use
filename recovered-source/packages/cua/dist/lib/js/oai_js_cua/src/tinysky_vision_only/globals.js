@@ -1,0 +1,1 @@
+import{sky as r}from"../../../../../project/cua/sky_js/src/sky.js";import{create_tinysky_vision_only as s}from"./create_tinysky_vision_only.js";if("linux"!==r.target)throw new Error("TinySky vision-only requires Sky's full-desktop Linux API.");Reflect.set(globalThis,"cua",s(r));

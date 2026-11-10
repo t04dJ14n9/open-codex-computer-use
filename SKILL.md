@@ -19,6 +19,13 @@ first if installation or permissions are uncertain. For setup, Intel builds,
 or permission failures, read [references/setup.md](references/setup.md).
 Do not repeatedly retry a denied macOS permission; ask the user to grant it.
 
+On DeepSeek Harness (DSH), install with `node scripts/install.mjs --dsh` and
+start a new session: the skill lives in `~/.agents/skills/`, the server is
+registered in `~/.dsh/cordis.patch.yml`, and its tools are named
+`mcp__codex-computer-use__computer`, `__js`, `__js_reset`, and `__status`.
+Read [references/dsh.md](references/dsh.md) for DSH installation and
+verification; the CLI remains the fallback when MCP tools are unavailable.
+
 ## Observe And Act
 
 For a task using this skill, keep UI interaction in the bundled MCP/CLI rather

@@ -1,0 +1,1 @@
+Write a headline for the observed outcome in three to six words total. Start with a past-tense verb and name the result in plain language, as in 'Booked a plumber for Thursday' or 'Renewed vehicle registration'. Leave identifiers, values, and explanations for the reply.

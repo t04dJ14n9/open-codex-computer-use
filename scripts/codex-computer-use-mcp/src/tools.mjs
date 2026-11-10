@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { runtimeStatus } from "./config.mjs";
+import { nativeRequest } from "./standalone-sky.mjs";
 
 export const computerActions = [
   "list_apps", "get_app_state", "screenshot", "click", "press_key", "type_text",
@@ -62,15 +63,22 @@ export async function callTool(host, name, input, options = {}) {
   if (name === "status") {
     const status = runtimeStatus();
     if (status.backend === "standalone" && status.helperPresent) {
-      const request = { type: "execute", method: "permissionStatus", args: [{}] };
       try {
-        const result = await host.execute(
-          `nodeRepl.write(JSON.stringify(await nodeRepl.rpc("sky",${JSON.stringify(request)})));`,
-          { ...options, timeoutMs: Math.min(options.timeoutMs ?? 10000, 10000) },
-        );
-        const output = result.content.filter((item) => item.type === "text").map((item) => item.text).join("\n");
-        if (result.isError) throw new Error(output);
-        status.permissions = JSON.parse(output);
+        if (host) {
+          // MCP: query through the shared persistent node_repl binding so the
+          // status reflects the same helper instance used by computer/js.
+          const request = { type: "execute", method: "permissionStatus", args: [{}] };
+          const result = await host.execute(
+            `nodeRepl.write(JSON.stringify(await nodeRepl.rpc("sky",${JSON.stringify(request)})));`,
+            { ...options, timeoutMs: Math.min(options.timeoutMs ?? 10000, 10000) },
+          );
+          const output = result.content.filter((item) => item.type === "text").map((item) => item.text).join("\n");
+          if (result.isError) throw new Error(output);
+          status.permissions = JSON.parse(output);
+        } else {
+          // CLI has no persistent host; ask the standalone helper directly.
+          status.permissions = await nativeRequest("permissionStatus");
+        }
       } catch (error) { status.permissionError = error.message; }
     }
     return textResult(status);

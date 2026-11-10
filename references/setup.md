@@ -11,6 +11,10 @@ configuration.
 
 `node scripts/install.mjs --claude claude --codex` installs both skill links
 and the Claude MCP registration. Select just one flag to install for one client.
+`node scripts/install.mjs --dsh` installs the skill into `~/.agents/skills/`
+and registers `codex-computer-use` in `~/.dsh/cordis.patch.yml` for DeepSeek
+Harness; it backs up the previous patch file, leaves other entries untouched,
+and is idempotent. See [dsh.md](dsh.md).
 Existing nonmatching skill paths are not overwritten.
 `CUA_CLAUDE_CONFIG_DIR` selects a nondefault Claude profile directory;
 `CUA_CLAUDE_CONFIG_FILE` selects its MCP user configuration file. Codex uses

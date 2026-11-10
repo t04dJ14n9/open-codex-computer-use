@@ -1,0 +1,29 @@
+import { readFileSync as r } from "node:fs";
+const e = { linux: "linux", darwin: "macos", win32: "windows" };
+function o(e) {
+  const o = new URL(import.meta.resolve(`#instructions/${e}.md`));
+  return r(o, "utf8").trimEnd();
+}
+function t(r, t, n) {
+  const s = e[r];
+  if (!s) throw new Error(`unsupported cua_repl platform=${r}`);
+  const i =
+      "tool_description" === n ? "browser-cloud-guidance" : "browser-cloud",
+    c =
+      "cloud" === t || "orbit" === t
+        ? [o(`browser-${t}-preference`), o(`${s}/${i}`)].join("\n\n")
+        : o(`${s}/browser`);
+  return {
+    description: o(`${s}/description`),
+    browser: c,
+    computer: o(`${s}/computer`),
+    output: o(`${s}/output`),
+    audio_attachments: o("audio-attachments"),
+    browser_disabled: o("browser-disabled"),
+    computer_disabled: o("computer-disabled"),
+    server: o("server"),
+    code: o("code"),
+    reset: o("reset"),
+  };
+}
+export { t as load_instructions };

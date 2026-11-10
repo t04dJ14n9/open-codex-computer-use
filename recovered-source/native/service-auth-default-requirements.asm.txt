@@ -1,0 +1,191 @@
+
+work/native-analysis/SkyComputerUseService:	file format mach-o arm64
+
+Disassembly of section __TEXT,__text:
+
+0000000100002860 <__text>:
+100181d7c: d10143ff    	sub	sp, sp, #0x50
+100181d80: a9015ff8    	stp	x24, x23, [sp, #0x10]
+100181d84: a90257f6    	stp	x22, x21, [sp, #0x20]
+100181d88: a9034ff4    	stp	x20, x19, [sp, #0x30]
+100181d8c: a9047bfd    	stp	x29, x30, [sp, #0x40]
+100181d90: 910103fd    	add	x29, sp, #0x40
+100181d94: d0009b40    	adrp	x0, 0x1014eb000 <_xpc_pipe_simpleroutine+0x1014eb000>
+100181d98: 911aa000    	add	x0, x0, #0x6a8
+100181d9c: b0007c81    	adrp	x1, 0x101112000 <_xpc_pipe_simpleroutine+0x101112000>
+100181da0: 9137c021    	add	x1, x1, #0xdf0
+100181da4: 97fa0373    	bl	0x100002b70 <__text+0x310>
+100181da8: aa0003f4    	mov	x20, x0
+100181dac: b0009b41    	adrp	x1, 0x1014ea000 <_xpc_pipe_simpleroutine+0x1014ea000>
+100181db0: 91206021    	add	x1, x1, #0x818
+100181db4: 943e2340    	bl	0x10110aab4 <_xpc_pipe_simpleroutine+0x10110aab4>
+100181db8: aa0003f5    	mov	x21, x0
+100181dbc: 94004e28    	bl	0x10019565c <__text+0x192dfc>
+100181dc0: aa0003f3    	mov	x19, x0
+100181dc4: b0009436    	adrp	x22, 0x101406000 <_xpc_pipe_simpleroutine+0x101406000>
+100181dc8: f94206d6    	ldr	x22, [x22, #0x408]
+100181dcc: 910082a0    	add	x0, x21, #0x20
+100181dd0: 52800041    	mov	w1, #0x2                ; =2
+100181dd4: aa1603e2    	mov	x2, x22
+100181dd8: 943e224a    	bl	0x10110a700 <_xpc_pipe_simpleroutine+0x10110a700>
+100181ddc: b0009b41    	adrp	x1, 0x1014ea000 <_xpc_pipe_simpleroutine+0x1014ea000>
+100181de0: 91218021    	add	x1, x1, #0x860
+100181de4: aa1403e0    	mov	x0, x20
+100181de8: 943e2333    	bl	0x10110aab4 <_xpc_pipe_simpleroutine+0x10110aab4>
+100181dec: aa0003f5    	mov	x21, x0
+100181df0: 94004e1b    	bl	0x10019565c <__text+0x192dfc>
+100181df4: aa0003f7    	mov	x23, x0
+100181df8: 910082a0    	add	x0, x21, #0x20
+100181dfc: 52800041    	mov	w1, #0x2                ; =2
+100181e00: aa1603e2    	mov	x2, x22
+100181e04: 943e223f    	bl	0x10110a700 <_xpc_pipe_simpleroutine+0x10110a700>
+100181e08: b0009b41    	adrp	x1, 0x1014ea000 <_xpc_pipe_simpleroutine+0x1014ea000>
+100181e0c: 9122a021    	add	x1, x1, #0x8a8
+100181e10: aa1403e0    	mov	x0, x20
+100181e14: 943e2328    	bl	0x10110aab4 <_xpc_pipe_simpleroutine+0x10110aab4>
+100181e18: aa0003f4    	mov	x20, x0
+100181e1c: 94004e10    	bl	0x10019565c <__text+0x192dfc>
+100181e20: aa0003f8    	mov	x24, x0
+100181e24: 91008280    	add	x0, x20, #0x20
+100181e28: 52800041    	mov	w1, #0x2                ; =2
+100181e2c: aa1603e2    	mov	x2, x22
+100181e30: 943e2234    	bl	0x10110a700 <_xpc_pipe_simpleroutine+0x10110a700>
+100181e34: aa1803e0    	mov	x0, x24
+100181e38: d2800015    	mov	x21, #0x0               ; =0
+100181e3c: 97fffb3c    	bl	0x100180b2c <__text+0x17e2cc>
+100181e40: aa0003f4    	mov	x20, x0
+100181e44: aa1803e0    	mov	x0, x24
+100181e48: 943e2249    	bl	0x10110a76c <_xpc_pipe_simpleroutine+0x10110a76c>
+100181e4c: aa1403e0    	mov	x0, x20
+100181e50: 94000459    	bl	0x100182fb4 <__text+0x180754>
+100181e54: aa0003f5    	mov	x21, x0
+100181e58: aa1403e0    	mov	x0, x20
+100181e5c: 943e2244    	bl	0x10110a76c <_xpc_pipe_simpleroutine+0x10110a76c>
+100181e60: b0009ee8    	adrp	x8, 0x10155e000 <_xpc_pipe_simpleroutine+0x10155e000>
+100181e64: 910ea108    	add	x8, x8, #0x3a8
+100181e68: a9005d13    	stp	x19, x23, [x8]
+100181e6c: f9000915    	str	x21, [x8, #0x10]
+100181e70: a9447bfd    	ldp	x29, x30, [sp, #0x40]
+100181e74: a9434ff4    	ldp	x20, x19, [sp, #0x30]
+100181e78: a94257f6    	ldp	x22, x21, [sp, #0x20]
+100181e7c: a9415ff8    	ldp	x24, x23, [sp, #0x10]
+100181e80: 910143ff    	add	sp, sp, #0x50
+100181e84: d65f03c0    	ret
+100181e88: d10103ff    	sub	sp, sp, #0x40
+100181e8c: a90157f6    	stp	x22, x21, [sp, #0x10]
+100181e90: a9024ff4    	stp	x20, x19, [sp, #0x20]
+100181e94: a9037bfd    	stp	x29, x30, [sp, #0x30]
+100181e98: 9100c3fd    	add	x29, sp, #0x30
+100181e9c: d0009b40    	adrp	x0, 0x1014eb000 <_xpc_pipe_simpleroutine+0x1014eb000>
+100181ea0: 911aa000    	add	x0, x0, #0x6a8
+100181ea4: b0007c81    	adrp	x1, 0x101112000 <_xpc_pipe_simpleroutine+0x101112000>
+100181ea8: 9137c021    	add	x1, x1, #0xdf0
+100181eac: 97fa0331    	bl	0x100002b70 <__text+0x310>
+100181eb0: b0009b41    	adrp	x1, 0x1014ea000 <_xpc_pipe_simpleroutine+0x1014ea000>
+100181eb4: 9123c021    	add	x1, x1, #0x8f0
+100181eb8: 943e22ff    	bl	0x10110aab4 <_xpc_pipe_simpleroutine+0x10110aab4>
+100181ebc: aa0003f3    	mov	x19, x0
+100181ec0: 94004de7    	bl	0x10019565c <__text+0x192dfc>
+100181ec4: aa0003f4    	mov	x20, x0
+100181ec8: 91008260    	add	x0, x19, #0x20
+100181ecc: 97fa18fe    	bl	0x1000082c4 <__text+0x5a64>
+100181ed0: f0009433    	adrp	x19, 0x101408000 <_xpc_pipe_simpleroutine+0x101408000>
+100181ed4: f9443e73    	ldr	x19, [x19, #0x878]
+100181ed8: aa1303e0    	mov	x0, x19
+100181edc: d2800015    	mov	x21, #0x0               ; =0
+100181ee0: 97fffb13    	bl	0x100180b2c <__text+0x17e2cc>
+100181ee4: aa0003f5    	mov	x21, x0
+100181ee8: 94000433    	bl	0x100182fb4 <__text+0x180754>
+100181eec: aa0003f6    	mov	x22, x0
+100181ef0: aa1503e0    	mov	x0, x21
+100181ef4: 943e221e    	bl	0x10110a76c <_xpc_pipe_simpleroutine+0x10110a76c>
+100181ef8: b0009ee8    	adrp	x8, 0x10155e000 <_xpc_pipe_simpleroutine+0x10155e000>
+100181efc: 910f0108    	add	x8, x8, #0x3c0
+100181f00: a9004d14    	stp	x20, x19, [x8]
+100181f04: f9000916    	str	x22, [x8, #0x10]
+100181f08: a9437bfd    	ldp	x29, x30, [sp, #0x30]
+100181f0c: a9424ff4    	ldp	x20, x19, [sp, #0x20]
+100181f10: a94157f6    	ldp	x22, x21, [sp, #0x10]
+100181f14: 910103ff    	add	sp, sp, #0x40
+100181f18: d65f03c0    	ret
+100181f1c: d10103ff    	sub	sp, sp, #0x40
+100181f20: a90157f6    	stp	x22, x21, [sp, #0x10]
+100181f24: a9024ff4    	stp	x20, x19, [sp, #0x20]
+100181f28: a9037bfd    	stp	x29, x30, [sp, #0x30]
+100181f2c: 9100c3fd    	add	x29, sp, #0x30
+100181f30: d0009b40    	adrp	x0, 0x1014eb000 <_xpc_pipe_simpleroutine+0x1014eb000>
+100181f34: 911aa000    	add	x0, x0, #0x6a8
+100181f38: b0007c81    	adrp	x1, 0x101112000 <_xpc_pipe_simpleroutine+0x101112000>
+100181f3c: 9137c021    	add	x1, x1, #0xdf0
+100181f40: 97fa030c    	bl	0x100002b70 <__text+0x310>
+100181f44: b0009b41    	adrp	x1, 0x1014ea000 <_xpc_pipe_simpleroutine+0x1014ea000>
+100181f48: 911da021    	add	x1, x1, #0x768
+100181f4c: 943e22da    	bl	0x10110aab4 <_xpc_pipe_simpleroutine+0x10110aab4>
+100181f50: aa0003f3    	mov	x19, x0
+100181f54: 94004dc2    	bl	0x10019565c <__text+0x192dfc>
+100181f58: aa0003f4    	mov	x20, x0
+100181f5c: 91008260    	add	x0, x19, #0x20
+100181f60: 97fa18d9    	bl	0x1000082c4 <__text+0x5a64>
+100181f64: 94037e25    	bl	0x1002617f8 <_SAIReceiveComputerUseBootstrapResponse+0x10b44>
+100181f68: f9400013    	ldr	x19, [x0]
+100181f6c: aa1303e0    	mov	x0, x19
+100181f70: 943e2205    	bl	0x10110a784 <_xpc_pipe_simpleroutine+0x10110a784>
+100181f74: 94000410    	bl	0x100182fb4 <__text+0x180754>
+100181f78: aa0003f6    	mov	x22, x0
+100181f7c: aa1303e0    	mov	x0, x19
+100181f80: 943e21fb    	bl	0x10110a76c <_xpc_pipe_simpleroutine+0x10110a76c>
+100181f84: f0009420    	adrp	x0, 0x101408000 <_xpc_pipe_simpleroutine+0x101408000>
+100181f88: f9443c00    	ldr	x0, [x0, #0x878]
+100181f8c: d2800015    	mov	x21, #0x0               ; =0
+100181f90: 97fffae7    	bl	0x100180b2c <__text+0x17e2cc>
+100181f94: aa0003f3    	mov	x19, x0
+100181f98: 94000407    	bl	0x100182fb4 <__text+0x180754>
+100181f9c: aa0003f5    	mov	x21, x0
+100181fa0: aa1303e0    	mov	x0, x19
+100181fa4: 943e21f2    	bl	0x10110a76c <_xpc_pipe_simpleroutine+0x10110a76c>
+100181fa8: b0009ee8    	adrp	x8, 0x10155e000 <_xpc_pipe_simpleroutine+0x10155e000>
+100181fac: 910f6108    	add	x8, x8, #0x3d8
+100181fb0: a9005914    	stp	x20, x22, [x8]
+100181fb4: f9000915    	str	x21, [x8, #0x10]
+100181fb8: a9437bfd    	ldp	x29, x30, [sp, #0x30]
+100181fbc: a9424ff4    	ldp	x20, x19, [sp, #0x20]
+100181fc0: a94157f6    	ldp	x22, x21, [sp, #0x10]
+100181fc4: 910103ff    	add	sp, sp, #0x40
+100181fc8: d65f03c0    	ret
+100181fcc: d10103ff    	sub	sp, sp, #0x40
+100181fd0: a90157f6    	stp	x22, x21, [sp, #0x10]
+100181fd4: a9024ff4    	stp	x20, x19, [sp, #0x20]
+100181fd8: a9037bfd    	stp	x29, x30, [sp, #0x30]
+100181fdc: 9100c3fd    	add	x29, sp, #0x30
+100181fe0: d0009b40    	adrp	x0, 0x1014eb000 <_xpc_pipe_simpleroutine+0x1014eb000>
+100181fe4: 911aa000    	add	x0, x0, #0x6a8
+100181fe8: b0007c81    	adrp	x1, 0x101112000 <_xpc_pipe_simpleroutine+0x101112000>
+100181fec: 9137c021    	add	x1, x1, #0xdf0
+100181ff0: 97fa02e0    	bl	0x100002b70 <__text+0x310>
+100181ff4: aa0003f3    	mov	x19, x0
+100181ff8: b0009b41    	adrp	x1, 0x1014ea000 <_xpc_pipe_simpleroutine+0x1014ea000>
+100181ffc: 911be021    	add	x1, x1, #0x6f8
+100182000: 943e22ad    	bl	0x10110aab4 <_xpc_pipe_simpleroutine+0x10110aab4>
+100182004: aa0003f4    	mov	x20, x0
+100182008: 94004d95    	bl	0x10019565c <__text+0x192dfc>
+10018200c: aa0003f6    	mov	x22, x0
+100182010: 91008280    	add	x0, x20, #0x20
+100182014: 97fa18ac    	bl	0x1000082c4 <__text+0x5a64>
+100182018: 90009b41    	adrp	x1, 0x1014ea000 <_xpc_pipe_simpleroutine+0x1014ea000>
+10018201c: 911cc021    	add	x1, x1, #0x730
+100182020: aa1303e0    	mov	x0, x19
+100182024: 943e22a4    	bl	0x10110aab4 <_xpc_pipe_simpleroutine+0x10110aab4>
+100182028: aa0003f3    	mov	x19, x0
+10018202c: 94004d8c    	bl	0x10019565c <__text+0x192dfc>
+100182030: aa0003f4    	mov	x20, x0
+100182034: 91008260    	add	x0, x19, #0x20
+100182038: 97fa18a3    	bl	0x1000082c4 <__text+0x5a64>
+10018203c: d0009420    	adrp	x0, 0x101408000 <_xpc_pipe_simpleroutine+0x101408000>
+100182040: f9443c00    	ldr	x0, [x0, #0x878]
+100182044: d2800015    	mov	x21, #0x0               ; =0
+100182048: 97fffab9    	bl	0x100180b2c <__text+0x17e2cc>
+10018204c: aa0003f3    	mov	x19, x0
+100182050: 940003d9    	bl	0x100182fb4 <__text+0x180754>
+100182054: aa0003f5    	mov	x21, x0
+100182058: aa1303e0    	mov	x0, x19
+10018205c: 943e21c4    	bl	0x10110a76c <_xpc_pipe_simpleroutine+0x10110a76c>
