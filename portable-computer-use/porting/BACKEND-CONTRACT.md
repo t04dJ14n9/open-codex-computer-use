@@ -80,16 +80,27 @@ existing refusal contract in `SKILL.md`.
 
 ## Helper discovery
 
-[`src/config.mjs`](../src/config.mjs) resolves, in order:
+[`src/backend.mjs`](../src/backend.mjs) returns a **helper spec**
+`{ command, args }` — a native binary (macOS) or an interpreter plus a Python
+script (Windows/Linux). [`src/helper.mjs`](../src/helper.mjs) spawns
+`command` with `args`:
 
-1. `COMPUTER_USE_HELPER` (explicit override)
-2. `build/Computer Use Helper.app/Contents/MacOS/ComputerUse` (darwin)
-3. `build/windows/computer-use-helper.exe` (win32, proposed)
-4. `build/linux/computer-use-helper` (linux, proposed)
+1. `COMPUTER_USE_HELPER` (explicit override): `{ command: <override>, args: [] }`
+2. darwin: `{ command: "build/Computer Use Helper.app/Contents/MacOS/ComputerUse", args: [] }`
+3. win32: `{ command: "python" | "py" | "python3" | COMPUTER_USE_PYTHON, args: ["build/windows/computer_use_helper.py"] }`
+4. linux: `{ command: "python3" | "python" | COMPUTER_USE_PYTHON, args: ["build/linux/computer_use_helper.py"] }`
 
-`runtimeStatus()` reports `platform`, `backend`, `helper`, `helperPresent` and
-the negotiated `capabilities`. A missing helper produces a clear error, never a
-silent fallback to another runtime.
+The interpreter is auto-detected by probing `--version`; `COMPUTER_USE_PYTHON`
+overrides it. `node scripts/build-cross-platform.mjs` copies
+[`native/crossplatform/computer_use_helper.py`](../native/crossplatform/computer_use_helper.py)
+into both `build/<platform>/` directories and records SHA-256 hashes in
+`build/cross-platform-manifest.json`.
+
+`runtimeStatus()` reports `platform`, `sessionType`, `nativeBackend`,
+`backendStatus`, `helperSpec`, `helperPresent` and `platformDefaults`. The
+authoritative capability values come from the helper's `permissionStatus` and
+are surfaced by the `status` tool as `status.permissions`. A missing helper
+produces a clear error, never a silent fallback to another runtime.
 
 ## Why this contract is the right seam (evidence)
 

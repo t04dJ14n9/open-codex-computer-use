@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "helper": "cross-platform-python",
+  "builtAt": "2026-11-10T07:34:26.313Z",
+  "runtime": "python3 >= 3.8 (Windows: python or py)",
+  "source": "native/crossplatform/computer_use_helper.py",
+  "sourceSha256": "1af7922f7f50222f44706621075a7cee0e4548439bf03c123786555b49a60d1d",
+  "byteCount": 34863,
+  "targets": {
+    "windows": {
+      "path": "build/windows/computer_use_helper.py",
+      "sha256": "1af7922f7f50222f44706621075a7cee0e4548439bf03c123786555b49a60d1d",
+      "bytes": 34863
+    },
+    "linux": {
+      "path": "build/linux/computer_use_helper.py",
+      "sha256": "1af7922f7f50222f44706621075a7cee0e4548439bf03c123786555b49a60d1d",
+      "bytes": 34863
+    }
+  },
+  "notes": [
+    "Helpers use only the Python standard library plus OS-provided tools.",
+    "Windows: Win32 ctypes (EnumWindows/SendInput/PrintWindow) + PowerShell UIAutomationClient.",
+    "Linux X11: xdotool / xwininfo / import|scrot + optional pyatspi.",
+    "Linux Wayland: AT-SPI2, xdg-desktop-portal Screenshot via Gio, grim/spectacle, ydotool/wtype.",
+    "Wayland cannot reproduce macOS background-only window-targeted input; see porting/PORTING-RESEARCH.md.",
+    "No helper is re-signed or compiled; hashes here are integrity checks only."
+  ]
+}

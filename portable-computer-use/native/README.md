@@ -1,9 +1,13 @@
-# Portable Computer Use — Native Helper
+# Portable Computer Use — Native Helpers
 
-This directory holds the Swift sources and the pre-built, ad-hoc–signed macOS
-helper application used by the portable computer-use skill. The shipped helper
-is `../build/Computer Use Helper.app`; `build/native-manifest.json` records its
-identity and content hashes.
+- **macOS:** Swift sources in this directory and the pre-built, ad-hoc–signed
+  `../build/Computer Use Helper.app`; `build/native-manifest.json` records its
+  identity and content hashes.
+- **Windows / Linux:** [`crossplatform/computer_use_helper.py`](crossplatform/README.md),
+  a Python 3 helper implementing the same JSON-lines contract, materialized
+  into `build/windows/` and `build/linux/`.
+
+Both are newly authored code, not recovered vendor source.
 
 ## Newly authored reconstruction
 

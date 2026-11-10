@@ -1,13 +1,15 @@
 # Portable Computer Use
 
-A clean, self-contained macOS computer-use **Agent Skill**. Any MCP-capable
-agent (Claude Code, Codex, DeepSeek Harness, Cursor, Windsurf, Gemini CLI, or a
-custom client) can use it. There is no OpenAI/Codex product host, no
-`node_repl`, no `@oai/*` packages, no `CODEX_*` environment variables, no
-signed supervisor, no XPC service and no IPC socket.
+A clean, self-contained **cross-platform** computer-use **Agent Skill** for
+macOS, Windows and Linux (X11/Wayland). Any MCP-capable agent (Claude Code,
+Codex, DeepSeek Harness, Cursor, Windsurf, Gemini CLI, or a custom client) can
+use it. There is no OpenAI/Codex product host, no `node_repl`, no `@oai/*`
+packages, no `CODEX_*` environment variables, no signed supervisor, no XPC
+service and no IPC socket.
 
-The repository root *is* the skill folder. Runtime sources live in `src/`, the
-authored Swift helper in `native/` and `build/`.
+The repository root *is* the skill folder. Runtime sources live in `src/`; the
+authored Swift helper (macOS) and Python helper (Windows/Linux) live in
+`native/` and `build/`.
 
 ## What is inside
 
@@ -43,11 +45,12 @@ node scripts/setup.mjs --check  # validates platform, helper hashes and deps
 node scripts/verify.mjs         # skill link/config + live MCP tool handshake
 ```
 
-`npm test` runs three suites: platform detection (`test/backend.mjs`), a
+`npm test` runs four suites: platform detection (`test/backend.mjs`), a
 contract-compliant mock-helper seam test (`test/portable-seam.mjs`) that proves
-the JS/MCP layers are OS-independent, and the live macOS protocol test
-(`test/protocol.mjs`). `setup.mjs` never changes any agent configuration or
-macOS permissions.
+the JS/MCP layers are OS-independent, the real Windows/Linux Python helper with
+stubbed OS tools (`test/cross-platform-helper.mjs`), and the live macOS protocol
+test (`test/protocol.mjs`). `setup.mjs` never changes any agent configuration
+or macOS permissions.
 
 ## Install into an agent
 
@@ -118,20 +121,33 @@ Each CLI invocation starts a new runtime session, so batch indexed actions with
 
 ## Platform support and porting
 
-The shipped backend is **macOS**. The JS/MCP layers are platform-neutral;
-[`src/backend.mjs`](src/backend.mjs) detects the platform/session type and
-reports `backendStatus` (`ready`, `not-implemented`, `missing-helper`,
-`unsupported-platform`) through the `status` tool and `setup.mjs --check`.
-Windows and Linux Wayland are **researched, not implemented** — no fake backend
-is shipped. See:
+The JS/MCP layers are platform-neutral. Three native backends ship:
 
+| Platform | Helper | Requirement |
+| --- | --- | --- |
+| macOS | Swift `build/Computer Use Helper.app` | macOS 14+, Accessibility + Screen Recording |
+| Windows | Python `build/windows/computer_use_helper.py` | Python 3.8+ (`python`/`py`), Windows PowerShell 5.1 |
+| Linux X11 / Wayland | Python `build/linux/computer_use_helper.py` | Python 3.8+ (`python3`), optional `xdotool`/AT-SPI2/portal tools |
+
+[`src/backend.mjs`](src/backend.mjs) detects platform/session and returns a
+helper spec `{ command, args }`; `status` and `setup.mjs --check` report
+`backendStatus` and helper-provided capabilities. Run
+`node scripts/build-cross-platform.mjs` to (re)materialize the two Python
+helpers and their hashes. See:
+
+- [native/crossplatform/README.md](native/crossplatform/README.md) — helper
+  install, optional OS tools, capability honesty, target-OS verification checklist.
 - [porting/PORTING-RESEARCH.md](porting/PORTING-RESEARCH.md) — API mappings for
-  Windows (UI Automation, `Windows.Graphics.Capture`, `SendInput`, UIAccess)
-  and Wayland (ScreenCast/RemoteDesktop portals, PipeWire, libei, AT-SPI2,
-  wlroots/staging protocols), compositor support matrix, and the finding that
-  Wayland cannot reproduce macOS background-only window-targeted input.
+  Windows (UI Automation, `SendInput`, `PrintWindow`, UIAccess/UIPI) and Wayland
+  (ScreenCast/RemoteDesktop portals, PipeWire, libei, AT-SPI2, compositor
+  protocols), capability matrix, and the finding that Wayland cannot reproduce
+  macOS background-only window-targeted input.
 - [porting/BACKEND-CONTRACT.md](porting/BACKEND-CONTRACT.md) — the exact
-  JSON-lines helper protocol a port implements.
+  JSON-lines helper protocol all three backends implement.
+
+The Windows/Linux helpers are real code and are protocol-tested with stubbed OS
+tools on this macOS host; their native OS APIs must be validated on real
+Windows/Linux desktops (see the verification checklist linked above).
 
 ## Limits
 

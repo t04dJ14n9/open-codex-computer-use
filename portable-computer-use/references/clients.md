@@ -3,7 +3,10 @@
 This skill is a standard Agent Skill folder plus a stdio MCP server. Any agent
 that can read `SKILL.md` and launch a stdio MCP server can use it. No product
 host, signed runtime, account, IPC socket or environment variables are
-required — only Node.js 20+, macOS 14+, and the bundled helper.
+required — only Node.js 20+ and the platform helper. macOS needs 14+ and grants;
+Windows needs Python 3.8+ (`python`/`py`) and PowerShell; Linux needs Python
+3.8+ (`python3`) plus optional `xdotool`/AT-SPI2/portal tools. See
+[../native/crossplatform/README.md](../native/crossplatform/README.md).
 
 ## Universal MCP entry
 

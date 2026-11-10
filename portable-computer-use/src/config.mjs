@@ -1,14 +1,14 @@
-import { existsSync } from "node:fs";
 import {
   root,
   helperCandidates,
   helperPath,
   helperApp,
+  helperSpec,
   backendStatus,
   platformInfo,
 } from "./backend.mjs";
 
-export { root, helperCandidates, helperPath, helperApp, backendStatus };
+export { root, helperCandidates, helperPath, helperApp, helperSpec, backendStatus };
 
 // The helper is the only platform-specific piece; helper discovery lives in
 // backend.mjs. No product host, signed Node binary, IPC socket or third-party
@@ -23,6 +23,7 @@ export function runtimeStatus() {
     skillRoot: root,
     helper: info.helper,
     helperApp: info.helperApp,
+    helperSpec: info.helperSpec,
     helperPresent: info.helperPresent,
     backend: "standalone",
     nativeBackend: info.nativeBackend,
