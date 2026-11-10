@@ -37,8 +37,11 @@ function cancelRequest(id, reason) {
 
 function ensureHelper() {
   if (child) return;
-  if (!existsSync(helperPath)) {
-    throw new Error(`The bundled macOS helper is missing (${helperPath}). Rebuild it with: node scripts/build-native.mjs`);
+  if (!helperPath || !existsSync(helperPath)) {
+    throw new Error(
+      `No native helper is available for ${process.platform} (${helperPath ?? "no candidate"}). ` +
+      "On macOS rebuild with `node scripts/build-native.mjs`; for other platforms see porting/PORTING-RESEARCH.md."
+    );
   }
   const handle = spawn(helperPath, [], { stdio: ["pipe", "pipe", "pipe"] });
   child = handle;

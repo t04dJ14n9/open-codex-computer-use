@@ -11,7 +11,9 @@
     "setup": "node scripts/setup.mjs",
     "check": "node scripts/setup.mjs --check",
     "verify": "node scripts/verify.mjs",
-    "test": "node test/protocol.mjs",
+    "test": "node test/backend.mjs && node test/portable-seam.mjs && node test/protocol.mjs",
+    "test:backend": "node test/backend.mjs",
+    "test:seam": "node test/portable-seam.mjs",
     "build:native": "node scripts/build-native.mjs"
   },
   "dependencies": {
