@@ -11,6 +11,20 @@ with a freshly authored runtime and no `node_repl`, `@oai/*`, ChatGPT.app or
 `CODEX_*` dependency. It works with any stdio MCP client (Claude Code, Codex,
 DSH, Cursor, Windsurf, Gemini CLI) and has its own
 [MCP server, CLI, native helpers and installer](portable-computer-use/README.md).
+
+`portable-computer-use/` is also a **Claude Code plugin** (and this repository is
+its plugin marketplace). Install it in one step:
+
+```
+/plugin install portable-computer-use --marketplace t04dJ14n9/open-codex-computer-use
+```
+
+The plugin bundles the skill, a `/portable-computer-use:status` command, and a
+stdio MCP server registered as `portable-computer-use`. A `timeout_ms`
+user-config option (default `120000`) is available via `/plugin configure`.
+See [portable-computer-use/CLAUDE-PLUGIN.md](portable-computer-use/CLAUDE-PLUGIN.md)
+for the layout, validation commands and caveats.
+
 The rest of this README documents the source-recovery reconstruction and its
 original Codex-compatible runtime.
 

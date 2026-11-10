@@ -1,5 +1,28 @@
 # Portable Computer Use
 
+## Claude Code plugin
+
+Install from the marketplace in one step (Claude Code 2.1.275+):
+
+```
+/plugin install portable-computer-use --marketplace t04dJ14n9/open-codex-computer-use
+```
+
+Or add the marketplace from a local checkout:
+
+```
+claude plugin marketplace add /absolute/path/to/open-codex-computer-use
+/plugin install portable-computer-use@open-codex-computer-use
+```
+
+The plugin bundles this skill, a `/portable-computer-use:status` command, and a
+stdio MCP server registered as `portable-computer-use` (tools `computer`, `js`,
+`js_reset`, `status`). It exposes a `timeout_ms` user-config option (default
+`120000`) via `/plugin configure`. See [CLAUDE-PLUGIN.md](CLAUDE-PLUGIN.md) for
+layout, validation and install details.
+
+---
+
 A clean, self-contained **cross-platform** computer-use **Agent Skill** for
 macOS, Windows and Linux (X11/Wayland). Any MCP-capable agent (Claude Code,
 Codex, DeepSeek Harness, Cursor, Windsurf, Gemini CLI, or a custom client) can

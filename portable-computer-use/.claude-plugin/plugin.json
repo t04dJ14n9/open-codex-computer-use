@@ -1,0 +1,33 @@
+{
+  "name": "portable-computer-use",
+  "displayName": "Portable Computer Use",
+  "version": "1.0.0",
+  "description": "Cross-platform computer use for Claude Code: accessibility trees, window screenshots, clicks and typing on macOS, Windows and Linux. Bundles an Agent Skill, a stdio MCP server and the native helper.",
+  "author": {
+    "name": "t04dJ14n9",
+    "url": "https://github.com/t04dJ14n9"
+  },
+  "homepage": "https://github.com/t04dJ14n9/open-codex-computer-use/tree/main/portable-computer-use",
+  "repository": "https://github.com/t04dJ14n9/open-codex-computer-use",
+  "license": "NOASSERTION",
+  "icon": ".claude-plugin/icon.png",
+  "keywords": ["computer-use", "accessibility", "screenshots", "automation", "mcp", "desktop"],
+  "skills": ["."],
+  "mcpServers": {
+    "portable-computer-use": {
+      "command": "node",
+      "args": ["${CLAUDE_PLUGIN_ROOT}/src/cli.mjs", "mcp"],
+      "env": {
+        "COMPUTER_USE_TIMEOUT_MS": "${user_config.timeout_ms}"
+      }
+    }
+  },
+  "userConfig": {
+    "timeout_ms": {
+      "type": "string",
+      "title": "Default timeout (ms)",
+      "description": "Deadline in milliseconds for the native helper and JavaScript runtime. Raise it for apps with large accessibility trees (WeCom needs about 120000).",
+      "default": "120000"
+    }
+  }
+}

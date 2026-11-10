@@ -1,0 +1,23 @@
+{
+  "name": "open-codex-computer-use",
+  "owner": {
+    "name": "t04dJ14n9",
+    "url": "https://github.com/t04dJ14n9"
+  },
+  "description": "Reconstructed, self-contained computer-use skills and MCP servers. Includes the portable cross-platform skill for macOS, Windows and Linux.",
+  "plugins": [
+    {
+      "name": "portable-computer-use",
+      "source": "./portable-computer-use",
+      "description": "Cross-platform computer use: accessibility trees, window screenshots, clicks and typing, with no product host or external runtime.",
+      "version": "1.0.0",
+      "author": {
+        "name": "t04dJ14n9",
+        "url": "https://github.com/t04dJ14n9"
+      },
+      "category": "productivity",
+      "keywords": ["computer-use", "accessibility", "screenshots", "automation", "mcp"],
+      "homepage": "https://github.com/t04dJ14n9/open-codex-computer-use/tree/main/portable-computer-use"
+    }
+  ]
+}
