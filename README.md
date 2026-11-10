@@ -51,6 +51,19 @@ and adds only its four tool grants. Existing configuration is backed up under
 `.local/installation-backup/`. Keep the checkout at its installed path and
 restart existing client sessions.
 
+## DeepSeek Harness (DSH)
+
+`node scripts/install.mjs --dsh` also links this skill into
+`~/.agents/skills/open-codex-computer-use` and appends one `codex-computer-use`
+stdio MCP client entry to `~/.dsh/cordis.patch.yml`, backing up the previous
+file under `.local/installation-backup/`. Start a new DSH session afterwards so
+the skill and tools are discovered; the tools are named
+`mcp__codex-computer-use__computer`, `__js`, `__js_reset`, and `__status`.
+The CLI remains the fallback. `node scripts/verify-dsh.mjs` checks the link,
+patch YAML, and live MCP tool list in one read-only command. See
+[references/dsh.md](references/dsh.md) for the exact registration,
+verification commands, and DSH-specific limits.
+
 Enable **Codex Computer Use Standalone** in macOS Accessibility and Screen
 Recording when prompted. The bundled app is ad-hoc signed, not notarized.
 Verify the included hashes or rebuild from source before trusting the binary.
@@ -70,6 +83,16 @@ separate MCP registration. Read [SKILL.md](SKILL.md) for operations,
 ## Contents And Provenance
 
 - `SKILL.md`, `agents/openai.yaml`: portable skill instructions and metadata.
+- `references/dsh.md`: DeepSeek Harness installation, tools, and verification.
+- `recovered-source/`: consolidated readable recovery of the shipped skill,
+  `@oai/*` packages, browser derivatives, WAT, and native static evidence,
+  with `manifest.json`, `RECOVERY-REPORT.md`, and `REA-EVIDENCE.md`.
+  `recovered-source/readable/` holds prettier-formatted implementation JS plus
+  three AST-verified browser views; `recovered-source/ARCHITECTURE.md` and
+  `architecture/KEY-MODULES.md` document the full system and annotate the three
+  key minified modules. `installed-newer/` covers the 44 source files added by
+  the newer `@oai` packages in the installed ChatGPT.app (both builds are kept
+  separate).
 - `scripts/computer-use`: relocatable CLI/MCP launcher.
 - `scripts/codex-computer-use-mcp/`: authored MCP/CLI, reconstructed supervisor,
   Swift native source, signed helper app, tests, and lockfile.

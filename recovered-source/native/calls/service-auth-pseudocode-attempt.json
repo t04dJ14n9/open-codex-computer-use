@@ -1,0 +1,24 @@
+{
+  "request": {
+    "tool": "procedure_pseudo_code",
+    "args": {
+      "procedure": "0x100180d50"
+    },
+    "label": "service-auth-pseudocode-attempt"
+  },
+  "response": {
+    "_meta": {
+      "provenance": {
+        "untrusted_content": true,
+        "source": "analysis_target"
+      }
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"error\":{\"code\":\"cleanup_incomplete\",\"category\":\"execution_failure\",\"message\":\"Hopper's launcher helper failed before bridge readiness. Review details.launcher and complete Hopper setup before retrying.\",\"retryable\":false,\"remediation\":{\"action\":\"Export the Evidence bundle before close_binary clears session records. Let Hopper finish initial analysis or complete its pending dialog, then retry close_binary on this connection so REA can authenticate and close the retained document. If no matching bridge becomes available, manually close the reported document in Hopper, then restart the MCP connection. A helper exit or open:false does not establish that retained cleanup is complete.\"},\"details\":{\"provider_id\":\"hopper\",\"operation\":\"open_binary\",\"cleanup\":\"incomplete\",\"resources\":[\"hopper-document\",\"/tmp/rea-dyTUH7\"],\"diagnostics\":{\"primary_error\":{\"code\":\"provider_unavailable\",\"category\":\"unavailable\",\"message\":\"Hopper's launcher helper failed before bridge readiness. Review details.launcher and complete Hopper setup before retrying.\",\"retryable\":true,\"remediation\":{\"action\":\"Check the Hopper launcher and target details, then retry opening the target.\"},\"details\":{\"stage\":\"launch\",\"provider_state\":\"unknown\",\"retry_action\":\"retry\",\"launcher\":{\"exit_code\":2,\"signal\":null,\"stdout\":{\"text\":\"\",\"bytes\":0,\"retained_bytes\":0},\"stderr\":{\"text\":\"Cannot launch Hopper!\\nAppleEvent timed out.\\n\",\"bytes\":44,\"retained_bytes\":44},\"output_closed\":true,\"diagnostic_truncated\":false}}},\"cleanup_error\":{\"code\":\"cleanup_incomplete\",\"category\":\"execution_failure\",\"message\":\"Provider cleanup could not be fully confirmed. Review the reported local resources before opening another target.\",\"retryable\":false,\"remediation\":{\"action\":\"Export the Evidence bundle before close_binary clears session records. Let Hopper finish initial analysis or complete its pending dialog, then retry close_binary on this connection so REA can authenticate and close the retained document. If no matching bridge becomes available, manually close the reported document in Hopper, then restart the MCP connection. A helper exit or open:false does not establish that retained cleanup is complete.\"},\"details\":{\"provider_id\":\"hopper\",\"operation\":\"close_binary\",\"cleanup\":\"incomplete\",\"resources\":[\"hopper-document\",\"/tmp/rea-dyTUH7\"],\"diagnostics\":{\"issues\":[{\"resource\":\"hopper-document\",\"reason\":\"authenticated shutdown acknowledgement was not observed\"},{\"resource\":\"/tmp/rea-dyTUH7\",\"reason\":\"Private runtime retained because process or native document closure was not confirmed\"}],\"runtime_root\":\"/tmp/rea-dyTUH7\",\"authenticated_application\":\"not_observed\"},\"execution_failure\":\"execution_failure\"}}},\"cleanup_reason\":\"Provider cleanup could not be fully confirmed. Review the reported local resources before opening another target.\",\"execution_failure\":\"execution_failure\"}}}"
+      }
+    ],
+    "isError": true
+  }
+}

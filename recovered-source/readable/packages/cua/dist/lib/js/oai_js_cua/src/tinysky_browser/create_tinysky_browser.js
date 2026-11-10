@@ -1,0 +1,41 @@
+import { __awaiter as t } from "../../../oai_js/node_modules/tslib/tslib.es6.js";
+import { get_browsers as r } from "../get_browsers.js";
+import { create_bootstrap_emitter as e } from "../tinysky_alt/create_bootstrap_emitter.js";
+import { create_browser_api as o } from "../tinysky_alt/create_browser_api.js";
+import { create_documentation as s } from "../tinysky_alt/create_documentation.js";
+import { setup_browser as i } from "../tinysky_alt/setup_browser.js";
+function n(n) {
+  return t(this, void 0, void 0, function* () {
+    const a = s(n.read_documentation),
+      c = n.setup_browser_runtime,
+      m = a.exclude_browser_confirmations,
+      u = yield i({ setupBrowserRuntime: c, exclude_browser_confirmations: m }),
+      _ = e({ documentation: a, target: "no-cua" });
+    yield _.emit();
+    const l = u.browsers;
+    function b(e) {
+      return t(this, void 0, void 0, function* () {
+        let t;
+        try {
+          const e = yield r(l);
+          t = Object.assign(
+            { apps: [], browsers: e.browsers },
+            e.errors.length > 0 ? { errors: e.errors } : {},
+          );
+        } catch (r) {
+          t = { apps: [], browsers: [], errors: [`Browsers: ${String(r)}`] };
+        }
+        return (yield _.emit(t, e), t);
+      });
+    }
+    return (
+      Reflect.set(globalThis, "agent", u),
+      Object.assign(Object.assign({}, o(l, _)), {
+        getState: b,
+        initialize: b,
+        rewriteDocumentation: _.rewrite_documentation,
+      })
+    );
+  });
+}
+export { n as create_tinysky_browser };

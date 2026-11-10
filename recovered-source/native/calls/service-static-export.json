@@ -1,0 +1,25 @@
+{
+  "request": {
+    "tool": "export_evidence_bundle",
+    "args": {
+      "path": "scripts/codex-computer-use-source/native-analysis/rea-service-static.json"
+    },
+    "label": "service-static-export"
+  },
+  "response": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"result\":{\"path\":\"scripts/codex-computer-use-source/native-analysis/rea-service-static.json\",\"bytes\":118358,\"records\":2,\"unknowns\":0}}"
+      }
+    ],
+    "structuredContent": {
+      "result": {
+        "path": "scripts/codex-computer-use-source/native-analysis/rea-service-static.json",
+        "bytes": 118358,
+        "records": 2,
+        "unknowns": 0
+      }
+    }
+  }
+}

@@ -1,0 +1,310 @@
+[
+  {
+    "package": "sky",
+    "path": "dist/project/cua/sky_js/src/client.d.ts",
+    "bytes": 240,
+    "sha256": "bb98a383677a6f94c9af31f5d06ccfc94fa5ce871c818cebebe3eb4639243516",
+    "source": "/Applications/ChatGPT.app/Contents/Resources/cua_node/lib/node_modules/@oai/sky/dist/project/cua/sky_js/src/client.d.ts"
+  },
+  {
+    "package": "sky",
+    "path": "dist/project/cua/sky_js/src/client.js",
+    "bytes": 1552,
+    "sha256": "79dcd8fb4fa890d65da073cd69ef8996f15e714d73b62fb0e9079d1579486497",
+    "source": "/Applications/ChatGPT.app/Contents/Resources/cua_node/lib/node_modules/@oai/sky/dist/project/cua/sky_js/src/client.js"
+  },
+  {
+    "package": "sky",
+    "path": "dist/project/cua/sky_js/src/sky_service_rpc.d.ts",
+    "bytes": 685,
+    "sha256": "3f3a3fb82c582de044038ed180f215f6b652870f78a5f42bb18fdc5f03443a61",
+    "source": "/Applications/ChatGPT.app/Contents/Resources/cua_node/lib/node_modules/@oai/sky/dist/project/cua/sky_js/src/sky_service_rpc.d.ts"
+  },
+  {
+    "package": "sky",
+    "path": "dist/project/cua/sky_js/src/sky_service_rpc.js",
+    "bytes": 1109,
+    "sha256": "87b037bfa736500f6700824099d569cb8add10140c66ad6039e6d21f3f5c2f7d",
+    "source": "/Applications/ChatGPT.app/Contents/Resources/cua_node/lib/node_modules/@oai/sky/dist/project/cua/sky_js/src/sky_service_rpc.js"
+  },
+  {
+    "package": "sky",
+    "path": "dist/project/cua/sky_js/src/targets/windows/desktop_client.d.ts",
+    "bytes": 1380,
+    "sha256": "cf1dad9ccaceb47d13213aa15010185a400fc61562d6b8a124f85f8351860b34",
+    "source": "/Applications/ChatGPT.app/Contents/Resources/cua_node/lib/node_modules/@oai/sky/dist/project/cua/sky_js/src/targets/windows/desktop_client.d.ts"
+  },
+  {
+    "package": "sky",
+    "path": "dist/project/cua/sky_js/src/targets/windows/desktop_client.js",
+    "bytes": 7217,
+    "sha256": "80bddcec7b3d7b5053067f63624a456a4a735eb54a98c0d643b524571a18a736",
+    "source": "/Applications/ChatGPT.app/Contents/Resources/cua_node/lib/node_modules/@oai/sky/dist/project/cua/sky_js/src/targets/windows/desktop_client.js"
+  },
+  {
+    "package": "sky",
+    "path": "dist/project/cua/sky_js/src/types/Desktop.d.ts",
+    "bytes": 981,
+    "sha256": "1bb1af281695ba3432e7b5eb0d030a845e791ddfef157bb13ba6b56ca0a11792",
+    "source": "/Applications/ChatGPT.app/Contents/Resources/cua_node/lib/node_modules/@oai/sky/dist/project/cua/sky_js/src/types/Desktop.d.ts"
+  },
+  {
+    "package": "sky",
+    "path": "dist/project/cua/sky_js/src/types/desktop/Click.d.ts",
+    "bytes": 514,
+    "sha256": "835aab3fad594cec0a8a50b8204e5e4fbde37e7e6d866ce273721b852de8296b",
+    "source": "/Applications/ChatGPT.app/Contents/Resources/cua_node/lib/node_modules/@oai/sky/dist/project/cua/sky_js/src/types/desktop/Click.d.ts"
+  },
+  {
+    "package": "sky",
+    "path": "dist/project/cua/sky_js/src/types/desktop/Close.d.ts",
+    "bytes": 134,
+    "sha256": "fee124cc3f99b9598a1f475a2369f9005bb49e0113e570f2deb102400d06e608",
+    "source": "/Applications/ChatGPT.app/Contents/Resources/cua_node/lib/node_modules/@oai/sky/dist/project/cua/sky_js/src/types/desktop/Close.d.ts"
+  },
+  {
+    "package": "sky",
+    "path": "dist/project/cua/sky_js/src/types/desktop/Drag.d.ts",
+    "bytes": 248,
+    "sha256": "be57a72b53e9cc73f4fa346c061e4b14cd3b1db79df245f23873c224a7f6df4c",
+    "source": "/Applications/ChatGPT.app/Contents/Resources/cua_node/lib/node_modules/@oai/sky/dist/project/cua/sky_js/src/types/desktop/Drag.d.ts"
+  },
+  {
+    "package": "sky",
+    "path": "dist/project/cua/sky_js/src/types/desktop/Move.d.ts",
+    "bytes": 228,
+    "sha256": "9239eae9a6fbdf8ce1a22fec74d263a358df4323ee3ef4eaf8e54d12b3306b5e",
+    "source": "/Applications/ChatGPT.app/Contents/Resources/cua_node/lib/node_modules/@oai/sky/dist/project/cua/sky_js/src/types/desktop/Move.d.ts"
+  },
+  {
+    "package": "sky",
+    "path": "dist/project/cua/sky_js/src/types/desktop/Paste.d.ts",
+    "bytes": 240,
+    "sha256": "46394abf1b52c75aa1f2d4a2c486b6e4b7a85c1f8007655d6b58eac1a964e191",
+    "source": "/Applications/ChatGPT.app/Contents/Resources/cua_node/lib/node_modules/@oai/sky/dist/project/cua/sky_js/src/types/desktop/Paste.d.ts"
+  },
+  {
+    "package": "sky",
+    "path": "dist/project/cua/sky_js/src/types/desktop/PressKey.d.ts",
+    "bytes": 219,
+    "sha256": "d3a50bc13d3c8d10889d7e063ad2184b18a538b5047d7d26201bba69d4b645a7",
+    "source": "/Applications/ChatGPT.app/Contents/Resources/cua_node/lib/node_modules/@oai/sky/dist/project/cua/sky_js/src/types/desktop/PressKey.d.ts"
+  },
+  {
+    "package": "sky",
+    "path": "dist/project/cua/sky_js/src/types/desktop/Scroll.d.ts",
+    "bytes": 507,
+    "sha256": "08cef2fed066a565226557fc38efec29a14a29554d7ebcbd6fa67b54887ab181",
+    "source": "/Applications/ChatGPT.app/Contents/Resources/cua_node/lib/node_modules/@oai/sky/dist/project/cua/sky_js/src/types/desktop/Scroll.d.ts"
+  },
+  {
+    "package": "sky",
+    "path": "dist/project/cua/sky_js/src/types/desktop/TypeText.d.ts",
+    "bytes": 179,
+    "sha256": "3178493c6cb04f4d62963c70c469d12d948c43e7af389f418372eaa36fe3b052",
+    "source": "/Applications/ChatGPT.app/Contents/Resources/cua_node/lib/node_modules/@oai/sky/dist/project/cua/sky_js/src/types/desktop/TypeText.d.ts"
+  },
+  {
+    "package": "sky",
+    "path": "docs/skills/oai_sky_lib/windows-desktop/SKILL.md",
+    "bytes": 1551,
+    "sha256": "9c2c088cf4c03082859b96d8a2758ab789f0b9ab0abf16c47ca9262a6e4003c9",
+    "source": "/Applications/ChatGPT.app/Contents/Resources/cua_node/lib/node_modules/@oai/sky/docs/skills/oai_sky_lib/windows-desktop/SKILL.md"
+  },
+  {
+    "package": "sky",
+    "path": "docs/skills/oai_sky_lib/windows-desktop/api.md",
+    "bytes": 2886,
+    "sha256": "2fb66ec4573d9911d7af95e56a34ad2fcf882ab147e48dd34ded1e59a4e9083c",
+    "source": "/Applications/ChatGPT.app/Contents/Resources/cua_node/lib/node_modules/@oai/sky/docs/skills/oai_sky_lib/windows-desktop/api.md"
+  },
+  {
+    "package": "cua",
+    "path": "dist/lib/js/oai_js_browser/dist/skill/references/capabilities/tab/siwc.md",
+    "bytes": 3400,
+    "sha256": "4e71056fc4f36904034c1bd360ffa0a6139dfad000e44ec5af9db4e939bb8c50",
+    "source": "/Applications/ChatGPT.app/Contents/Resources/cua_node/lib/node_modules/@oai/cua/dist/lib/js/oai_js_browser/dist/skill/references/capabilities/tab/siwc.md"
+  },
+  {
+    "package": "cua",
+    "path": "dist/project/cua/sky_js/src/sky_service_rpc.d.ts",
+    "bytes": 685,
+    "sha256": "3f3a3fb82c582de044038ed180f215f6b652870f78a5f42bb18fdc5f03443a61",
+    "source": "/Applications/ChatGPT.app/Contents/Resources/cua_node/lib/node_modules/@oai/cua/dist/project/cua/sky_js/src/sky_service_rpc.d.ts"
+  },
+  {
+    "package": "cua",
+    "path": "dist/project/cua/sky_js/src/sky_service_rpc.js",
+    "bytes": 1109,
+    "sha256": "87b037bfa736500f6700824099d569cb8add10140c66ad6039e6d21f3f5c2f7d",
+    "source": "/Applications/ChatGPT.app/Contents/Resources/cua_node/lib/node_modules/@oai/cua/dist/project/cua/sky_js/src/sky_service_rpc.js"
+  },
+  {
+    "package": "cua",
+    "path": "dist/project/cua/sky_js/src/targets/windows/desktop_client.d.ts",
+    "bytes": 1380,
+    "sha256": "cf1dad9ccaceb47d13213aa15010185a400fc61562d6b8a124f85f8351860b34",
+    "source": "/Applications/ChatGPT.app/Contents/Resources/cua_node/lib/node_modules/@oai/cua/dist/project/cua/sky_js/src/targets/windows/desktop_client.d.ts"
+  },
+  {
+    "package": "cua",
+    "path": "dist/project/cua/sky_js/src/targets/windows/desktop_client.js",
+    "bytes": 7217,
+    "sha256": "80bddcec7b3d7b5053067f63624a456a4a735eb54a98c0d643b524571a18a736",
+    "source": "/Applications/ChatGPT.app/Contents/Resources/cua_node/lib/node_modules/@oai/cua/dist/project/cua/sky_js/src/targets/windows/desktop_client.js"
+  },
+  {
+    "package": "cua",
+    "path": "dist/project/cua/sky_js/src/types/Desktop.d.ts",
+    "bytes": 981,
+    "sha256": "1bb1af281695ba3432e7b5eb0d030a845e791ddfef157bb13ba6b56ca0a11792",
+    "source": "/Applications/ChatGPT.app/Contents/Resources/cua_node/lib/node_modules/@oai/cua/dist/project/cua/sky_js/src/types/Desktop.d.ts"
+  },
+  {
+    "package": "cua",
+    "path": "dist/project/cua/sky_js/src/types/desktop/Click.d.ts",
+    "bytes": 514,
+    "sha256": "835aab3fad594cec0a8a50b8204e5e4fbde37e7e6d866ce273721b852de8296b",
+    "source": "/Applications/ChatGPT.app/Contents/Resources/cua_node/lib/node_modules/@oai/cua/dist/project/cua/sky_js/src/types/desktop/Click.d.ts"
+  },
+  {
+    "package": "cua",
+    "path": "dist/project/cua/sky_js/src/types/desktop/Close.d.ts",
+    "bytes": 134,
+    "sha256": "fee124cc3f99b9598a1f475a2369f9005bb49e0113e570f2deb102400d06e608",
+    "source": "/Applications/ChatGPT.app/Contents/Resources/cua_node/lib/node_modules/@oai/cua/dist/project/cua/sky_js/src/types/desktop/Close.d.ts"
+  },
+  {
+    "package": "cua",
+    "path": "dist/project/cua/sky_js/src/types/desktop/Drag.d.ts",
+    "bytes": 248,
+    "sha256": "be57a72b53e9cc73f4fa346c061e4b14cd3b1db79df245f23873c224a7f6df4c",
+    "source": "/Applications/ChatGPT.app/Contents/Resources/cua_node/lib/node_modules/@oai/cua/dist/project/cua/sky_js/src/types/desktop/Drag.d.ts"
+  },
+  {
+    "package": "cua",
+    "path": "dist/project/cua/sky_js/src/types/desktop/Move.d.ts",
+    "bytes": 228,
+    "sha256": "9239eae9a6fbdf8ce1a22fec74d263a358df4323ee3ef4eaf8e54d12b3306b5e",
+    "source": "/Applications/ChatGPT.app/Contents/Resources/cua_node/lib/node_modules/@oai/cua/dist/project/cua/sky_js/src/types/desktop/Move.d.ts"
+  },
+  {
+    "package": "cua",
+    "path": "dist/project/cua/sky_js/src/types/desktop/Paste.d.ts",
+    "bytes": 240,
+    "sha256": "46394abf1b52c75aa1f2d4a2c486b6e4b7a85c1f8007655d6b58eac1a964e191",
+    "source": "/Applications/ChatGPT.app/Contents/Resources/cua_node/lib/node_modules/@oai/cua/dist/project/cua/sky_js/src/types/desktop/Paste.d.ts"
+  },
+  {
+    "package": "cua",
+    "path": "dist/project/cua/sky_js/src/types/desktop/PressKey.d.ts",
+    "bytes": 219,
+    "sha256": "d3a50bc13d3c8d10889d7e063ad2184b18a538b5047d7d26201bba69d4b645a7",
+    "source": "/Applications/ChatGPT.app/Contents/Resources/cua_node/lib/node_modules/@oai/cua/dist/project/cua/sky_js/src/types/desktop/PressKey.d.ts"
+  },
+  {
+    "package": "cua",
+    "path": "dist/project/cua/sky_js/src/types/desktop/Scroll.d.ts",
+    "bytes": 507,
+    "sha256": "08cef2fed066a565226557fc38efec29a14a29554d7ebcbd6fa67b54887ab181",
+    "source": "/Applications/ChatGPT.app/Contents/Resources/cua_node/lib/node_modules/@oai/cua/dist/project/cua/sky_js/src/types/desktop/Scroll.d.ts"
+  },
+  {
+    "package": "cua",
+    "path": "dist/project/cua/sky_js/src/types/desktop/TypeText.d.ts",
+    "bytes": 179,
+    "sha256": "3178493c6cb04f4d62963c70c469d12d948c43e7af389f418372eaa36fe3b052",
+    "source": "/Applications/ChatGPT.app/Contents/Resources/cua_node/lib/node_modules/@oai/cua/dist/project/cua/sky_js/src/types/desktop/TypeText.d.ts"
+  },
+  {
+    "package": "cua-repl",
+    "path": "dist/lib/js/oai_js_cua_repl/src/environment.d.ts",
+    "bytes": 573,
+    "sha256": "0b63940097dcc4ffdda539f2b317c5902baaad934ff930b9926f302c1a4d2708",
+    "source": "/Applications/ChatGPT.app/Contents/Resources/cua_node/lib/node_modules/@oai/cua-repl/dist/lib/js/oai_js_cua_repl/src/environment.d.ts"
+  },
+  {
+    "package": "cua-repl",
+    "path": "dist/lib/js/oai_js_cua_repl/src/environment.js",
+    "bytes": 1656,
+    "sha256": "0160beba37aa314e2f04a6febaa1a633b59fd59ff65b4e2282dc0926070d40ab",
+    "source": "/Applications/ChatGPT.app/Contents/Resources/cua_node/lib/node_modules/@oai/cua-repl/dist/lib/js/oai_js_cua_repl/src/environment.js"
+  },
+  {
+    "package": "cua-repl",
+    "path": "instructions/audio.md",
+    "bytes": 786,
+    "sha256": "105c30f775251cce8a758e380f74355b2d286d93cedc272ed79a8eef4615f26f",
+    "source": "/Applications/ChatGPT.app/Contents/Resources/cua_node/lib/node_modules/@oai/cua-repl/instructions/audio.md"
+  },
+  {
+    "package": "cua-repl",
+    "path": "instructions/completion-summary.md",
+    "bytes": 271,
+    "sha256": "7c95c9473daa053df4361ee06cf277e66f5b5883d9f2eb675069fced4c68239b",
+    "source": "/Applications/ChatGPT.app/Contents/Resources/cua_node/lib/node_modules/@oai/cua-repl/instructions/completion-summary.md"
+  },
+  {
+    "package": "cua-repl",
+    "path": "instructions/task-completion.md",
+    "bytes": 500,
+    "sha256": "6bc794ff2aaf8d4dbad783b5cf09b9aacfd4799d92835e075a455d2a34c187ff",
+    "source": "/Applications/ChatGPT.app/Contents/Resources/cua_node/lib/node_modules/@oai/cua-repl/instructions/task-completion.md"
+  },
+  {
+    "package": "cua-repl",
+    "path": "instructions/title.md",
+    "bytes": 210,
+    "sha256": "393dd1eb8640591dc5c19ab1954b4846e52ef74904c42b18594993a492622d18",
+    "source": "/Applications/ChatGPT.app/Contents/Resources/cua_node/lib/node_modules/@oai/cua-repl/instructions/title.md"
+  },
+  {
+    "package": "browser-desktop",
+    "path": "environment-docs/cloud/capabilities/tab/siwc.md",
+    "bytes": 3400,
+    "sha256": "4e71056fc4f36904034c1bd360ffa0a6139dfad000e44ec5af9db4e939bb8c50",
+    "source": "/Applications/ChatGPT.app/Contents/Resources/cua_node/lib/node_modules/@oai/browser-desktop/environment-docs/cloud/capabilities/tab/siwc.md"
+  },
+  {
+    "package": "browser-desktop",
+    "path": "environment-docs/cloud/siwc.md",
+    "bytes": 1035,
+    "sha256": "98836854cc1905062298beefdc505e66048b8e1d15abf02e8ec6beceb475764f",
+    "source": "/Applications/ChatGPT.app/Contents/Resources/cua_node/lib/node_modules/@oai/browser-desktop/environment-docs/cloud/siwc.md"
+  },
+  {
+    "package": "browser-desktop",
+    "path": "environment-docs/codex-app/capabilities/tab/siwc.md",
+    "bytes": 3400,
+    "sha256": "4e71056fc4f36904034c1bd360ffa0a6139dfad000e44ec5af9db4e939bb8c50",
+    "source": "/Applications/ChatGPT.app/Contents/Resources/cua_node/lib/node_modules/@oai/browser-desktop/environment-docs/codex-app/capabilities/tab/siwc.md"
+  },
+  {
+    "package": "browser-desktop",
+    "path": "environment-docs/codex-app/siwc.md",
+    "bytes": 1035,
+    "sha256": "98836854cc1905062298beefdc505e66048b8e1d15abf02e8ec6beceb475764f",
+    "source": "/Applications/ChatGPT.app/Contents/Resources/cua_node/lib/node_modules/@oai/browser-desktop/environment-docs/codex-app/siwc.md"
+  },
+  {
+    "package": "browser-desktop",
+    "path": "environment-docs/orbit/capabilities/tab/siwc.md",
+    "bytes": 3400,
+    "sha256": "4e71056fc4f36904034c1bd360ffa0a6139dfad000e44ec5af9db4e939bb8c50",
+    "source": "/Applications/ChatGPT.app/Contents/Resources/cua_node/lib/node_modules/@oai/browser-desktop/environment-docs/orbit/capabilities/tab/siwc.md"
+  },
+  {
+    "package": "browser-desktop",
+    "path": "environment-docs/orbit/siwc.md",
+    "bytes": 1035,
+    "sha256": "98836854cc1905062298beefdc505e66048b8e1d15abf02e8ec6beceb475764f",
+    "source": "/Applications/ChatGPT.app/Contents/Resources/cua_node/lib/node_modules/@oai/browser-desktop/environment-docs/orbit/siwc.md"
+  },
+  {
+    "package": "browser-desktop",
+    "path": "environment-docs/training/capabilities/tab/siwc.md",
+    "bytes": 3400,
+    "sha256": "4e71056fc4f36904034c1bd360ffa0a6139dfad000e44ec5af9db4e939bb8c50",
+    "source": "/Applications/ChatGPT.app/Contents/Resources/cua_node/lib/node_modules/@oai/browser-desktop/environment-docs/training/capabilities/tab/siwc.md"
+  }
+]

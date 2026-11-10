@@ -1,0 +1,147 @@
+{
+  "request": {
+    "tool": "inspect_signature",
+    "args": {},
+    "label": "service-signature-rea"
+  },
+  "response": {
+    "_meta": {
+      "provenance": {
+        "untrusted_content": true,
+        "source": "analysis_target"
+      }
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"evidence_id\":\"ev_3a1c921fede34d813d260e2121dab79b9062ce414cb812f04e9d60a5f3ff0f87\",\"subject\":{\"name\":\"SkyComputerUseService\",\"digest\":{\"sha256\":\"e798d6a292fb5d93536ae9f6954e9809f0833bcf38d1ff50624f1e2268723dea\"},\"local_path\":\"${WORK_DIR}/native-analysis/SkyComputerUseService\",\"format\":\"mach-o\",\"architecture\":\"arm64\"},\"provider\":{\"id\":\"native-macos\",\"name\":\"macOS native inspection utilities\",\"version\":null},\"analysis_profile\":null,\"predicate_type\":\"rea.analysis\",\"operation\":\"inspect_signature\",\"parameters\":{},\"raw_result\":null,\"normalized_result\":{\"signed\":true,\"identifier\":\"com.openai.sky.CUAService\",\"team_identifier\":\"2DC432GLL2\",\"format\":\"Mach-O thin (arm64)\",\"cdhashes\":[\"d8ca2c1ded1fc0672b9dbc27f7d24c0d14d042d5\"],\"hash_algorithms\":[\"sha256\"],\"authorities\":[\"Developer ID Application: OpenAI OpCo, LLC (2DC432GLL2)\",\"Developer ID Certification Authority\",\"Apple Root CA\"],\"designated_requirement\":\"identifier \\\"com.openai.sky.CUAService\\\" and anchor apple generic and certificate 1[field.1.2.840.113635.100.6.2.6] /* exists */ and certificate leaf[field.1.2.840.113635.100.6.1.13] /* exists */ and certificate leaf[subject.OU] = \\\"2DC432GLL2\\\"\",\"entitlements\":{\"com.apple.application-identifier\":\"2DC432GLL2.com.openai.sky.CUAService\",\"com.apple.developer.team-identifier\":\"2DC432GLL2\",\"com.apple.security.application-groups\":[\"2DC432GLL2.com.openai.sky.CUAService\"],\"com.apple.security.automation.apple-events\":true,\"com.apple.security.personal-information.addressbook\":true,\"com.apple.security.personal-information.calendars\":true,\"keychain-access-groups\":[\"2DC432GLL2.*\"]},\"timestamp\":\"22 Oct 2026 at 23:48:21\",\"hardened_runtime\":true,\"provenance\":[{\"tool\":\"codesign\",\"command\":[\"/usr/bin/codesign\",\"-d\",\"--verbose=4\",\"$ARTIFACT\"],\"tool_version\":null,\"version_reason\":\"Tool exposes no uniform stable version flag; executable SHA-256 is a prelaunch file sample and does not prove atomic OS image binding.\",\"executable_sha256\":\"d517c9be608ffd266ec106c685e880cda71abc94001450e36d2476016406dd1e\",\"exit\":{\"code\":0,\"signal\":null},\"stdout_bytes\":0,\"stderr_bytes\":1143},{\"tool\":\"codesign\",\"command\":[\"/usr/bin/codesign\",\"-d\",\"-r-\",\"$ARTIFACT\"],\"tool_version\":null,\"version_reason\":\"Tool exposes no uniform stable version flag; executable SHA-256 is a prelaunch file sample and does not prove atomic OS image binding.\",\"executable_sha256\":\"d517c9be608ffd266ec106c685e880cda71abc94001450e36d2476016406dd1e\",\"exit\":{\"code\":0,\"signal\":null},\"stdout_bytes\":256,\"stderr_bytes\":131},{\"tool\":\"codesign\",\"command\":[\"/usr/bin/codesign\",\"-d\",\"--entitlements\",\":-\",\"$ARTIFACT\"],\"tool_version\":null,\"version_reason\":\"Tool exposes no uniform stable version flag; executable SHA-256 is a prelaunch file sample and does not prove atomic OS image binding.\",\"executable_sha256\":\"d517c9be608ffd266ec106c685e880cda71abc94001450e36d2476016406dd1e\",\"exit\":{\"code\":0,\"signal\":null},\"stdout_bytes\":742,\"stderr_bytes\":219}],\"limitations\":[\"Entitlements and designated requirements require separate bounded commands.\",\"Inspected a digest-verified Mach-O byte snapshot; filesystem-bound signing context and trust validation are not examined.\"]},\"confidence\":\"observed\",\"authority\":\"shipped-artifact\",\"environment\":null,\"limitations\":[\"Entitlements and designated requirements require separate bounded commands.\",\"Inspected a digest-verified Mach-O byte snapshot; filesystem-bound signing context and trust validation are not examined.\"],\"relationship_coverage\":null,\"locations\":[],\"evidence_links\":[]}"
+      }
+    ],
+    "structuredContent": {
+      "evidence_id": "ev_3a1c921fede34d813d260e2121dab79b9062ce414cb812f04e9d60a5f3ff0f87",
+      "subject": {
+        "name": "SkyComputerUseService",
+        "digest": {
+          "sha256": "e798d6a292fb5d93536ae9f6954e9809f0833bcf38d1ff50624f1e2268723dea"
+        },
+        "local_path": "${WORK_DIR}/native-analysis/SkyComputerUseService",
+        "format": "mach-o",
+        "architecture": "arm64"
+      },
+      "provider": {
+        "id": "native-macos",
+        "name": "macOS native inspection utilities",
+        "version": null
+      },
+      "analysis_profile": null,
+      "predicate_type": "rea.analysis",
+      "operation": "inspect_signature",
+      "parameters": {},
+      "raw_result": null,
+      "normalized_result": {
+        "signed": true,
+        "identifier": "com.openai.sky.CUAService",
+        "team_identifier": "2DC432GLL2",
+        "format": "Mach-O thin (arm64)",
+        "cdhashes": [
+          "d8ca2c1ded1fc0672b9dbc27f7d24c0d14d042d5"
+        ],
+        "hash_algorithms": [
+          "sha256"
+        ],
+        "authorities": [
+          "Developer ID Application: OpenAI OpCo, LLC (2DC432GLL2)",
+          "Developer ID Certification Authority",
+          "Apple Root CA"
+        ],
+        "designated_requirement": "identifier \"com.openai.sky.CUAService\" and anchor apple generic and certificate 1[field.1.2.840.113635.100.6.2.6] /* exists */ and certificate leaf[field.1.2.840.113635.100.6.1.13] /* exists */ and certificate leaf[subject.OU] = \"2DC432GLL2\"",
+        "entitlements": {
+          "com.apple.application-identifier": "2DC432GLL2.com.openai.sky.CUAService",
+          "com.apple.developer.team-identifier": "2DC432GLL2",
+          "com.apple.security.application-groups": [
+            "2DC432GLL2.com.openai.sky.CUAService"
+          ],
+          "com.apple.security.automation.apple-events": true,
+          "com.apple.security.personal-information.addressbook": true,
+          "com.apple.security.personal-information.calendars": true,
+          "keychain-access-groups": [
+            "2DC432GLL2.*"
+          ]
+        },
+        "timestamp": "22 Oct 2026 at 23:48:21",
+        "hardened_runtime": true,
+        "provenance": [
+          {
+            "tool": "codesign",
+            "command": [
+              "/usr/bin/codesign",
+              "-d",
+              "--verbose=4",
+              "$ARTIFACT"
+            ],
+            "tool_version": null,
+            "version_reason": "Tool exposes no uniform stable version flag; executable SHA-256 is a prelaunch file sample and does not prove atomic OS image binding.",
+            "executable_sha256": "d517c9be608ffd266ec106c685e880cda71abc94001450e36d2476016406dd1e",
+            "exit": {
+              "code": 0,
+              "signal": null
+            },
+            "stdout_bytes": 0,
+            "stderr_bytes": 1143
+          },
+          {
+            "tool": "codesign",
+            "command": [
+              "/usr/bin/codesign",
+              "-d",
+              "-r-",
+              "$ARTIFACT"
+            ],
+            "tool_version": null,
+            "version_reason": "Tool exposes no uniform stable version flag; executable SHA-256 is a prelaunch file sample and does not prove atomic OS image binding.",
+            "executable_sha256": "d517c9be608ffd266ec106c685e880cda71abc94001450e36d2476016406dd1e",
+            "exit": {
+              "code": 0,
+              "signal": null
+            },
+            "stdout_bytes": 256,
+            "stderr_bytes": 131
+          },
+          {
+            "tool": "codesign",
+            "command": [
+              "/usr/bin/codesign",
+              "-d",
+              "--entitlements",
+              ":-",
+              "$ARTIFACT"
+            ],
+            "tool_version": null,
+            "version_reason": "Tool exposes no uniform stable version flag; executable SHA-256 is a prelaunch file sample and does not prove atomic OS image binding.",
+            "executable_sha256": "d517c9be608ffd266ec106c685e880cda71abc94001450e36d2476016406dd1e",
+            "exit": {
+              "code": 0,
+              "signal": null
+            },
+            "stdout_bytes": 742,
+            "stderr_bytes": 219
+          }
+        ],
+        "limitations": [
+          "Entitlements and designated requirements require separate bounded commands.",
+          "Inspected a digest-verified Mach-O byte snapshot; filesystem-bound signing context and trust validation are not examined."
+        ]
+      },
+      "confidence": "observed",
+      "authority": "shipped-artifact",
+      "environment": null,
+      "limitations": [
+        "Entitlements and designated requirements require separate bounded commands.",
+        "Inspected a digest-verified Mach-O byte snapshot; filesystem-bound signing context and trust validation are not examined."
+      ],
+      "relationship_coverage": null,
+      "locations": [],
+      "evidence_links": []
+    }
+  }
+}

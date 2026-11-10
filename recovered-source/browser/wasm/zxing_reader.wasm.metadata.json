@@ -1,0 +1,765 @@
+{
+  "original": {
+    "path": "browser-desktop/scripts/zxing_reader.wasm",
+    "bytes": 1065866,
+    "sha256": "0e8d688d71932ebb6b8b33f700d43d3cb997f59ed9cab3c05102d7f10288a392"
+  },
+  "preserved_copy": {
+    "path": "wasm/original/zxing_reader.wasm",
+    "bytes": 1065866,
+    "sha256": "0e8d688d71932ebb6b8b33f700d43d3cb997f59ed9cab3c05102d7f10288a392"
+  },
+  "original_copy_byte_identical": true,
+  "decoding": "Uncompressed original WASM bytes",
+  "decoded": {
+    "path": "wasm/original/zxing_reader.wasm",
+    "bytes": 1065866,
+    "sha256": "0e8d688d71932ebb6b8b33f700d43d3cb997f59ed9cab3c05102d7f10288a392"
+  },
+  "header_hex": "0061736d01000000",
+  "sections": [
+    {
+      "id": 1,
+      "kind": "Type",
+      "custom_name": null,
+      "header_offset": 8,
+      "payload_start": 11,
+      "payload_end": 795,
+      "payload_bytes": 784
+    },
+    {
+      "id": 2,
+      "kind": "Import",
+      "custom_name": null,
+      "header_offset": 795,
+      "payload_start": 798,
+      "payload_end": 1284,
+      "payload_bytes": 486
+    },
+    {
+      "id": 3,
+      "kind": "Function",
+      "custom_name": null,
+      "header_offset": 1284,
+      "payload_start": 1287,
+      "payload_end": 2608,
+      "payload_bytes": 1321
+    },
+    {
+      "id": 4,
+      "kind": "Table",
+      "custom_name": null,
+      "header_offset": 2608,
+      "payload_start": 2610,
+      "payload_end": 2617,
+      "payload_bytes": 7
+    },
+    {
+      "id": 5,
+      "kind": "Memory",
+      "custom_name": null,
+      "header_offset": 2617,
+      "payload_start": 2619,
+      "payload_end": 2626,
+      "payload_bytes": 7
+    },
+    {
+      "id": 6,
+      "kind": "Global",
+      "custom_name": null,
+      "header_offset": 2626,
+      "payload_start": 2628,
+      "payload_end": 2642,
+      "payload_bytes": 14
+    },
+    {
+      "id": 7,
+      "kind": "Export",
+      "custom_name": null,
+      "header_offset": 2642,
+      "payload_start": 2644,
+      "payload_end": 2767,
+      "payload_bytes": 123
+    },
+    {
+      "id": 9,
+      "kind": "Element",
+      "custom_name": null,
+      "header_offset": 2767,
+      "payload_start": 2770,
+      "payload_end": 5069,
+      "payload_bytes": 2299
+    },
+    {
+      "id": 10,
+      "kind": "Code",
+      "custom_name": null,
+      "header_offset": 5069,
+      "payload_start": 5073,
+      "payload_end": 891060,
+      "payload_bytes": 885987
+    },
+    {
+      "id": 11,
+      "kind": "Data",
+      "custom_name": null,
+      "header_offset": 891060,
+      "payload_start": 891064,
+      "payload_end": 1065866,
+      "payload_bytes": 174802
+    }
+  ],
+  "tooling": {
+    "package": "wabt",
+    "version": "1.0.39",
+    "features": {
+      "exceptions": true,
+      "mutable_globals": true,
+      "sat_float_to_int": true,
+      "sign_extension": true,
+      "simd": true,
+      "threads": true,
+      "function_references": true,
+      "multi_value": true,
+      "tail_call": true,
+      "bulk_memory": true,
+      "reference_types": true,
+      "annotations": true,
+      "code_metadata": true,
+      "gc": true,
+      "memory64": true,
+      "extended_const": true,
+      "relaxed_simd": true
+    }
+  },
+  "runtime_execution": false,
+  "original_high_level_source_recovered": false,
+  "unknowns": [
+    "WAT is a disassembly of compiled WASM, not original Rust/C/C++/TypeScript source.",
+    "Only retained WASM custom names and export/import strings can be recovered; absent identifiers stay unknown."
+  ],
+  "wat": {
+    "path": "wasm/zxing_reader.wat",
+    "bytes": 16589320,
+    "sha256": "6be9224ae0d9e31079f64998f62da56ec873973770fb5c782801528896380dde"
+  },
+  "wat_representation": "WABT decoded text with retained debug names; generateNames() is not called",
+  "validation": "passed",
+  "interface": {
+    "extractor": "Node.js v26.5.0 WebAssembly.Module static metadata; compiled but not instantiated",
+    "imports": [
+      {
+        "module": "a",
+        "name": "a",
+        "kind": "function"
+      },
+      {
+        "module": "a",
+        "name": "b",
+        "kind": "function"
+      },
+      {
+        "module": "a",
+        "name": "c",
+        "kind": "function"
+      },
+      {
+        "module": "a",
+        "name": "d",
+        "kind": "function"
+      },
+      {
+        "module": "a",
+        "name": "e",
+        "kind": "function"
+      },
+      {
+        "module": "a",
+        "name": "f",
+        "kind": "function"
+      },
+      {
+        "module": "a",
+        "name": "g",
+        "kind": "function"
+      },
+      {
+        "module": "a",
+        "name": "h",
+        "kind": "function"
+      },
+      {
+        "module": "a",
+        "name": "i",
+        "kind": "function"
+      },
+      {
+        "module": "a",
+        "name": "j",
+        "kind": "function"
+      },
+      {
+        "module": "a",
+        "name": "k",
+        "kind": "function"
+      },
+      {
+        "module": "a",
+        "name": "l",
+        "kind": "function"
+      },
+      {
+        "module": "a",
+        "name": "m",
+        "kind": "function"
+      },
+      {
+        "module": "a",
+        "name": "n",
+        "kind": "function"
+      },
+      {
+        "module": "a",
+        "name": "o",
+        "kind": "function"
+      },
+      {
+        "module": "a",
+        "name": "p",
+        "kind": "function"
+      },
+      {
+        "module": "a",
+        "name": "q",
+        "kind": "function"
+      },
+      {
+        "module": "a",
+        "name": "r",
+        "kind": "function"
+      },
+      {
+        "module": "a",
+        "name": "s",
+        "kind": "function"
+      },
+      {
+        "module": "a",
+        "name": "t",
+        "kind": "function"
+      },
+      {
+        "module": "a",
+        "name": "u",
+        "kind": "function"
+      },
+      {
+        "module": "a",
+        "name": "v",
+        "kind": "function"
+      },
+      {
+        "module": "a",
+        "name": "w",
+        "kind": "function"
+      },
+      {
+        "module": "a",
+        "name": "x",
+        "kind": "function"
+      },
+      {
+        "module": "a",
+        "name": "y",
+        "kind": "function"
+      },
+      {
+        "module": "a",
+        "name": "z",
+        "kind": "function"
+      },
+      {
+        "module": "a",
+        "name": "A",
+        "kind": "function"
+      },
+      {
+        "module": "a",
+        "name": "B",
+        "kind": "function"
+      },
+      {
+        "module": "a",
+        "name": "C",
+        "kind": "function"
+      },
+      {
+        "module": "a",
+        "name": "D",
+        "kind": "function"
+      },
+      {
+        "module": "a",
+        "name": "E",
+        "kind": "function"
+      },
+      {
+        "module": "a",
+        "name": "F",
+        "kind": "function"
+      },
+      {
+        "module": "a",
+        "name": "G",
+        "kind": "function"
+      },
+      {
+        "module": "a",
+        "name": "H",
+        "kind": "function"
+      },
+      {
+        "module": "a",
+        "name": "I",
+        "kind": "function"
+      },
+      {
+        "module": "a",
+        "name": "J",
+        "kind": "function"
+      },
+      {
+        "module": "a",
+        "name": "K",
+        "kind": "function"
+      },
+      {
+        "module": "a",
+        "name": "L",
+        "kind": "function"
+      },
+      {
+        "module": "a",
+        "name": "M",
+        "kind": "function"
+      },
+      {
+        "module": "a",
+        "name": "N",
+        "kind": "function"
+      },
+      {
+        "module": "a",
+        "name": "O",
+        "kind": "function"
+      },
+      {
+        "module": "a",
+        "name": "P",
+        "kind": "function"
+      },
+      {
+        "module": "a",
+        "name": "Q",
+        "kind": "function"
+      },
+      {
+        "module": "a",
+        "name": "R",
+        "kind": "function"
+      },
+      {
+        "module": "a",
+        "name": "S",
+        "kind": "function"
+      },
+      {
+        "module": "a",
+        "name": "T",
+        "kind": "function"
+      },
+      {
+        "module": "a",
+        "name": "U",
+        "kind": "function"
+      },
+      {
+        "module": "a",
+        "name": "V",
+        "kind": "function"
+      },
+      {
+        "module": "a",
+        "name": "W",
+        "kind": "function"
+      },
+      {
+        "module": "a",
+        "name": "X",
+        "kind": "function"
+      },
+      {
+        "module": "a",
+        "name": "Y",
+        "kind": "function"
+      },
+      {
+        "module": "a",
+        "name": "Z",
+        "kind": "function"
+      },
+      {
+        "module": "a",
+        "name": "_",
+        "kind": "function"
+      },
+      {
+        "module": "a",
+        "name": "$",
+        "kind": "function"
+      },
+      {
+        "module": "a",
+        "name": "aa",
+        "kind": "function"
+      },
+      {
+        "module": "a",
+        "name": "ba",
+        "kind": "function"
+      },
+      {
+        "module": "a",
+        "name": "ca",
+        "kind": "function"
+      },
+      {
+        "module": "a",
+        "name": "da",
+        "kind": "function"
+      },
+      {
+        "module": "a",
+        "name": "ea",
+        "kind": "function"
+      },
+      {
+        "module": "a",
+        "name": "fa",
+        "kind": "function"
+      },
+      {
+        "module": "a",
+        "name": "ga",
+        "kind": "function"
+      },
+      {
+        "module": "a",
+        "name": "ha",
+        "kind": "function"
+      },
+      {
+        "module": "a",
+        "name": "ia",
+        "kind": "function"
+      },
+      {
+        "module": "a",
+        "name": "ja",
+        "kind": "function"
+      },
+      {
+        "module": "a",
+        "name": "ka",
+        "kind": "function"
+      },
+      {
+        "module": "a",
+        "name": "la",
+        "kind": "function"
+      },
+      {
+        "module": "a",
+        "name": "ma",
+        "kind": "function"
+      },
+      {
+        "module": "a",
+        "name": "na",
+        "kind": "function"
+      },
+      {
+        "module": "a",
+        "name": "oa",
+        "kind": "function"
+      },
+      {
+        "module": "a",
+        "name": "pa",
+        "kind": "function"
+      },
+      {
+        "module": "a",
+        "name": "qa",
+        "kind": "function"
+      },
+      {
+        "module": "a",
+        "name": "ra",
+        "kind": "function"
+      },
+      {
+        "module": "a",
+        "name": "sa",
+        "kind": "function"
+      },
+      {
+        "module": "a",
+        "name": "ta",
+        "kind": "function"
+      },
+      {
+        "module": "a",
+        "name": "ua",
+        "kind": "function"
+      },
+      {
+        "module": "a",
+        "name": "va",
+        "kind": "function"
+      },
+      {
+        "module": "a",
+        "name": "wa",
+        "kind": "function"
+      }
+    ],
+    "exports": [
+      {
+        "name": "xa",
+        "kind": "memory"
+      },
+      {
+        "name": "ya",
+        "kind": "function"
+      },
+      {
+        "name": "za",
+        "kind": "function"
+      },
+      {
+        "name": "Aa",
+        "kind": "function"
+      },
+      {
+        "name": "Ba",
+        "kind": "table"
+      },
+      {
+        "name": "Ca",
+        "kind": "function"
+      },
+      {
+        "name": "Da",
+        "kind": "function"
+      },
+      {
+        "name": "Ea",
+        "kind": "function"
+      },
+      {
+        "name": "Fa",
+        "kind": "function"
+      },
+      {
+        "name": "Ga",
+        "kind": "function"
+      },
+      {
+        "name": "Ha",
+        "kind": "function"
+      },
+      {
+        "name": "Ia",
+        "kind": "function"
+      },
+      {
+        "name": "Ja",
+        "kind": "function"
+      },
+      {
+        "name": "Ka",
+        "kind": "function"
+      },
+      {
+        "name": "La",
+        "kind": "function"
+      },
+      {
+        "name": "Ma",
+        "kind": "function"
+      },
+      {
+        "name": "Na",
+        "kind": "function"
+      },
+      {
+        "name": "Oa",
+        "kind": "function"
+      },
+      {
+        "name": "Pa",
+        "kind": "function"
+      },
+      {
+        "name": "Qa",
+        "kind": "function"
+      },
+      {
+        "name": "Ra",
+        "kind": "function"
+      }
+    ]
+  },
+  "headers": {
+    "path": "wasm/zxing_reader.wasm.headers.txt",
+    "bytes": 754,
+    "sha256": "6910ffff02017a631c1a718a7e15d8839a73d7da6eecd5576b95ea997f8c26f4"
+  },
+  "wat_round_trip": {
+    "command": [
+      "/opt/homebrew/Cellar/node/26.5.0/bin/node",
+      "${WORK_DIR}/browser-recovery/node_modules/wabt/bin/wat2wasm",
+      "--enable-all",
+      "scripts/codex-computer-use-source/readable-browser/wasm/zxing_reader.wat",
+      "-o",
+      "${WORK_DIR}/browser-recovery/zxing_reader.wasm.wat-roundtrip.wasm"
+    ],
+    "timeout_ms": 45000,
+    "validated": true,
+    "exit_code": 0,
+    "signal": null,
+    "error": null,
+    "stderr": "",
+    "algorithm": "Compare exact original core section payloads with WABT wat2wasm output; debug/custom sections are excluded.",
+    "previous_in_process_check": null,
+    "rebuilt": {
+      "path": "work/browser-recovery/zxing_reader.wasm.wat-roundtrip.wasm",
+      "bytes": 1065866,
+      "sha256": "0e8d688d71932ebb6b8b33f700d43d3cb997f59ed9cab3c05102d7f10288a392"
+    },
+    "original_core_sections": [
+      {
+        "id": 1,
+        "bytes": 784,
+        "sha256": "26f2a42c2a9a1a7732ee62dced47707c3bdd7953495811a914ef7c92337b399b"
+      },
+      {
+        "id": 2,
+        "bytes": 486,
+        "sha256": "dbd24d12437e5ba868fdfac6075a90b4f6fba2b5bb71ac924519ec4d1de86e88"
+      },
+      {
+        "id": 3,
+        "bytes": 1321,
+        "sha256": "311557c7a37ea3256b218c5c0e085c6944f8828c7b9b567303833f4eec42cd1e"
+      },
+      {
+        "id": 4,
+        "bytes": 7,
+        "sha256": "385cc8a8c20a8d298e9cef53172ae77a00ecaefb8aee29931c7266f68292d2e9"
+      },
+      {
+        "id": 5,
+        "bytes": 7,
+        "sha256": "b6835f0315b67a0a457f128ac046e8853bd90b57c88f3f8bd28b7ce514cc37c7"
+      },
+      {
+        "id": 6,
+        "bytes": 14,
+        "sha256": "d199aba5d8f3c3b17628a91c1f3004cf1ca66c7a7c2d150c6e9d2f95d03e3387"
+      },
+      {
+        "id": 7,
+        "bytes": 123,
+        "sha256": "a2bac04221a19941e95b75c0e801871523a4576f9e561710f8f5a6035b8dd4be"
+      },
+      {
+        "id": 9,
+        "bytes": 2299,
+        "sha256": "8afab5cff9036f82662526a93b29b59654b9c4a83262e4765408f2ec6b53753d"
+      },
+      {
+        "id": 10,
+        "bytes": 885987,
+        "sha256": "e1c0d645fb32d85eaae8cf87a069ca34c5b9189d451a3f0e3385b3a7b0389023"
+      },
+      {
+        "id": 11,
+        "bytes": 174802,
+        "sha256": "531886070fe3cf92b95f114997d61a882645e04f52faadbf506ac432b8fcb50a"
+      }
+    ],
+    "rebuilt_core_sections": [
+      {
+        "id": 1,
+        "bytes": 784,
+        "sha256": "26f2a42c2a9a1a7732ee62dced47707c3bdd7953495811a914ef7c92337b399b"
+      },
+      {
+        "id": 2,
+        "bytes": 486,
+        "sha256": "dbd24d12437e5ba868fdfac6075a90b4f6fba2b5bb71ac924519ec4d1de86e88"
+      },
+      {
+        "id": 3,
+        "bytes": 1321,
+        "sha256": "311557c7a37ea3256b218c5c0e085c6944f8828c7b9b567303833f4eec42cd1e"
+      },
+      {
+        "id": 4,
+        "bytes": 7,
+        "sha256": "385cc8a8c20a8d298e9cef53172ae77a00ecaefb8aee29931c7266f68292d2e9"
+      },
+      {
+        "id": 5,
+        "bytes": 7,
+        "sha256": "b6835f0315b67a0a457f128ac046e8853bd90b57c88f3f8bd28b7ce514cc37c7"
+      },
+      {
+        "id": 6,
+        "bytes": 14,
+        "sha256": "d199aba5d8f3c3b17628a91c1f3004cf1ca66c7a7c2d150c6e9d2f95d03e3387"
+      },
+      {
+        "id": 7,
+        "bytes": 123,
+        "sha256": "a2bac04221a19941e95b75c0e801871523a4576f9e561710f8f5a6035b8dd4be"
+      },
+      {
+        "id": 9,
+        "bytes": 2299,
+        "sha256": "8afab5cff9036f82662526a93b29b59654b9c4a83262e4765408f2ec6b53753d"
+      },
+      {
+        "id": 10,
+        "bytes": 885987,
+        "sha256": "e1c0d645fb32d85eaae8cf87a069ca34c5b9189d451a3f0e3385b3a7b0389023"
+      },
+      {
+        "id": 11,
+        "bytes": 174802,
+        "sha256": "531886070fe3cf92b95f114997d61a882645e04f52faadbf506ac432b8fcb50a"
+      }
+    ],
+    "core_section_payloads_identical": true,
+    "canonical_module_byte_identical": true,
+    "import_export_interface_identical": true
+  },
+  "installed_origin": {
+    "path": "@oai/browser-desktop/scripts/zxing_reader.wasm",
+    "bytes": 1065866,
+    "sha256": "0e8d688d71932ebb6b8b33f700d43d3cb997f59ed9cab3c05102d7f10288a392"
+  },
+  "original_matches_installed": true
+}

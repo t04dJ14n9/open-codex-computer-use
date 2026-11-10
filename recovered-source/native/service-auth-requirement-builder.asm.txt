@@ -1,0 +1,135 @@
+
+work/native-analysis/SkyComputerUseService:	file format mach-o arm64
+
+Disassembly of section __TEXT,__text:
+
+0000000100002860 <__text>:
+100180b2c: d10243ff    	sub	sp, sp, #0x90
+100180b30: f9001bfc    	str	x28, [sp, #0x30]
+100180b34: a9046bfb    	stp	x27, x26, [sp, #0x40]
+100180b38: a90563f9    	stp	x25, x24, [sp, #0x50]
+100180b3c: a9065bf7    	stp	x23, x22, [sp, #0x60]
+100180b40: a9074ff4    	stp	x20, x19, [sp, #0x70]
+100180b44: a9087bfd    	stp	x29, x30, [sp, #0x80]
+100180b48: 910203fd    	add	x29, sp, #0x80
+100180b4c: f9400817    	ldr	x23, [x0, #0x10]
+100180b50: 90009454    	adrp	x20, 0x101408000 <_xpc_pipe_simpleroutine+0x101408000>
+100180b54: f9443694    	ldr	x20, [x20, #0x868]
+100180b58: b4000e17    	cbz	x23, 0x100180d18 <__text+0x17e4b8>
+100180b5c: aa0003f3    	mov	x19, x0
+100180b60: f9000bf5    	str	x21, [sp, #0x10]
+100180b64: f9001ff4    	str	x20, [sp, #0x38]
+100180b68: 9100e3f4    	add	x20, sp, #0x38
+100180b6c: 52800000    	mov	w0, #0x0                ; =0
+100180b70: aa1703e1    	mov	x1, x23
+100180b74: 52800002    	mov	w2, #0x0                ; =0
+100180b78: 97fee807    	bl	0x10013ab94 <__text+0x138334>
+100180b7c: f9401ff4    	ldr	x20, [sp, #0x38]
+100180b80: 9100e260    	add	x0, x19, #0x38
+100180b84: 39408268    	ldrb	w8, [x19, #0x20]
+100180b88: 92800009    	mov	x9, #-0x1               ; =-1
+100180b8c: 9ac82128    	lsl	x8, x9, x8
+100180b90: aa2803e1    	mvn	x1, x8
+100180b94: f90017e0    	str	x0, [sp, #0x28]
+100180b98: 943e1ae3    	bl	0x101107724 <_xpc_pipe_simpleroutine+0x101107724>
+100180b9c: aa0003f8    	mov	x24, x0
+100180ba0: d280001c    	mov	x28, #0x0               ; =0
+100180ba4: 91010268    	add	x8, x19, #0x40
+100180ba8: a901dfe8    	stp	x8, x23, [sp, #0x18]
+100180bac: 5280002a    	mov	w10, #0x1               ; =1
+100180bb0: 1400000a    	b	0x100180bd8 <__text+0x17e378>
+100180bb4: dac00108    	rbit	x8, x8
+100180bb8: dac01108    	clz	x8, x8
+100180bbc: 927ae309    	and	x9, x24, #0x7fffffffffffffc0
+100180bc0: aa09011a    	orr	x26, x8, x9
+100180bc4: f94013f7    	ldr	x23, [sp, #0x20]
+100180bc8: 9100079c    	add	x28, x28, #0x1
+100180bcc: aa1a03f8    	mov	x24, x26
+100180bd0: eb17039f    	cmp	x28, x23
+100180bd4: 54000a00    	b.eq	0x100180d14 <__text+0x17e4b4>
+100180bd8: b7f80b38    	tbnz	x24, #0x3f, 0x100180d3c <__text+0x17e4dc>
+100180bdc: 39408268    	ldrb	w8, [x19, #0x20]
+100180be0: 9ac82148    	lsl	x8, x10, x8
+100180be4: eb08031f    	cmp	x24, x8
+100180be8: 54000aaa    	b.ge	0x100180d3c <__text+0x17e4dc>
+100180bec: d346ff16    	lsr	x22, x24, #6
+100180bf0: f94017e8    	ldr	x8, [sp, #0x28]
+100180bf4: f8767908    	ldr	x8, [x8, x22, lsl #3]
+100180bf8: 9ad8215b    	lsl	x27, x10, x24
+100180bfc: ea1b011f    	tst	x8, x27
+100180c00: 54000a00    	b.eq	0x100180d40 <__text+0x17e4e0>
+100180c04: b9402679    	ldr	w25, [x19, #0x24]
+100180c08: f9401a68    	ldr	x8, [x19, #0x30]
+100180c0c: 8b181108    	add	x8, x8, x24, lsl #4
+100180c10: a9400500    	ldp	x0, x1, [x8]
+100180c14: 943e14ee    	bl	0x101105fcc <_xpc_pipe_simpleroutine+0x101105fcc>
+100180c18: f9001ff4    	str	x20, [sp, #0x38]
+100180c1c: a9412297    	ldp	x23, x8, [x20, #0x10]
+100180c20: 910006fa    	add	x26, x23, #0x1
+100180c24: eb4806ff    	cmp	x23, x8, lsr #1
+100180c28: 54000602    	b.hs	0x100180ce8 <__text+0x17e488>
+100180c2c: f9000a9a    	str	x26, [x20, #0x10]
+100180c30: 8b171288    	add	x8, x20, x23, lsl #4
+100180c34: a9020500    	stp	x0, x1, [x8, #0x20]
+100180c38: 39408268    	ldrb	w8, [x19, #0x20]
+100180c3c: 5280002a    	mov	w10, #0x1               ; =1
+100180c40: 9ac8215a    	lsl	x26, x10, x8
+100180c44: eb1a031f    	cmp	x24, x26
+100180c48: 540007ea    	b.ge	0x100180d44 <__text+0x17e4e4>
+100180c4c: f94017e8    	ldr	x8, [sp, #0x28]
+100180c50: f8767908    	ldr	x8, [x8, x22, lsl #3]
+100180c54: ea1b011f    	tst	x8, x27
+100180c58: 54000780    	b.eq	0x100180d48 <__text+0x17e4e8>
+100180c5c: b9402669    	ldr	w9, [x19, #0x24]
+100180c60: 6b09033f    	cmp	w25, w9
+100180c64: 54000741    	b.ne	0x100180d4c <__text+0x17e4ec>
+100180c68: 92401709    	and	x9, x24, #0x3f
+100180c6c: 9280002b    	mov	x11, #-0x2              ; =-2
+100180c70: 9ac92169    	lsl	x9, x11, x9
+100180c74: ea090108    	ands	x8, x8, x9
+100180c78: 54fff9e1    	b.ne	0x100180bb4 <__text+0x17e354>
+100180c7c: 9100ff48    	add	x8, x26, #0x3f
+100180c80: d346fd08    	lsr	x8, x8, #6
+100180c84: d37ae6db    	lsl	x27, x22, #6
+100180c88: 910006c9    	add	x9, x22, #0x1
+100180c8c: a941dfea    	ldp	x10, x23, [sp, #0x18]
+100180c90: 8b160d4a    	add	x10, x10, x22, lsl #3
+100180c94: eb08013f    	cmp	x9, x8
+100180c98: 540001c2    	b.hs	0x100180cd0 <__text+0x17e470>
+100180c9c: f8408556    	ldr	x22, [x10], #0x8
+100180ca0: 9101037b    	add	x27, x27, #0x40
+100180ca4: 91000529    	add	x9, x9, #0x1
+100180ca8: b4ffff76    	cbz	x22, 0x100180c94 <__text+0x17e434>
+100180cac: aa1803e0    	mov	x0, x24
+100180cb0: aa1903e1    	mov	x1, x25
+100180cb4: 52800002    	mov	w2, #0x0                ; =0
+100180cb8: 97fc2601    	bl	0x10008a4bc <__text+0x87c5c>
+100180cbc: 5280002a    	mov	w10, #0x1               ; =1
+100180cc0: dac002c8    	rbit	x8, x22
+100180cc4: dac01108    	clz	x8, x8
+100180cc8: 8b1b011a    	add	x26, x8, x27
+100180ccc: 17ffffbf    	b	0x100180bc8 <__text+0x17e368>
+100180cd0: aa1803e0    	mov	x0, x24
+100180cd4: aa1903e1    	mov	x1, x25
+100180cd8: 52800002    	mov	w2, #0x0                ; =0
+100180cdc: 97fc25f8    	bl	0x10008a4bc <__text+0x87c5c>
+100180ce0: 5280002a    	mov	w10, #0x1               ; =1
+100180ce4: 17ffffb9    	b	0x100180bc8 <__text+0x17e368>
+100180ce8: f100051f    	cmp	x8, #0x1
+100180cec: 1a9f97e8    	cset	w8, hi
+100180cf0: 9100e3f4    	add	x20, sp, #0x38
+100180cf4: a90003e1    	stp	x1, x0, [sp]
+100180cf8: aa0803e0    	mov	x0, x8
+100180cfc: aa1a03e1    	mov	x1, x26
+100180d00: 52800022    	mov	w2, #0x1                ; =1
+100180d04: 97fee7a4    	bl	0x10013ab94 <__text+0x138334>
+100180d08: a94003e1    	ldp	x1, x0, [sp]
+100180d0c: f9401ff4    	ldr	x20, [sp, #0x38]
+100180d10: 17ffffc7    	b	0x100180c2c <__text+0x17e3cc>
+100180d14: f9400bf5    	ldr	x21, [sp, #0x10]
+100180d18: aa1403e0    	mov	x0, x20
+100180d1c: a9487bfd    	ldp	x29, x30, [sp, #0x80]
+100180d20: a9474ff4    	ldp	x20, x19, [sp, #0x70]
+100180d24: a9465bf7    	ldp	x23, x22, [sp, #0x60]
+100180d28: a94563f9    	ldp	x25, x24, [sp, #0x50]
+100180d2c: a9446bfb    	ldp	x27, x26, [sp, #0x40]

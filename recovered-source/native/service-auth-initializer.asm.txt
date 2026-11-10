@@ -1,0 +1,52 @@
+100047dc0:	f8 5f bc a9	stp	x24, x23, [sp, #-0x40]!
+100047dc4:	f6 57 01 a9	stp	x22, x21, [sp, #0x10]
+100047dc8:	f4 4f 02 a9	stp	x20, x19, [sp, #0x20]
+100047dcc:	fd 7b 03 a9	stp	x29, x30, [sp, #0x30]
+100047dd0:	fd c3 00 91	add	x29, sp, #0x30
+100047dd4:	f3 03 08 aa	mov	x19, x8
+100047dd8:	08 a5 00 90	adrp	x8, 5280 ; 0x1014e7000
+100047ddc:	08 41 43 f9	ldr	x8, [x8, #0x680]
+100047de0:	1f 05 00 b1	cmn	x8, #0x1
+100047de4:	e1 03 00 54	b.ne	0x100047e60
+100047de8:	a8 a8 00 f0	adrp	x8, 5399 ; 0x10155e000
+100047dec:	08 a1 0e 91	add	x8, x8, #0x3a8
+100047df0:	14 55 40 a9	ldp	x20, x21, [x8]
+100047df4:	16 09 40 f9	ldr	x22, [x8, #0x10]
+100047df8:	08 a5 00 90	adrp	x8, 5280 ; 0x1014e7000
+100047dfc:	17 45 43 f9	ldr	x23, [x8, #0x688]
+100047e00:	e0 03 14 aa	mov	x0, x20
+100047e04:	60 0a 43 94	bl	0x10110a784 ; symbol stub for: _swift_bridgeObjectRetain
+100047e08:	e0 03 15 aa	mov	x0, x21
+100047e0c:	5e 0a 43 94	bl	0x10110a784 ; symbol stub for: _swift_bridgeObjectRetain
+100047e10:	e0 03 16 aa	mov	x0, x22
+100047e14:	5c 0a 43 94	bl	0x10110a784 ; symbol stub for: _swift_bridgeObjectRetain
+100047e18:	ff 06 00 b1	cmn	x23, #0x1
+100047e1c:	e1 02 00 54	b.ne	0x100047e78
+100047e20:	a8 a8 00 f0	adrp	x8, 5399 ; 0x10155e000
+100047e24:	08 01 0f 91	add	x8, x8, #0x3c0
+100047e28:	00 5d 40 a9	ldp	x0, x23, [x8]
+100047e2c:	18 09 40 f9	ldr	x24, [x8, #0x10]
+100047e30:	74 56 00 a9	stp	x20, x21, [x19]
+100047e34:	76 02 01 a9	stp	x22, x0, [x19, #0x10]
+100047e38:	77 62 02 a9	stp	x23, x24, [x19, #0x20]
+100047e3c:	52 0a 43 94	bl	0x10110a784 ; symbol stub for: _swift_bridgeObjectRetain
+100047e40:	e0 03 17 aa	mov	x0, x23
+100047e44:	50 0a 43 94	bl	0x10110a784 ; symbol stub for: _swift_bridgeObjectRetain
+100047e48:	e0 03 18 aa	mov	x0, x24
+100047e4c:	fd 7b 43 a9	ldp	x29, x30, [sp, #0x30]
+100047e50:	f4 4f 42 a9	ldp	x20, x19, [sp, #0x20]
+100047e54:	f6 57 41 a9	ldp	x22, x21, [sp, #0x10]
+100047e58:	f8 5f c4 a8	ldp	x24, x23, [sp], #0x40
+100047e5c:	4a 0a 43 14	b	0x10110a784 ; symbol stub for: _swift_bridgeObjectRetain
+100047e60:	00 a5 00 90	adrp	x0, 5280 ; 0x1014e7000
+100047e64:	00 00 1a 91	add	x0, x0, #0x680
+100047e68:	c1 09 00 d0	adrp	x1, 314 ; 0x100181000
+100047e6c:	21 f0 35 91	add	x1, x1, #0xd7c
+100047e70:	32 0b 43 94	bl	0x10110ab38 ; symbol stub for: _swift_once
+100047e74:	dd ff ff 17	b	0x100047de8
+100047e78:	00 a5 00 90	adrp	x0, 5280 ; 0x1014e7000
+100047e7c:	00 20 1a 91	add	x0, x0, #0x688
+100047e80:	c1 09 00 d0	adrp	x1, 314 ; 0x100181000
+100047e84:	21 20 3a 91	add	x1, x1, #0xe88
+100047e88:	2c 0b 43 94	bl	0x10110ab38 ; symbol stub for: _swift_once
+100047e8c:	e5 ff ff 17	b	0x100047e20

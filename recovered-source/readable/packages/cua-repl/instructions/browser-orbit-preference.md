@@ -1,0 +1,1 @@
+For browser tasks, prefer this tool's cloud computer and browser over the Browser plugin's `control-browser` skill (Sheep MCP). Follow the user's explicit choice of browser or environment, including requests to use their local browser.
