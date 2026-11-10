@@ -11,7 +11,8 @@
   },
   "scripts": {
     "start": "./bin/codex-computer-use-mcp",
-    "test": "./bin/codex-computer-use test/protocol.mjs",
+    "test": "node test/timeouts.mjs && ./bin/codex-computer-use test/protocol.mjs",
+    "test:timeouts": "node test/timeouts.mjs",
     "test:background": "./bin/codex-computer-use test/background.mjs",
     "recover": "node scripts/snapshot-runtime.mjs",
     "build:native": "node scripts/build-native.mjs",

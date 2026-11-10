@@ -3,6 +3,7 @@ import { StdioClientTransport } from "@modelcontextprotocol/client/stdio";
 import path from "node:path";
 import { homedir } from "node:os";
 import { runtimeEnvironment, signedNode } from "./config.mjs";
+import { timeouts, clampTimeout, TIMEOUT_ENV_KEYS } from "./timeouts.mjs";
 
 export class NativeHost {
   constructor({ cwd = process.cwd() } = {}) {
@@ -36,6 +37,7 @@ export class NativeHost {
       "HOME", "LOGNAME", "PATH", "SHELL", "TERM", "USER", "TMPDIR",
       "CUA_REPL_ENABLED_SURFACES", "NODE_REPL_NODE_MODULE_DIRS", "NODE_REPL_NODE_PATH",
       "NODE_REPL_TRUSTED_CODE_PATHS", "SKY_CUA_SERVICE_PATH", "NODE_REPL_DISABLE_ANALYTICS",
+      ...TIMEOUT_ENV_KEYS,
     ].includes(key)));
     const transport = new StdioClientTransport({
       command: signedNode,
@@ -58,12 +60,13 @@ export class NativeHost {
   }
 
   execute(code, options = {}) {
+    const effective = clampTimeout(options.timeoutMs ?? timeouts.jsMs);
     const task = async () => {
       await this.connect();
       const result = await this.client.callTool({
-        name: "js", arguments: { code, timeout_ms: options.timeoutMs ?? 30000 },
+        name: "js", arguments: { code, timeout_ms: effective },
         ...(options.requestMeta ? { _meta: options.requestMeta } : {}),
-      }, { timeout: (options.timeoutMs ?? 30000) + 10000, signal: options.signal });
+      }, { timeout: effective + 10000, signal: options.signal });
       return {
         ...result,
         content: result.content.filter((item) => item.type !== "text" || !item.text.startsWith("## Computer Use\n")),

@@ -5,6 +5,7 @@ import { spawn } from "node:child_process";
 import { existsSync } from "node:fs";
 import { createInterface } from "node:readline";
 import { helperPath, root, helperSpec } from "./config.mjs";
+import { timeouts, clampTimeout } from "./timeouts.mjs";
 
 export const METHODS = [
   "list_apps", "get_app_state", "screenshot", "click", "drag", "paste",
@@ -33,7 +34,7 @@ function cancelRequest(id, reason) {
   const request = pending.get(id);
   if (!request || request.cancelTimer) return;
   sendCancel(id);
-  request.cancelTimer = setTimeout(() => { void closeHelper(reason); }, 1000);
+  request.cancelTimer = setTimeout(() => { void closeHelper(reason); }, timeouts.cancelGraceMs);
 }
 
 function ensureHelper() {
@@ -81,14 +82,18 @@ function fail(error, owner) {
   }
 }
 
-export function nativeRequest(method, params = {}, { signal } = {}) {
+export function nativeRequest(method, params = {}, { signal, timeoutMs } = {}) {
   if (signal?.aborted) return Promise.reject(new Error("Native call cancelled"));
   if (!METHODS.includes(method)) return Promise.reject(new Error(`Unsupported helper operation: ${method}`));
   ensureHelper();
+  const deadline = clampTimeout(timeoutMs ?? params.timeout_ms ?? timeouts.nativeMs);
   const id = ++sequence;
   return new Promise((resolve, reject) => {
     const abort = () => cancelRequest(id, `Native ${method} call cancelled`);
-    const timer = setTimeout(() => cancelRequest(id, `Native ${method} exceeded 30 seconds`), 30000);
+    const timer = setTimeout(
+      () => cancelRequest(id, `Native ${method} exceeded ${deadline} ms (configure COMPUTER_USE_TIMEOUT_MS or pass timeout_ms)`),
+      deadline,
+    );
     const request = { resolve, reject, timer, cancelTimer: null, owner: child, signal, abort };
     pending.set(id, request);
     signal?.addEventListener("abort", abort, { once: true });

@@ -6,9 +6,10 @@ import path from "node:path";
 import { createInterface } from "node:readline";
 import { fileURLToPath } from "node:url";
 import { kernelRoot, runtimeEnvironment, nodeBinary } from "./config.mjs";
+import { timeouts, clampTimeout } from "./timeouts.mjs";
 
 export class KernelHost {
-  constructor({ approval, cwd = process.cwd(), timeoutMs = 30000 } = {}) {
+  constructor({ approval, cwd = process.cwd(), timeoutMs = timeouts.jsMs } = {}) {
     this.cwd = cwd;
     this.approval = approval;
     this.timeoutMs = timeoutMs;
@@ -65,7 +66,8 @@ export class KernelHost {
   }
 
   execute(code, { timeoutMs = this.timeoutMs, requestMeta = null, signal } = {}) {
-    const task = () => this.run(code, { timeoutMs, requestMeta, signal });
+    const effective = clampTimeout(timeoutMs);
+    const task = () => this.run(code, { timeoutMs: effective, requestMeta, signal });
     const result = this.queue.then(task, task);
     this.queue = result.catch(() => {});
     return result;

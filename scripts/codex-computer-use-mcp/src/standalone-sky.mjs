@@ -3,6 +3,7 @@ import { existsSync } from "node:fs";
 import { createInterface } from "node:readline";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
+import { timeouts, clampTimeout, timeoutSummary } from "./timeouts.mjs";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const helperPath = process.env.CODEX_CUA_HELPER || path.join(root, "build/Codex Computer Use Standalone.app/Contents/MacOS/ComputerUse");
@@ -26,7 +27,7 @@ function cancelRequest(id, reason) {
   const request = pending.get(id);
   if (!request || request.cancelTimer) return;
   sendCancel(id);
-  request.cancelTimer = setTimeout(() => { void closeHelper(reason); }, 1000);
+  request.cancelTimer = setTimeout(() => { void closeHelper(reason); }, timeouts.cancelGraceMs);
 }
 
 function ensureHelper() {
@@ -67,14 +68,18 @@ function fail(error, owner) {
   }
 }
 
-export function nativeRequest(method, params = {}, { signal } = {}) {
+export function nativeRequest(method, params = {}, { signal, timeoutMs } = {}) {
   if (signal?.aborted) return Promise.reject(new Error("Native call cancelled"));
   ensureHelper();
+  const deadline = clampTimeout(timeoutMs ?? timeouts.nativeMs);
   const id = ++sequence;
   return new Promise((resolve, reject) => {
     const reason = `Native ${method} call cancelled`;
     const abort = () => cancelRequest(id, reason);
-    const timer = setTimeout(() => cancelRequest(id, `Native ${method} exceeded 30 seconds`), 30000);
+    const timer = setTimeout(
+      () => cancelRequest(id, `Native ${method} exceeded ${deadline} ms (configure CODEX_CUA_NATIVE_TIMEOUT_MS or pass timeout_ms)`),
+      deadline,
+    );
     const request = { resolve, reject, timer, cancelTimer: null, owner: child, signal, abort };
     pending.set(id, request);
     signal?.addEventListener("abort", abort, { once: true });
@@ -91,9 +96,14 @@ export function nativeRequest(method, params = {}, { signal } = {}) {
 }
 
 export async function handleRpc(request) {
-  if (request.type === "setup") return { target: "mac", methods };
+  if (request.type === "setup") return { target: "mac", methods, timeouts: timeoutSummary() };
   if (request.type !== "execute" || !methods.includes(request.method)) throw new Error("Unsupported standalone computer operation");
-  return nativeRequest(request.method, request.args?.[0] ?? {});
+  const params = request.args?.[0] ?? {};
+  // A per-call `timeout_ms` travels inside the params object; the native
+  // Swift helper ignores unknown params, and the bridge uses it as its
+  // deadline instead of the configured default.
+  const timeoutMs = request.timeout_ms ?? params.timeout_ms;
+  return nativeRequest(request.method, params, { timeoutMs });
 }
 
 export async function closeHelper(reason = "Native helper closed") {

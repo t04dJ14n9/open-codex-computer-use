@@ -26,6 +26,13 @@ registered in `~/.dsh/cordis.patch.yml`, and its tools are named
 Read [references/dsh.md](references/dsh.md) for DSH installation and
 verification; the CLI remains the fallback when MCP tools are unavailable.
 
+The native bridge and JavaScript deadlines default to 30 s and are configurable
+via `CODEX_CUA_TIMEOUT_MS` (master) or layer-specific env vars, plus a per-call
+`timeout_ms` on `computer`/`js` for slow apps with large accessibility trees.
+`status` reports the effective values. See
+[references/setup.md](references/setup.md#configurable-timeouts). Raising these
+requires restarting the MCP session; it does not require rebuilding the helper.
+
 ## Observe And Act
 
 For a task using this skill, keep UI interaction in the bundled MCP/CLI rather

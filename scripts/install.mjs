@@ -10,14 +10,21 @@ const args = process.argv.slice(2);
 let claude;
 let codex = false;
 let dsh = false;
+let timeoutMs = process.env.CUA_TIMEOUT_MS ?? null;
 for (let i = 0; i < args.length; i++) {
   if (args[i] === "--claude" && args[i + 1] && !args[i + 1].startsWith("--")) claude = args[++i];
   else if (args[i] === "--codex") codex = true;
   else if (args[i] === "--dsh") dsh = true;
+  else if (args[i] === "--timeout-ms" && args[i + 1] && !args[i + 1].startsWith("--")) timeoutMs = args[++i];
   else if (args[i] === "--help") {
-    console.log("Usage: node scripts/install.mjs [--claude claude] [--codex] [--dsh]\nLinks this skill into selected profiles. Claude and DSH also receive a codex-computer-use MCP registration; Claude gets four tool grants. Existing configuration is backed up locally.");
+    console.log("Usage: node scripts/install.mjs [--claude claude] [--codex] [--dsh] [--timeout-ms N]\nLinks this skill into selected profiles. Claude and DSH also receive a codex-computer-use MCP registration; Claude gets four tool grants. --timeout-ms (or CUA_TIMEOUT_MS) writes CODEX_CUA_TIMEOUT_MS into the MCP server env, raising the default 30 s deadline for slow apps. Existing configuration is backed up locally.");
     process.exit(0);
   } else throw new Error(`Unknown or incomplete option: ${args[i]}`);
+}
+if (timeoutMs !== null) {
+  const value = Number(timeoutMs);
+  if (!Number.isInteger(value) || value < 1000 || value > 3600000) throw new Error("--timeout-ms must be an integer between 1000 and 3600000");
+  timeoutMs = String(value);
 }
 if (!claude && !codex && !dsh) throw new Error("Select --claude claude, --codex, --dsh, or a combination.");
 const check = spawnSync(process.execPath, [path.join(root, "scripts/setup.mjs"), "--check"], { stdio: "inherit" });
@@ -77,7 +84,10 @@ if (claude) {
   for (const [file, label] of [[configFile, "claude-user-config.json"], [settingsFile, "settings.local.json"]]) {
     if (await present(file)) await copyFile(file, path.join(backup, label));
   }
-  config.mcpServers["codex-computer-use"] = { type: "stdio", command: launcher, args: ["mcp"], env: { CODEX_CUA_BACKEND: "standalone" } };
+  config.mcpServers["codex-computer-use"] = {
+    type: "stdio", command: launcher, args: ["mcp"],
+    env: { CODEX_CUA_BACKEND: "standalone", ...(timeoutMs ? { CODEX_CUA_TIMEOUT_MS: timeoutMs } : {}) },
+  };
   settings.permissions.allow = [...new Set([...allow, ...["computer", "js", "js_reset", "status"].map(tool => `mcp__codex-computer-use__${tool}`)])];
   await mkdir(path.dirname(configFile), { recursive: true });
   await mkdir(configRoot, { recursive: true });
@@ -113,6 +123,7 @@ if (dsh) {
     "          - mcp",
     "        env:",
     "          CODEX_CUA_BACKEND: standalone",
+    ...(timeoutMs ? [`          CODEX_CUA_TIMEOUT_MS: ${quote(timeoutMs)}`] : []),
     "# === codex-computer-use MCP END ===",
   ].join("\n") + "\n";
   if (existing.includes(marker)) {

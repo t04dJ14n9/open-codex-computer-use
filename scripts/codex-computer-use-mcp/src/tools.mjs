@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { runtimeStatus } from "./config.mjs";
 import { nativeRequest } from "./standalone-sky.mjs";
+import { timeouts, clampTimeout } from "./timeouts.mjs";
 
 export const computerActions = [
   "list_apps", "get_app_state", "screenshot", "click", "press_key", "type_text",
@@ -25,11 +26,15 @@ export const computerSchema = z.object({
   selection_type: z.enum(["text", "cursor_before", "cursor_after"]).optional(),
   secondary_action: z.string().optional().describe("Exact secondary action name from the tree"),
   disableDiff: z.boolean().optional(),
+  timeout_ms: z.number().int().min(1000).max(timeouts.maxMs).optional()
+    .describe("Per-call deadline in ms for slow apps; overrides CODEX_CUA_TIMEOUT_MS for this call"),
 });
 
 export const jsSchema = z.object({
   code: z.string(), title: z.string().optional(),
-  timeout_ms: z.number().int().min(100).max(120000).optional(),
+  // 100 ms minimum is intentional: short deadlines are useful for testing
+  // cancellation without waiting for the configured default.
+  timeout_ms: z.number().int().min(100).max(timeouts.maxMs).optional(),
 });
 
 export const jsDescription = `Run JavaScript in a persistent Codex computer-use runtime on macOS.
@@ -70,7 +75,7 @@ export async function callTool(host, name, input, options = {}) {
           const request = { type: "execute", method: "permissionStatus", args: [{}] };
           const result = await host.execute(
             `nodeRepl.write(JSON.stringify(await nodeRepl.rpc("sky",${JSON.stringify(request)})));`,
-            { ...options, timeoutMs: Math.min(options.timeoutMs ?? 10000, 10000) },
+            { ...options, timeoutMs: timeouts.statusMs },
           );
           const output = result.content.filter((item) => item.type === "text").map((item) => item.text).join("\n");
           if (result.isError) throw new Error(output);
@@ -86,12 +91,13 @@ export async function callTool(host, name, input, options = {}) {
   if (name === "js_reset") { await host.reset(); return textResult("JavaScript session reset"); }
   if (name === "js") {
     const parsed = jsSchema.parse(input);
-    return host.execute(parsed.code, { ...options, ...(parsed.timeout_ms ? { timeoutMs: parsed.timeout_ms } : {}) });
+    return host.execute(parsed.code, { ...options, ...(parsed.timeout_ms ? { timeoutMs: clampTimeout(parsed.timeout_ms) } : {}) });
   }
   if (name !== "computer") throw new Error(`Unknown tool: ${name}`);
   const parsed = computerSchema.parse(input);
   validateComputerInput(parsed);
-  return host.execute(computerCode(parsed), options);
+  const effective = clampTimeout(parsed.timeout_ms ?? timeouts.jsMs);
+  return host.execute(computerCode(parsed, effective), { ...options, timeoutMs: effective });
 }
 
 export function validateComputerInput(input) {
@@ -110,22 +116,25 @@ export function validateComputerInput(input) {
   }
 }
 
-export function computerCode(input) {
+export function computerCode(input, timeoutMs = timeouts.jsMs) {
   const app = input.window_id ? `${input.app}#window=${input.window_id}` : input.app;
+  // `timeout_ms` travels inside the RPC params; the native helper ignores
+  // unknown keys and the bridge reads it to set its own request deadline.
+  const withTimeout = params => ({ ...params, timeout_ms: timeoutMs });
   if (input.action === "list_apps") {
-    return "nodeRepl.write(JSON.stringify(await cua.computer.list_apps(),null,2));";
+    return `nodeRepl.write(JSON.stringify(await cua.computer.list_apps(${JSON.stringify(withTimeout({}))}),null,2));`;
   }
   if (input.action === "get_app_state") {
-    return `var __codexComputerState = await cua.computer.get_app_state(${JSON.stringify({ app, disableDiff: input.disableDiff ?? true })}); nodeRepl.write(__codexComputerState.text);`;
+    return `var __codexComputerState = await cua.computer.get_app_state(${JSON.stringify(withTimeout({ app, disableDiff: input.disableDiff ?? true }))}); nodeRepl.write(__codexComputerState.text);`;
   }
   if (input.action === "screenshot") {
-    return `var __codexComputerState = await cua.computer.get_app_state(${JSON.stringify({ app })}); if (!__codexComputerState.screenshot) throw new Error("Screenshot unavailable; check Screen Recording permission"); await nodeRepl.emitImage(__codexComputerState.screenshot.url);`;
+    return `var __codexComputerState = await cua.computer.get_app_state(${JSON.stringify(withTimeout({ app }))}); if (!__codexComputerState.screenshot) throw new Error("Screenshot unavailable; check Screen Recording permission"); await nodeRepl.emitImage(__codexComputerState.screenshot.url);`;
   }
-  const { action, secondary_action, window_id, ...params } = input;
+  const { action, secondary_action, window_id, timeout_ms: _ignored, ...params } = input;
   params.app = app;
   if (action === "paste") params.format ??= "text";
   if (action === "perform_secondary_action") params.action = secondary_action;
-  return `await cua.computer[${JSON.stringify(action)}](${JSON.stringify(params)}); nodeRepl.write("Done");`;
+  return `await cua.computer[${JSON.stringify(action)}](${JSON.stringify(withTimeout(params))}); nodeRepl.write("Done");`;
 }
 
 export function textResult(value) {

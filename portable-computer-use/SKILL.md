@@ -114,6 +114,12 @@ screenshots, clicks and typing. Private window/focus APIs are
 capability-checked and version-sensitive. App-defined AX actions can have
 semantic focus effects that cannot be inferred universally.
 
+**Timeouts:** the native helper and JavaScript deadlines default to 30 s and
+are configurable via `COMPUTER_USE_TIMEOUT_MS` (master) or layer-specific env
+vars, plus a per-call `timeout_ms` on `computer`/`js` for apps with large
+accessibility trees. `status` reports the effective values. Raising them needs
+a session restart, not a rebuild. See [README.md](README.md#configurable-timeouts).
+
 **Platform:** macOS, Windows and Linux (X11 and Wayland) backends ship. Check
 `status` first: it reports `backendStatus`, `nativeBackend` and the helper's
 `permissions`, which are the authoritative capabilities (derived from probed

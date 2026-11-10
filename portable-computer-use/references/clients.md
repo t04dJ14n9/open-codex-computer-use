@@ -67,6 +67,12 @@ Environment overrides for isolated testing (and for nonstandard installs):
 | `COMPUTER_USE_HELPER` | Alternate helper executable |
 | `COMPUTER_USE_HELPER_ARGS` | Args for that executable (JSON array, e.g. a Python script) |
 | `COMPUTER_USE_PYTHON` | Python interpreter for the Windows/Linux helper |
+| `COMPUTER_USE_TIMEOUT_MS` | Master default (ms) for the helper + JS deadlines; restart the session after changing |
+| `COMPUTER_USE_NATIVE_TIMEOUT_MS` | Helper request deadline (ms); overrides the master |
+| `COMPUTER_USE_JS_TIMEOUT_MS` | JavaScript execution deadline (ms); overrides the master |
+| `COMPUTER_USE_MAX_TIMEOUT_MS` | Ceiling for per-call `timeout_ms` (default 600000) |
+| `COMPUTER_USE_STATUS_TIMEOUT_MS` | Deadline for the `status` probe |
+| `COMPUTER_USE_CANCEL_GRACE_MS` | Grace before closing a cancelled helper |
 
 `--help` prints every flag and the universal snippet.
 

@@ -84,6 +84,40 @@ Do not set `CODEX_CUA_HELPER` unless selecting a verified alternate helper.
 `CODEX_CUA_VISUAL_CURSOR=0` hides the independent animated agent cursor; it does
 not change input delivery.
 
+## Configurable timeouts
+
+All bridge deadlines default to 30 s. Chromium-based apps (e.g. WeCom) can have
+a ~2,000-element AX tree that takes ~40 s to walk, so the default times out.
+Set env vars on the MCP server (or CLI) to raise them. `CODEX_CUA_TIMEOUT_MS`
+is the master default; layer-specific values override it. Both `CODEX_CUA_*`
+and `COMPUTER_USE_*` prefixes work (the latter is shared with the portable
+skill), with `CODEX_CUA_*` taking precedence.
+
+| Variable | Applies to | Default |
+| --- | --- | --- |
+| `CODEX_CUA_TIMEOUT_MS` | master default for native + JS | `30000` |
+| `CODEX_CUA_NATIVE_TIMEOUT_MS` | native helper request deadline | master |
+| `CODEX_CUA_JS_TIMEOUT_MS` | JavaScript execution deadline | master |
+| `CODEX_CUA_STATUS_TIMEOUT_MS` | `status` permission probe | `min(10000, master)` |
+| `CODEX_CUA_MAX_TIMEOUT_MS` | ceiling for per-call `timeout_ms` | `max(600000, master)` |
+| `CODEX_CUA_CANCEL_GRACE_MS` | grace before closing a cancelled helper | `1000` |
+
+For a slow app, either run `node scripts/install.mjs --dsh --timeout-ms 120000`
+(which writes `CODEX_CUA_TIMEOUT_MS` into the MCP server env, and also supports
+`--claude` / `CUA_TIMEOUT_MS`), or add
+`env: { "CODEX_CUA_TIMEOUT_MS": "120000" }` to the MCP server entry manually.
+Then **restart the MCP session** — the helper and kernel workers read the values
+at startup, and TCC/session state is tied to the running process. Values are
+integer milliseconds, clamped to 1 s..1 h; invalid values fall back with a
+stderr warning. No rebuild is needed (rebuilding the ad-hoc-signed helper would
+invalidate TCC grants).
+
+There is also a **per-call** `timeout_ms` on both `computer` and `js`, e.g.
+`{"action":"screenshot","app":"WeCom#window=17498","timeout_ms":120000}`. It
+raises that call's JS deadline and is forwarded to the native bridge; it is
+clamped to `CODEX_CUA_MAX_TIMEOUT_MS`. `status` reports the effective values
+under `timeouts` with the recognized env var names.
+
 Background mode does not launch an app that is not running. Start it through
 the user's normal app launch flow, then bind it by name, bundle ID, or path.
 Do not substitute AppleScript, System Events, or global HID input to bypass a

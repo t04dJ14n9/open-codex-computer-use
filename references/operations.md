@@ -86,11 +86,16 @@ imply support in the replacement native helper.
 CLI `js` reports image metadata rather than rendering images inline, so use
 the dedicated screenshot command and the agent's image-viewing tool when needed.
 
-MCP `js` supports `{ "code": "...", "timeout_ms": 45000 }`; the runtime is
-persistent. Use `var` for bindings you may redeclare, and `js_reset` when a
-clean runtime is necessary. An exception does not automatically clear
-bindings. Cancellation or timeout stops the helper and may require fresh state
-after the runtime restarts.
+MCP `js` supports `{ "code": "...", "timeout_ms": 45000 }`, and `computer`
+accepts the same `timeout_ms` field (for example a slow `get_app_state` or
+`screenshot` on WeCom). The runtime is persistent. `timeout_ms` is clamped to
+`CODEX_CUA_MAX_TIMEOUT_MS`; without it, the configured default
+(`CODEX_CUA_TIMEOUT_MS`, 30 s) applies to both the JavaScript execution and the
+native helper request. See [setup.md](setup.md#configurable-timeouts) for all
+env vars and the MCP-server `env` example. Use `var` for bindings you may
+redeclare, and `js_reset` when a clean runtime is necessary. An exception does
+not automatically clear bindings. Cancellation or timeout stops the helper and
+may require fresh state after the runtime restarts.
 
 ## Shipped Guidance
 

@@ -45,12 +45,36 @@ node scripts/setup.mjs --check  # validates platform, helper hashes and deps
 node scripts/verify.mjs         # skill link/config + live MCP tool handshake
 ```
 
-`npm test` runs four suites: platform detection (`test/backend.mjs`), a
-contract-compliant mock-helper seam test (`test/portable-seam.mjs`) that proves
-the JS/MCP layers are OS-independent, the real Windows/Linux Python helper with
-stubbed OS tools (`test/cross-platform-helper.mjs`), and the live macOS protocol
-test (`test/protocol.mjs`). `setup.mjs` never changes any agent configuration
+`npm test` runs six suites: timeout configuration (`test/timeouts.mjs`),
+platform detection (`test/backend.mjs`), the JS VM watchdog
+(`test/runtime-timeout.mjs`), a contract-compliant mock-helper seam test
+(`test/portable-seam.mjs`) that proves the JS/MCP layers are OS-independent,
+the real Windows/Linux Python helper with stubbed OS tools
+(`test/cross-platform-helper.mjs`), and the live macOS protocol test
+(`test/protocol.mjs`). `setup.mjs` never changes any agent configuration
 or macOS permissions.
+
+## Configurable timeouts
+
+All bridge deadlines default to 30 s. Chromium-based apps can have AX trees
+that take longer to walk; set `COMPUTER_USE_TIMEOUT_MS` (master default) or a
+layer-specific variable on the MCP server, then **restart the session** — the
+helper and runtime read them at startup. `CODEX_CUA_*` is accepted as a shared
+alias so one setting can configure either skill.
+
+| Variable | Applies to | Default |
+| --- | --- | --- |
+| `COMPUTER_USE_TIMEOUT_MS` | master default for native + JS | `30000` |
+| `COMPUTER_USE_NATIVE_TIMEOUT_MS` | helper request deadline | master |
+| `COMPUTER_USE_JS_TIMEOUT_MS` | JavaScript execution deadline | master |
+| `COMPUTER_USE_STATUS_TIMEOUT_MS` | `status` probe | `min(10000, master)` |
+| `COMPUTER_USE_MAX_TIMEOUT_MS` | ceiling for per-call `timeout_ms` | `max(600000, master)` |
+| `COMPUTER_USE_CANCEL_GRACE_MS` | grace before closing a cancelled helper | `1000` |
+
+There is also a per-call `timeout_ms` on `computer` and `js` (e.g.
+`{"action":"screenshot","app":"WeCom#window=17498","timeout_ms":120000}`),
+clamped to `COMPUTER_USE_MAX_TIMEOUT_MS`. `status` reports effective values
+under `timeouts`. No rebuild is needed.
 
 ## Install into an agent
 

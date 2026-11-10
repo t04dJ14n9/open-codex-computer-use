@@ -8,6 +8,8 @@ import {
   platformInfo,
 } from "./backend.mjs";
 
+import { timeoutSummary } from "./timeouts.mjs";
+
 export { root, helperCandidates, helperPath, helperApp, helperSpec, backendStatus };
 
 // The helper is the only platform-specific piece; helper discovery lives in
@@ -37,5 +39,6 @@ export function runtimeStatus() {
     productHostRequired: false,
     externalRuntimeRequired: false,
     portingResearch: info.portingResearch,
+    timeouts: timeoutSummary(),
   };
 }

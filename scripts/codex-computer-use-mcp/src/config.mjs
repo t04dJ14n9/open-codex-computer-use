@@ -2,6 +2,7 @@ import { existsSync, realpathSync } from "node:fs";
 import path from "node:path";
 import { homedir } from "node:os";
 import { fileURLToPath } from "node:url";
+import { TIMEOUT_ENV_KEYS, timeoutSummary } from "./timeouts.mjs";
 
 export const packageRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 export const sourcesRoot = path.resolve(process.env.CODEX_CUA_SOURCES || path.join(packageRoot, "../codex-computer-use-source"));
@@ -25,7 +26,7 @@ export function runtimeEnvironment() {
     if (!existsSync(required)) throw new Error(`Missing runtime file: ${required}. Run npm run recover from ${packageRoot}.`);
   }
   const environment = Object.fromEntries(Object.entries(process.env).filter(([key]) =>
-    ["HOME", "LOGNAME", "PATH", "SHELL", "TERM", "USER", "TMPDIR", "LANG", "LC_ALL", "LC_CTYPE", "CODEX_CUA_HELPER", "CODEX_CUA_VISUAL_CURSOR"].includes(key),
+    ["HOME", "LOGNAME", "PATH", "SHELL", "TERM", "USER", "TMPDIR", "LANG", "LC_ALL", "LC_CTYPE", "CODEX_CUA_HELPER", "CODEX_CUA_VISUAL_CURSOR", ...TIMEOUT_ENV_KEYS].includes(key),
   ));
   return {
     ...environment,
@@ -62,5 +63,6 @@ export function runtimeStatus() {
     nativeServiceReconstructed: false,
     helper: standaloneHelper, helperPresent: existsSync(standaloneHelper),
     codexServiceRequired: backend !== "standalone",
+    timeouts: timeoutSummary(),
   };
 }

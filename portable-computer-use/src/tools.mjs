@@ -3,6 +3,7 @@ import { readFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import { nativeRequest } from "./helper.mjs";
 import { runtimeStatus } from "./config.mjs";
+import { timeouts, clampTimeout } from "./timeouts.mjs";
 
 export const computerActions = [
   "list_apps", "get_app_state", "screenshot", "click", "press_key", "type_text",
@@ -28,12 +29,16 @@ export const computerSchema = z.object({
   secondary_action: z.string().optional().describe("Exact secondary action name from the tree"),
   disableDiff: z.boolean().optional(),
   allow_fullscreen: z.boolean().optional().describe("Explicitly permit a full-screen screenshot when the backend cannot scope capture to one window (Wayland). Without it such requests are refused."),
+  timeout_ms: z.number().int().min(1000).max(timeouts.maxMs).optional()
+    .describe("Per-call deadline in ms for slow apps; overrides COMPUTER_USE_TIMEOUT_MS for this call"),
 });
 
 export const jsSchema = z.object({
   code: z.string(),
   title: z.string().optional(),
-  timeout_ms: z.number().int().min(100).max(120000).optional(),
+  // 100 ms minimum is intentional: the VM watchdog regression test uses a
+  // short deadline to prove `while(true){}` is interrupted promptly.
+  timeout_ms: z.number().int().min(100).max(timeouts.maxMs).optional(),
 });
 
 export const descriptions = {
@@ -89,22 +94,24 @@ export async function callTool(runtime, name, input, options = {}) {
   }
   if (name === "js") {
     const parsed = jsSchema.parse(input);
-    return runtime.execute(parsed.code, { timeoutMs: parsed.timeout_ms ?? 120000, signal: options.signal });
+    return runtime.execute(parsed.code, { timeoutMs: clampTimeout(parsed.timeout_ms ?? timeouts.jsMs), signal: options.signal });
   }
   if (name !== "computer") throw new Error(`Unknown tool: ${name}`);
   const parsed = computerSchema.parse(input);
   validateComputerInput(parsed);
   const spec = appSpec(parsed);
+  const deadline = clampTimeout(parsed.timeout_ms ?? timeouts.nativeMs);
+  const withTimeout = params => ({ ...params, timeout_ms: deadline });
 
   if (parsed.action === "list_apps") {
-    return textResult(JSON.stringify(await nativeRequest("list_apps"), null, 2));
+    return textResult(JSON.stringify(await nativeRequest("list_apps", withTimeout({})), null, 2));
   }
   if (parsed.action === "get_app_state") {
-    const state = await nativeRequest("get_app_state", { app: spec, disableDiff: parsed.disableDiff ?? true });
+    const state = await nativeRequest("get_app_state", withTimeout({ app: spec, disableDiff: parsed.disableDiff ?? true }));
     return textResult(state.text);
   }
   if (parsed.action === "screenshot") {
-    const params = { app: spec };
+    const params = withTimeout({ app: spec });
     if (parsed.allow_fullscreen) params.allow_fullscreen = true;
     const result = await nativeRequest("screenshot", params);
     const image = await imageResult(result?.url);
@@ -114,7 +121,7 @@ export async function callTool(runtime, name, input, options = {}) {
     return image;
   }
 
-  const { action, app, window_id, secondary_action, ...params } = parsed;
+  const { action, app, window_id, secondary_action, timeout_ms: _ignored, ...params } = parsed;
   params.app = spec;
   if (action === "paste") params.format ??= "text";
   if (action === "perform_secondary_action") params.action = secondary_action;
