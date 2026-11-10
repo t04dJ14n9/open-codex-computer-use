@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 1,
+  "backend": "standalone",
+  "builtAt": "2026-11-10T06:55:07.235193Z",
+  "bundleIdentifier": "local.codex.computer-use.standalone",
+  "appPath": "build/Computer Use Helper.app",
+  "executablePath": "build/Computer Use Helper.app/Contents/MacOS/ComputerUse",
+  "sourcePath": "native/ComputerUse.swift",
+  "sourceFiles": [
+    {
+      "path": "native/ComputerUse.swift",
+      "sha256": "e693b0c75a9086f4d331daa7bed9efc6473015ef1b7536dc0d4d6f5e2e4d7a15"
+    },
+    {
+      "path": "native/BackgroundInput.swift",
+      "sha256": "df77e3ddfca114f7afe161ce59c74a61545e127715b9827ba16dbe07799685b9"
+    },
+    {
+      "path": "native/AgentCursor.swift",
+      "sha256": "b9af90c5534d3bc635f1c27dd4f66403e7606687e53fbcfb212ded8cbf7f28d3"
+    }
+  ],
+  "infoPlistPath": "native/Info.plist",
+  "architecture": "arm64",
+  "minimumSystemVersion": "14.0",
+  "signing": {
+    "identity": "ad-hoc"
+  },
+  "sha256": {
+    "source": "e693b0c75a9086f4d331daa7bed9efc6473015ef1b7536dc0d4d6f5e2e4d7a15",
+    "infoPlist": "64e07990e64983e6f1cb3f7ee59df9e7f6a845979ad0bd22b70fe78880e3b6d2",
+    "executable": "1c849978bcf81af5d8469e78a317681c4eace8495f30af2e0e89d198ef87e4d3"
+  }
+}

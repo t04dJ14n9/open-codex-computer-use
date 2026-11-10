@@ -2,6 +2,8 @@
 /.local/
 /scripts/codex-computer-use-mcp/node_modules/
 /scripts/codex-computer-use-mcp/installation-backup/
+/portable-computer-use/node_modules/
+/portable-computer-use/.local/
 /scripts/codex-computer-use-mcp/build/.native-build-*/
 *.tmp
 /references/*-smoke.jsonl
